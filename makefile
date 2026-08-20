@@ -37,3 +37,11 @@ wipe:
 # Print every index on the demo collections; diff before/after a seed.
 check-indexes:
 	cd backend && uv run python scripts/check_indexes.py
+
+# Run the FastAPI backend locally with reload.
+run-backend:
+	cd backend && uv run uvicorn main:app --reload --port 8000
+
+# Phase 2 acceptance checks. Mutates data — reseed afterwards.
+verify-phase2:
+	cd backend && uv run python scripts/verify_phase2.py
