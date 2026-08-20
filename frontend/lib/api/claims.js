@@ -10,6 +10,11 @@ export function getClaim(claimId) {
   return apiFetch(`/claims/${claimId}`);
 }
 
+/** Fraud-review history, newest first — one document per agent run. */
+export function getAuditTrail(claimId) {
+  return apiFetch(`/claims/${claimId}/audit`);
+}
+
 export function getLinkedClaims(claimId) {
   return apiFetch(`/claims/${claimId}/linked`);
 }

@@ -6,6 +6,7 @@ import FilterRow from "@/components/filterRow/FilterRow";
 import InsightsZone from "@/components/insightsZone/InsightsZone";
 import PageHeader from "@/components/pageHeader/PageHeader";
 import PendingQueue from "@/components/pendingQueue/PendingQueue";
+import ReportDrawer from "@/components/reportDrawer/ReportDrawer";
 import SegmentedControl from "@/components/segmentedControl/SegmentedControl";
 import StatStrip from "@/components/statStrip/StatStrip";
 import styles from "./Dashboard.module.css";
@@ -20,7 +21,7 @@ export default function Dashboard() {
 
       <StatStrip stats={dashboard.stats} />
 
-      <PendingQueue queue={dashboard.pendingQueue} />
+      <PendingQueue queue={dashboard.pendingQueue} onReview={dashboard.openReport} />
 
       <InsightsZone breakdown={dashboard.breakdown} events={dashboard.activityFeed} />
 
@@ -47,7 +48,17 @@ export default function Dashboard() {
         showCheckboxes={dashboard.showCheckboxes}
         selectedIds={dashboard.selectedIds}
         onToggleRow={dashboard.toggleRow}
+        onViewReport={dashboard.openReport}
       />
+
+      {dashboard.reportClaimId && (
+        <ReportDrawer
+          claimId={dashboard.reportClaimId}
+          row={dashboard.reportRow}
+          onClose={dashboard.closeReport}
+          onViewClaim={dashboard.openReport}
+        />
+      )}
     </main>
   );
 }

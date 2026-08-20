@@ -34,10 +34,13 @@ export function toMonoDate(value) {
     .toUpperCase();
 }
 
-/** Scores are shown as two-digit integers inside a Lavender chip. */
+/** The agent's raw score is capped at this many points. */
+export const MAX_SCORE = 12;
+
+/** computedScore is capped points, not a ratio — shown bare in a Lavender chip. */
 export function toScoreLabel(score) {
   if (score === null || score === undefined) return null;
-  return String(Math.round(score * 100));
+  return String(Math.round(score));
 }
 
 /* The demo data is dated, so "now" is pinned rather than read from the clock —
@@ -170,5 +173,108 @@ export function toPendingQueue(response) {
     total,
     items,
     caption: `${total} claims — agent scored, awaiting confirm/dismiss`,
+  };
+}
+
+/** "AUG 9, 2:14 PM" — mono, so uppercase per the brand rule. */
+export function toMonoTimestamp(value) {
+  if (!value) return null;
+  const date = new Date(value);
+  const day = date
+    .toLocaleDateString("en-US", { month: "short", day: "numeric" })
+    .toUpperCase();
+  const time = date
+    .toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
+    .toUpperCase();
+  return `${day}, ${time}`;
+}
+
+/**
+ * The fraud report drawer's whole view model, merged from two sources:
+ *
+ *   claim  — GET /claims/{id}, authoritative for the *current* decision state
+ *   review — newest entry of GET /claims/{id}/audit, authoritative for the
+ *            analysis content (rationale, steps, similarity evidence)
+ *
+ * The sparse `fraud.matchedPatterns` array on the claim itself carries only
+ * patternId/patternName/weight, which cannot render rationale text or
+ * similarity evidence — that richer content has to come off the review doc.
+ */
+export function toFraudReportViewModel(claim, review) {
+  if (!claim) return null;
+
+  const fraud = claim.fraud || {};
+  const rawScore = review?.rawScore ?? fraud.rawScore ?? null;
+  const computedScore = fraud.computedScore ?? review?.computedScore ?? null;
+
+  // Prefer the review's enriched matches; fall back to the claim's sparse array
+  // so a claim scored before the enrichment lands still renders a pattern list,
+  // just without rationale text.
+  const rawPatterns = review?.matchedPatterns?.length
+    ? review.matchedPatterns
+    : fraud.matchedPatterns || [];
+
+  const matchedPatterns = rawPatterns.map((pattern) => ({
+    id: pattern.patternId,
+    name: pattern.patternName || pattern.patternId,
+    points: `+${pattern.weight ?? 0}`,
+    typeLabel: (pattern.patternType || "RULE").toLowerCase() === "similarity" ? "Similarity" : "Rule",
+    rationale: pattern.rationale || null,
+  }));
+
+  const similarClaims = (review?.similarClaims || []).map((similar) => ({
+    claimId: similar.claimId,
+    similarityLabel: `${Math.round((similar.similarity ?? 0) * 100)}%`,
+    reason: similar.reason || "Similar claim narrative",
+    statusKey: similar.fraudFlag
+      ? STATUS.FLAGGED
+      : similar.reviewedBy
+        ? STATUS.CLEARED
+        : STATUS.PENDING,
+  }));
+
+  return {
+    claimId: claim.claimId,
+    customerName: claim.customer?.customerName || claim.customerName || "Unknown customer",
+    claimType: claim.claimType || claim.coverageType || "—",
+    statusKey: toStatusKey({
+      processed: fraud.processed,
+      claimStatus: claim.claimStatus,
+      fraudFlag: fraud.fraudFlag,
+    }),
+    scoredAtLabel: toMonoTimestamp(review?.createdAt || fraud.processedAt),
+    scoredBy: review?.agentName || "agent",
+    computedScore,
+    scoreLabel: computedScore === null ? "—" : `${toScoreLabel(computedScore)} / ${MAX_SCORE}`,
+    // Only state a capping event when one actually happened.
+    cappingNote:
+      rawScore !== null && computedScore !== null && rawScore > computedScore
+        ? `Raw score ${rawScore}, capped at the maximum of ${MAX_SCORE}.`
+        : null,
+    patternsNote:
+      review?.patternsEvaluatedCount != null
+        ? `${matchedPatterns.length} patterns matched out of ${review.patternsEvaluatedCount} active patterns evaluated`
+        : `${matchedPatterns.length} patterns matched`,
+    steps: review?.steps || [],
+    matchedPatterns,
+    similarClaims,
+    decision: toDecision(fraud),
+  };
+}
+
+/** Scored-but-undecided is the only state that offers the action buttons. */
+function toDecision(fraud) {
+  const state =
+    fraud.fraudFlag === true
+      ? "confirmed"
+      : fraud.reviewedBy && fraud.fraudFlag === false
+        ? "dismissed"
+        : "pending";
+
+  return {
+    state,
+    reviewedBy: fraud.reviewedBy || null,
+    reviewedAtLabel: toMonoTimestamp(fraud.reviewedAt),
+    dismissReason: fraud.dismissReason || null,
   };
 }

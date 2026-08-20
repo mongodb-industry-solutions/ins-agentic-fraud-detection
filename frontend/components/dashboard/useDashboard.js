@@ -37,6 +37,9 @@ export default function useDashboard() {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [sort, setSort] = useState(DEFAULT_SORT);
   const [selectedIds, setSelectedIds] = useState([]);
+  // Which claim's fraud report is open, or null. One drawer at a time — a
+  // similar-claim link replaces the open report rather than stacking on it.
+  const [reportClaimId, setReportClaimId] = useState(null);
 
   const claimList = DEMO_CLAIM_LIST;
 
@@ -103,6 +106,15 @@ export default function useDashboard() {
     );
   }, []);
 
+  const openReport = useCallback((claimId) => setReportClaimId(claimId), []);
+  const closeReport = useCallback(() => setReportClaimId(null), []);
+
+  // The drawer needs a fallback row for claims outside the current page.
+  const reportRow = useMemo(
+    () => allRows.find((row) => row.claimId === reportClaimId) || null,
+    [allRows, reportClaimId]
+  );
+
   return {
     segments,
     activeSegment,
@@ -122,5 +134,9 @@ export default function useDashboard() {
     showCheckboxes,
     selectedIds,
     toggleRow,
+    reportClaimId,
+    reportRow,
+    openReport,
+    closeReport,
   };
 }
