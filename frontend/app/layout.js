@@ -30,7 +30,7 @@ const sourceCodePro = Source_Code_Pro({
 
 export const metadata = {
   title: "Leafy Claim Manager",
-  description: "Agentic fraud detection & claims management",
+  description: "Claims management & Agentic fraud detection",
 };
 
 export default function RootLayout({ children }) {

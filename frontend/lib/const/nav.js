@@ -12,7 +12,26 @@ export const SYSTEM_NAV = [
   { id: "settings", label: "Settings", icon: "settings" },
 ];
 
-export const ACTIVE_NAV_ID = "dashboard";
+export const DEFAULT_SECTION = "dashboard";
+
+/**
+ * What the claim view's back link calls each origin. Driven by returnSection,
+ * so drilling in from Fraud Intelligence offers "Back to fraud intelligence"
+ * rather than always pointing at the Dashboard.
+ */
+export const SECTION_LABEL = {
+  dashboard: "claims",
+  customers: "customers",
+  policies: "policies",
+  fraudIntelligence: "fraud intelligence",
+  fraudPatterns: "fraud patterns",
+  settings: "settings",
+};
+
+/** Display titles for sections that have no screen of their own yet. */
+export const SECTION_TITLE = Object.fromEntries(
+  [...WORKSPACE_NAV, ...SYSTEM_NAV].map((item) => [item.id, item.label])
+);
 
 export const PROFILE = {
   initials: "AT",

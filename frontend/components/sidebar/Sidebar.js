@@ -1,16 +1,21 @@
 "use client";
 
 import Icon from "@/components/icons/Icons";
-import { ACTIVE_NAV_ID, SYSTEM_NAV, WORKSPACE_NAV } from "@/lib/const/nav";
+import { SYSTEM_NAV, WORKSPACE_NAV } from "@/lib/const/nav";
 import styles from "./Sidebar.module.css";
 
-function NavItem({ item }) {
-  const isActive = item.id === ACTIVE_NAV_ID;
+/**
+ * The highlight is driven by activeSection alone — never by whether a claim
+ * view happens to be showing. Drilling into a claim keeps its origin section
+ * visually current, because that is still where you are.
+ */
+function NavItem({ item, isActive, onNavigate }) {
   return (
     <button
       type="button"
       className={`${styles.item} ${isActive ? styles.active : ""}`}
       aria-current={isActive ? "page" : undefined}
+      onClick={() => onNavigate(item.id)}
     >
       <span className={styles.icon}>
         <Icon name={item.icon} />
@@ -20,21 +25,26 @@ function NavItem({ item }) {
   );
 }
 
-export default function Sidebar() {
+export default function Sidebar({ activeSection, onNavigate }) {
   return (
     <nav className={styles.sidebar} aria-label="Primary">
       <div className={styles.brand}>
         <span className={styles.mark}>L</span>
         <span className={styles.brandText}>
           <span className={styles.brandName}>Leafy Claim Manager</span>
-          <span className={styles.brandSub}>Fraud detection &amp; claims</span>
+          <span className={styles.brandSub}>Claims management & Agentic fraud detection</span>
         </span>
       </div>
 
       <p className={styles.groupLabel}>Workspace</p>
       <div className={styles.group}>
         {WORKSPACE_NAV.map((item) => (
-          <NavItem key={item.id} item={item} />
+          <NavItem
+            key={item.id}
+            item={item}
+            isActive={item.id === activeSection}
+            onNavigate={onNavigate}
+          />
         ))}
       </div>
 
@@ -44,7 +54,12 @@ export default function Sidebar() {
       <p className={styles.groupLabel}>System</p>
       <div className={styles.group}>
         {SYSTEM_NAV.map((item) => (
-          <NavItem key={item.id} item={item} />
+          <NavItem
+            key={item.id}
+            item={item}
+            isActive={item.id === activeSection}
+            onNavigate={onNavigate}
+          />
         ))}
       </div>
     </nav>

@@ -1,0 +1,27 @@
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 1180px;
+  padding: var(--content-pad-y) var(--content-pad-x);
+}
+
+.zone {
+  padding: 40px 20px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  text-align: center;
+}
+
+.title {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: var(--weight-normal);
+}
+
+.body {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}

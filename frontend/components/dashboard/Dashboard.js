@@ -12,7 +12,7 @@ import StatStrip from "@/components/statStrip/StatStrip";
 import styles from "./Dashboard.module.css";
 import useDashboard from "./useDashboard";
 
-export default function Dashboard() {
+export default function Dashboard({ onOpenClaim }) {
   const dashboard = useDashboard();
 
   return (
@@ -21,7 +21,7 @@ export default function Dashboard() {
 
       <StatStrip stats={dashboard.stats} />
 
-      <PendingQueue queue={dashboard.pendingQueue} onReview={dashboard.openReport} />
+      <PendingQueue queue={dashboard.pendingQueue} onReview={onOpenClaim} />
 
       <InsightsZone breakdown={dashboard.breakdown} events={dashboard.activityFeed} />
 
@@ -49,6 +49,10 @@ export default function Dashboard() {
         selectedIds={dashboard.selectedIds}
         onToggleRow={dashboard.toggleRow}
         onViewReport={dashboard.openReport}
+        onViewDetails={onOpenClaim}
+        // Sends the person to the claim with its fraud action emphasized,
+        // since triggering analysis is why they were sent there.
+        onAnalyze={(claimId) => onOpenClaim(claimId, { analyze: true })}
       />
 
       {dashboard.reportClaimId && (
@@ -56,7 +60,7 @@ export default function Dashboard() {
           claimId={dashboard.reportClaimId}
           row={dashboard.reportRow}
           onClose={dashboard.closeReport}
-          onViewClaim={dashboard.openReport}
+          onViewClaim={onOpenClaim}
         />
       )}
     </main>

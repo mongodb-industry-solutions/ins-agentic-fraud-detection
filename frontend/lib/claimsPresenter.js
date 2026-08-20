@@ -26,11 +26,44 @@ function toStatusKey(claim) {
   return STATUS.PENDING;
 }
 
+/**
+ * Backend enums are SCREAMING_SNAKE ("AUTO_COLLISION", "MOBILE_APP"). Short
+ * all-caps tokens (ACH, SIU, MA) are genuine acronyms and stay as they are.
+ */
+export function humanizeEnum(value) {
+  if (!value || typeof value !== "string") return value ?? null;
+  if (!value.includes("_") && value === value.toUpperCase() && value.length <= 4) return value;
+  const words = value.split("_").map((word) => {
+    if (word === word.toUpperCase() && word.length <= 4) return word;
+    return word.charAt(0) + word.slice(1).toLowerCase();
+  });
+  const [first, ...rest] = words;
+  return [first.charAt(0).toUpperCase() + first.slice(1).toLowerCase(), ...rest.map((w) => w.toLowerCase())]
+    .join(" ")
+    .replace(/\b(ach|siu|bi|pd)\b/gi, (match) => match.toUpperCase());
+}
+
+/** Customer documents carry first/last names, not a single display name. */
+export function toCustomerName(customer) {
+  if (!customer) return null;
+  if (customer.customerName) return customer.customerName;
+  return [customer.firstName, customer.lastName].filter(Boolean).join(" ") || null;
+}
+
 /** Source Code Pro is always all-caps outside real code: "AUG 14", never "Aug 14". */
 export function toMonoDate(value) {
   if (!value) return "—";
   return new Date(value)
     .toLocaleDateString("en-US", { month: "short", day: "numeric" })
+    .toUpperCase();
+}
+
+/** Year-bearing variant: "FEB 1, 2025". Used wherever two dates sit side by
+ *  side or the year actually disambiguates something. */
+export function toMonoDateFull(value) {
+  if (!value) return null;
+  return new Date(value)
+    .toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
     .toUpperCase();
 }
 
@@ -68,7 +101,7 @@ export function toClaimRow(claim) {
     customerSubline: claim.customerSince
       ? `Policyholder since ${claim.customerSince}`
       : "Policyholder",
-    coverage: claim.coverageType || claim.claimType || "—",
+    coverage: humanizeEnum(claim.coverageType || claim.claimType) || "—",
     openedLabel: toMonoDate(claim.claimDate),
     statusKey,
     statusLabel: STATUS_LABEL[statusKey],
@@ -235,8 +268,8 @@ export function toFraudReportViewModel(claim, review) {
 
   return {
     claimId: claim.claimId,
-    customerName: claim.customer?.customerName || claim.customerName || "Unknown customer",
-    claimType: claim.claimType || claim.coverageType || "—",
+    customerName: toCustomerName(claim.customer) || claim.customerName || "Unknown customer",
+    claimType: humanizeEnum(claim.claimType || claim.coverageType) || "—",
     statusKey: toStatusKey({
       processed: fraud.processed,
       claimStatus: claim.claimStatus,

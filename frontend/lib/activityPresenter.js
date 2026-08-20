@@ -38,12 +38,12 @@ function toFragments(event) {
           ...(scoreLabel ? [text(" scored "), score(scoreLabel)] : []),
         ],
       };
-    case "BATCH_CLEARED":
-      return {
-        statusKey: STATUS.CLEARED,
-        icon: "check",
-        parts: [text(`Batch of ${event.batchSize ?? 0} claims cleared — no fraud indicators`)],
-      };
+    // case "BATCH_CLEARED":
+    //   return {
+    //     statusKey: STATUS.CLEARED,
+    //     icon: "check",
+    //     parts: [text(`Batch of ${event.batchSize ?? 0} claims cleared — no fraud indicators`)],
+    //   };
     default:
       return {
         statusKey: STATUS.UNPROCESSED,

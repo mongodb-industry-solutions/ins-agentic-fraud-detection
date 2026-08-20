@@ -1,0 +1,94 @@
+.zone {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 4px 18px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0;
+  border-top: 1px solid var(--border);
+}
+
+.row:first-child {
+  border-top: none;
+}
+
+/* Neutral, not colored: the index is an ordinal, not a status. */
+.numberChip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex: none;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 11.5px;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.customer {
+  font-size: 12.5px;
+  font-weight: var(--weight-normal);
+}
+
+.claimId {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 11.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.reason {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.reasonIcon {
+  display: flex;
+  flex: none;
+}
+
+.viewButton {
+  flex: none;
+  padding: 5px 13px;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 11.5px;
+}
+
+.viewButton:hover {
+  background: var(--surface-2);
+}
+
+.empty {
+  padding: 32px 0;
+  color: var(--text-muted);
+  font-size: 12.5px;
+  text-align: center;
+}

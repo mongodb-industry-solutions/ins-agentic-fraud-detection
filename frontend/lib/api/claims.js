@@ -19,6 +19,19 @@ export function getLinkedClaims(claimId) {
   return apiFetch(`/claims/${claimId}/linked`);
 }
 
+/**
+ * Whitelist-only partial update. Anything under the claim's `fraud` sub-object
+ * is rejected by the backend schema, so it is never sent from here either.
+ */
+export function updateClaim(claimId, changes) {
+  return apiFetch(`/claims/${claimId}`, { method: "PATCH", body: changes });
+}
+
+/** Returns 409 when the claim is scored but still awaiting a fraud decision. */
+export function closeClaim(claimId) {
+  return apiFetch(`/claims/${claimId}/close`, { method: "POST" });
+}
+
 export function selectBatch(claimIds) {
   return apiFetch("/claims/batch/select", { method: "POST", body: { claimIds } });
 }

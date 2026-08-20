@@ -1,0 +1,63 @@
+.section {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  padding: 12px 16px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.title {
+  font-size: 10.5px;
+  font-weight: var(--weight-normal);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.caption {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* Only present while editing. */
+.saveBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+/* Borrows the same Spring-Green border the editable inputs use, rather than
+   introducing a solid Spring-Green fill — edit mode reads as one affordance. */
+.saveButton {
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid var(--spring-green);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 12px;
+}
+
+.cancelButton {
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 12px;
+}
+
+.saveButton:hover,
+.cancelButton:hover {
+  opacity: 0.88;
+}
