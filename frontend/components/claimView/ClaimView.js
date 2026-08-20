@@ -145,6 +145,7 @@ export default function ClaimView({ claimId, backLabel, onBack, onOpenClaim, nud
               onDraftChange={claim.changeDraft}
               onSave={claim.save}
               onCancelEdit={claim.cancelEditing}
+              saveError={claim.saveError}
             />
           )}
           {claim.activeTab === "policy" && <ClaimPolicy policy={claim.policy} />}

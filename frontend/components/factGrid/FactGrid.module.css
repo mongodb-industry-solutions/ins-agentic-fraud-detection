@@ -53,6 +53,40 @@
   font-size: 12.5px;
 }
 
-.input:focus {
+.input:focus,
+.textarea:focus {
   outline: none;
+}
+
+.textarea {
+  composes: input;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+/* Free prose takes the whole row rather than a third of it. */
+.fullWidth {
+  grid-column: 1 / -1;
+}
+
+.checkboxRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.checkbox {
+  width: 13px;
+  height: 13px;
+  accent-color: var(--spring-green);
+  cursor: pointer;
+}
+
+/* Explains a refused option, e.g. why closing is unavailable right now. */
+.hint {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--text-dim);
 }

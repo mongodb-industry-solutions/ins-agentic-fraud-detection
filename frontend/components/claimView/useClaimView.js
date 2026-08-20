@@ -13,6 +13,7 @@ import {
   toPolicyTab,
 } from "@/lib/claimDetailPresenter";
 import { STATUS } from "@/lib/claimsPresenter";
+import { toUpdatePayload } from "@/lib/const/claimFields";
 import { toDemoClaimDetail } from "@/lib/const/demoClaimDetail";
 
 /**
@@ -31,6 +32,7 @@ export default function useClaimView(claimId) {
   const [drafts, setDrafts] = useState({});
   const [closeConflict, setCloseConflict] = useState(false);
   const [closeError, setCloseError] = useState(null);
+  const [saveError, setSaveError] = useState(null);
 
   const load = useCallback(
     async (signal) => {
@@ -67,6 +69,7 @@ export default function useClaimView(claimId) {
     setDrafts({});
     setCloseConflict(false);
     setCloseError(null);
+    setSaveError(null);
     load(controller.signal);
     return () => controller.abort();
   }, [claimId, load]);
@@ -84,6 +87,7 @@ export default function useClaimView(claimId) {
   const cancelEditing = useCallback(() => {
     setIsEditing(false);
     setDrafts({});
+    setSaveError(null);
   }, []);
 
   const changeDraft = useCallback((field, value) => {
@@ -91,22 +95,39 @@ export default function useClaimView(claimId) {
   }, []);
 
   const save = useCallback(async () => {
-    if (Object.keys(drafts).length === 0) {
+    // Coerced to the backend's types (booleans, numbers) and reduced to fields
+    // whose value actually differs — touching a field without changing it
+    // should not appear in updatedFields.
+    const payload = toUpdatePayload(drafts);
+    const changed = Object.fromEntries(
+      Object.entries(payload).filter(([field, value]) => value !== (detail?.[field] ?? null))
+    );
+
+    if (Object.keys(changed).length === 0) {
       cancelEditing();
       return;
     }
+
+    setSaveError(null);
     try {
-      await updateClaim(claimId, drafts);
+      await updateClaim(claimId, changed);
       await load();
-    } catch {
-      // No backend in demo mode: merge the edit locally so the saved value is
-      // what the grid shows afterwards.
-      setDetail((current) => (current ? { ...current, ...drafts } : current));
-    } finally {
       setIsEditing(false);
       setDrafts({});
+    } catch (error) {
+      // 502 is this app's proxy reporting the backend unreachable: merge
+      // locally so the demo shows the saved value.
+      if (error.status === 502 || !error.status) {
+        setDetail((current) => (current ? { ...current, ...changed } : current));
+        setIsEditing(false);
+        setDrafts({});
+        return;
+      }
+      // A real refusal (422 whitelist violation, 404, ...) keeps edit mode open
+      // with the drafts intact so the values aren't silently lost.
+      setSaveError(error.message);
     }
-  }, [claimId, drafts, load, cancelEditing]);
+  }, [claimId, drafts, detail, load, cancelEditing]);
 
   const requestClose = useCallback(async () => {
     if (header?.isClosed) return;
@@ -161,6 +182,7 @@ export default function useClaimView(claimId) {
     cancelEditing,
     changeDraft,
     save,
+    saveError,
     closeConflict,
     closeError,
     requestClose,

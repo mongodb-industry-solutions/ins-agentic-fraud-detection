@@ -10,6 +10,7 @@ export default function ClaimOverview({
   onDraftChange,
   onSave,
   onCancelEdit,
+  saveError,
 }) {
   return (
     <>
@@ -36,6 +37,8 @@ export default function ClaimOverview({
           <button type="button" className={styles.cancelButton} onClick={onCancelEdit}>
             Cancel
           </button>
+          {/* Edit mode stays open on a refusal so the typed values survive. */}
+          {saveError && <span className={styles.saveError}>Couldn&apos;t save: {saveError}</span>}
         </div>
       )}
     </>

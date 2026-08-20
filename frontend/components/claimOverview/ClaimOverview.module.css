@@ -61,3 +61,8 @@
 .cancelButton:hover {
   opacity: 0.88;
 }
+
+.saveError {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}

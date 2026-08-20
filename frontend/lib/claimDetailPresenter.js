@@ -7,6 +7,12 @@ import {
   toMonoTimestamp,
   toScoreLabel,
 } from "./claimsPresenter";
+import {
+  CHANNELS,
+  CLAIM_STATUSES,
+  EDITABLE_FIELDS,
+  PAYMENT_METHODS,
+} from "./const/claimFields";
 
 /**
  * One get_claim_detail document -> the whole claim view.
@@ -17,15 +23,41 @@ import {
  * why tab switching is a visibility toggle and never a refetch.
  */
 
-/** A label/value cell. `editableKey` is what makes a cell editable, and only
- *  fields outside the claim's `fraud` sub-object ever get one. */
-const cell = (label, value, options = {}) => ({
-  id: label,
-  label,
-  value: value === null || value === undefined || value === "" ? "—" : String(value),
-  isMono: options.mono || false,
-  editableKey: options.editableKey || null,
-});
+/**
+ * A label/value cell.
+ *
+ * `editableKey` is what makes a cell editable, and only the ten fields
+ * ClaimUpdateRequest whitelists ever get one — never anything under `fraud`.
+ * `inputType` comes from EDITABLE_FIELDS so the control matches the field's
+ * real type, and `rawValue` is what the editor binds to (the displayed `value`
+ * is formatted for reading: "Yes", "$1,200", "Mobile app").
+ */
+const cell = (label, value, options = {}) => {
+  const editableKey = options.editableKey || null;
+  return {
+    id: label,
+    label,
+    value: value === null || value === undefined || value === "" ? "—" : String(value),
+    isMono: options.mono || false,
+    editableKey,
+    inputType: editableKey ? EDITABLE_FIELDS[editableKey] || "text" : null,
+    rawValue: options.rawValue ?? null,
+    selectOptions: options.selectOptions || null,
+    span: options.span || 1,
+    hint: options.hint || null,
+  };
+};
+
+/** Keeps a stored value that is not in the known list from vanishing. */
+const withCurrent = (values, current) =>
+  current && !values.includes(current) ? [...values, current] : values;
+
+const enumOptions = (values, current, disabledValues = []) =>
+  withCurrent(values, current).map((value) => ({
+    value,
+    label: humanizeEnum(value),
+    disabled: disabledValues.includes(value),
+  }));
 
 const money = (amount) =>
   amount === null || amount === undefined
@@ -42,6 +74,12 @@ const place = (location) =>
  * backend's claimStatus tracks lifecycle (OPEN/CLOSED) while the four states
  * this UI shows are about the fraud assessment.
  */
+/** Scored, but no human decision recorded yet — the close guard's condition. */
+function isAwaitingDecision(claim) {
+  const fraud = claim.fraud || {};
+  return fraud.processed === true && (fraud.fraudFlag === null || fraud.fraudFlag === undefined);
+}
+
 export function toClaimStatusKey(claim) {
   const fraud = claim.fraud || {};
   if (fraud.fraudFlag === true) return STATUS.FLAGGED;
@@ -98,15 +136,74 @@ export function toOverviewSections(claim) {
       title: "Accident details",
       caption: null,
       cells: [
+        // Not editable: derived or immutable facts of the incident itself.
         cell("Accident time", claim.accidentTime, { mono: true }),
         cell("Location", place(claim.accidentLocation)),
         cell("Report delay", claim.delayDays != null ? `${claim.delayDays} days` : null),
-        cell("Police report", yesNo(claim.policeReport)),
-        cell("Witnesses", claim.witnessCount),
-        cell("Repair shop", claim.repairShop, { editableKey: "repairShop" }),
-        cell("Adjuster ID", claim.adjusterId, { mono: true }),
-        cell("Payment method", humanizeEnum(claim.paymentMethod)),
-        cell("Channel", humanizeEnum(claim.channel)),
+        cell("Police report", yesNo(claim.policeReport), {
+          editableKey: "policeReport",
+          rawValue: Boolean(claim.policeReport),
+        }),
+        cell("Witnesses", claim.witnessCount, {
+          editableKey: "witnessCount",
+          rawValue: claim.witnessCount ?? "",
+        }),
+        cell("Repair shop", claim.repairShop, {
+          editableKey: "repairShop",
+          rawValue: claim.repairShop ?? "",
+        }),
+        cell("Adjuster ID", claim.adjusterId, {
+          mono: true,
+          editableKey: "adjusterId",
+          rawValue: claim.adjusterId ?? "",
+        }),
+        cell("Payment method", humanizeEnum(claim.paymentMethod), {
+          editableKey: "paymentMethod",
+          rawValue: claim.paymentMethod ?? "",
+          selectOptions: enumOptions(PAYMENT_METHODS, claim.paymentMethod),
+        }),
+        cell("Channel", humanizeEnum(claim.channel), {
+          editableKey: "channel",
+          rawValue: claim.channel ?? "",
+          selectOptions: enumOptions(CHANNELS, claim.channel),
+        }),
+      ],
+    },
+    {
+      id: "handling",
+      title: "Handling & outcome",
+      caption: null,
+      cells: [
+        cell("Claim status", humanizeEnum(claim.claimStatus), {
+          editableKey: "claimStatus",
+          rawValue: claim.claimStatus ?? "",
+          // Mirrors close_claim's guard: a scored claim awaiting a decision
+          // cannot be moved to a closed state, so those options are refused
+          // here rather than sent and bounced.
+          selectOptions: enumOptions(
+            CLAIM_STATUSES,
+            claim.claimStatus,
+            isAwaitingDecision(claim) ? CLAIM_STATUSES.filter((s) => s.startsWith("CLOSED")) : []
+          ),
+          hint: isAwaitingDecision(claim)
+            ? "Closing is blocked until the fraud recommendation is confirmed or dismissed."
+            : null,
+        }),
+        cell("Paid amount", money(claim.paidAmount), {
+          mono: true,
+          editableKey: "paidAmount",
+          rawValue: claim.paidAmount ?? "",
+        }),
+        cell("Escalated", yesNo(claim.escalated), {
+          editableKey: "escalated",
+          rawValue: Boolean(claim.escalated),
+        }),
+        cell("Description", claim.description, {
+          editableKey: "description",
+          rawValue: claim.description ?? "",
+          // Free prose needs the full row width, not a third of it.
+          span: 3,
+        }),
       ],
     },
     {
