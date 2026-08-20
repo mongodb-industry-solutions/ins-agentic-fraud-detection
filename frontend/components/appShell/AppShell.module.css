@@ -1,0 +1,58 @@
+.shell {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--sidebar-width) 1fr;
+  min-height: 100vh;
+}
+
+/* Fixed, non-scrolling background effect behind everything: a fine dot grid
+   plus one soft Spring-Green glow that breathes on a ~9s cycle. All depth in
+   this UI comes from borders and this layer — there are zero box-shadows. */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: radial-gradient(var(--border) 1px, transparent 1px);
+  background-size: var(--dot-grid-tile) var(--dot-grid-tile);
+  opacity: 0.35;
+}
+
+.glow {
+  position: fixed;
+  top: -180px;
+  right: -140px;
+  width: 620px;
+  height: 620px;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: var(--radius-pill);
+  background: radial-gradient(circle, var(--accent-glow) 0%, transparent 68%);
+  animation: breathe 9s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scale(1.14);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow {
+    animation: none;
+  }
+}
+
+.main {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}

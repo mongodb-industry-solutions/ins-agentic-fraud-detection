@@ -1,0 +1,94 @@
+/* One continuous bordered zone divided by hairlines — not four floating cards
+   with gaps and shadows between them. */
+.strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 18px;
+  border-left: 1px solid var(--border);
+}
+
+.column:first-child {
+  border-left: none;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: var(--weight-normal);
+}
+
+.body {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.value {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 25px;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+/* Any positive directional change uses the same Forest-Green up indicator,
+   whichever stat it is attached to. */
+.delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--forest-green);
+  font-size: 11.5px;
+}
+
+.arrow {
+  font-size: 10px;
+  line-height: 1;
+}
+
+/* --- 26px icon chips, colored per the status system ----------------------- */
+
+.chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex: none;
+  border-radius: var(--radius-pill);
+}
+
+.unprocessed {
+  background: var(--surface-2);
+  color: var(--text-muted);
+}
+
+.pending {
+  background: var(--lavender);
+  color: var(--on-lavender);
+}
+
+.flagged {
+  background: var(--evergreen);
+  color: var(--on-evergreen);
+}
+
+.cleared {
+  background: var(--mist);
+  color: var(--on-mist);
+}

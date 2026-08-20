@@ -1,0 +1,90 @@
+.wrap {
+  position: relative;
+}
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.trigger:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+/* An applied filter is legible as applied without borrowing a status color:
+   brighter text and a stronger border, no fill. */
+.active {
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.open {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.chevron {
+  display: flex;
+  color: var(--text-dim);
+}
+
+/* No shadow — the menu is separated by its border and surface tone, like
+   every other layer in this UI. */
+.menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 20;
+  min-width: 100%;
+  padding: 4px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+}
+
+.alignRight {
+  left: auto;
+  right: 0;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 9px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: 12px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.option:hover {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.selected {
+  color: var(--text);
+  font-weight: var(--weight-normal);
+}
+
+/* Deliberately currentColor, not the Spring-Green accent: the accent is
+   reserved for the brand mark, the active nav item and the ambient glow. */
+.tick {
+  display: flex;
+  width: 12px;
+  flex: none;
+}

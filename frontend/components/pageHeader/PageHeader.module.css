@@ -1,0 +1,21 @@
+/* Title block only. The "New claim" button is intentionally absent — this
+   platform manages existing claims, it never creates them. */
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-weight: var(--weight-normal);
+  font-size: 22px;
+  line-height: 1.2;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}

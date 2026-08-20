@@ -1,0 +1,44 @@
+.control {
+  display: inline-flex;
+  align-self: flex-start;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.segment {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius);
+  color: var(--text-dim);
+  font-size: 12.5px;
+  font-weight: var(--weight-light);
+}
+
+.segment:hover {
+  color: var(--text);
+}
+
+.active {
+  background: var(--surface-2);
+  color: var(--text);
+  font-weight: var(--weight-normal);
+}
+
+.count {
+  padding: 1px 5px;
+  border-radius: 2px;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.active .count {
+  background: var(--border);
+  color: var(--text);
+}

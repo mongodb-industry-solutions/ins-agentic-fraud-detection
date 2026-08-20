@@ -1,0 +1,45 @@
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  font-size: 11.5px;
+  font-weight: var(--weight-light);
+  white-space: nowrap;
+}
+
+/* The only fully-rounded shape in the UI. The shape itself — not the color —
+   is the primary signal that this state differs from the other three. */
+.unprocessed {
+  border-radius: var(--radius-pill);
+  border: 1px dashed var(--border-strong);
+  background: transparent;
+  color: var(--text-muted);
+}
+
+.dot {
+  width: 5px;
+  height: 5px;
+  border-radius: var(--radius-pill);
+  background: currentColor;
+  flex: none;
+}
+
+/* Solid, undiluted fills — never a low-opacity tint, which would vanish
+   against either theme background. */
+.pending {
+  background: var(--lavender);
+  color: var(--on-lavender);
+}
+
+.cleared {
+  background: var(--mist);
+  color: var(--on-mist);
+}
+
+.flagged {
+  background: var(--evergreen);
+  color: var(--on-evergreen);
+}

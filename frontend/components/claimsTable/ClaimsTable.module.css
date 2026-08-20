@@ -1,0 +1,119 @@
+.zone {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.table {
+  width: 100%;
+}
+
+.headerCell {
+  padding: 10px 14px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: var(--weight-light);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.row {
+  border-bottom: 1px solid var(--border);
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.row:hover {
+  background: var(--surface);
+}
+
+.cell {
+  padding: 11px 14px;
+  vertical-align: middle;
+  font-size: 12.5px;
+}
+
+.empty {
+  padding: 28px 14px;
+  color: var(--text-muted);
+  font-size: 12.5px;
+  text-align: center;
+}
+
+.checkboxCell {
+  width: 36px;
+  padding-right: 0;
+}
+
+/* Source Code Pro is always uppercase outside real code: dates need the
+   transform, claim ids are already uppercase in the data. */
+.mono {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.date {
+  composes: mono;
+  color: var(--text-muted);
+}
+
+.customer {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.customerName {
+  font-weight: var(--weight-normal);
+}
+
+.customerSub {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* "View details" is unconditional; the second button is status-dependent. The
+   two are never merged — looking at a claim and acting on its fraud status are
+   different decisions. */
+.outlineButton {
+  padding: 5px 11px;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+
+.outlineButton:hover {
+  background: var(--surface-2);
+}
+
+.solidButton {
+  padding: 5px 11px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--lavender);
+  color: var(--on-lavender);
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+
+.solidButton:hover {
+  opacity: 0.88;
+}

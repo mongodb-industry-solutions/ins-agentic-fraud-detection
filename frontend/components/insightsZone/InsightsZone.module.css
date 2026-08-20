@@ -1,0 +1,13 @@
+/* Donut and activity feed are one zone divided by a single hairline, not two
+   separate cards. */
+.zone {
+  display: grid;
+  grid-template-columns: 40fr 60fr;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.divider {
+  border-left: 1px solid var(--border);
+  min-width: 0;
+}

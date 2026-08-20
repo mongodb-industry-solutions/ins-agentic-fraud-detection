@@ -1,14 +1,14 @@
 "use client";
 
-// import InfoWizard from "@/components/infoWizard/InfoWizard";
+import AppShell from "@/components/appShell/AppShell";
+import Dashboard from "@/components/dashboard/Dashboard";
 
+/* The only route. There is no login or profile picker — the Dashboard tab is
+   what loads when the app opens. */
 export default function Home() {
   return (
-    <main className="flex flex-col min-h-screen items-center justify-center relative">
-      <div className="absolute top-8 left-1/2 -translate-x-1/2">
-        {/* <InfoWizard /> */}
-        <h1>Your components will go here</h1>
-      </div>
-    </main>
+    <AppShell>
+      <Dashboard />
+    </AppShell>
   );
 }

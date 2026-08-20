@@ -1,2 +1,113 @@
-@import "tailwindcss";
+/* ---------------------------------------------------------------------------
+   Design tokens ONLY. No component styles live in this file.
 
+   Every color below traces back to one of the seven brand colors. Surface,
+   border and muted-text tones are lightness derivatives of Slate (#001E2B) —
+   they are desaturated Slate, not an independent gray/teal family.
+   --------------------------------------------------------------------------- */
+
+:root {
+  /* --- the seven real brand colors ------------------------------------- */
+  --slate: #001e2b;
+  --white: #ffffff;
+  --spring-green: #00ed64;
+  --forest-green: #00684a;
+  --evergreen: #023430;
+  --mist: #e3fcf7;
+  --lavender: #f9ebff;
+
+  /* --- chart-only reserved colors (sparklines only, never general UI) --- */
+  --chart-sky: #00d2ff;
+  --chart-chartreuse: #b1ff05;
+
+  /* --- Slate derivatives: dark theme (default) -------------------------- */
+  --bg: var(--slate);
+  /* Surfaces sit close to Slate so panels read as recessed, not washed out;
+     borders carry the separation instead, since there are no shadows. */
+  --surface: #012330;
+  --surface-2: #032e3b;
+  --border: #1b4a57;
+  --border-strong: #33707d;
+  --text: var(--white);
+  --text-muted: #bcd6d4;
+  --text-dim: #86adab;
+
+  /* accent that is legible as text/icon on the current background */
+  --accent: var(--spring-green);
+  --accent-soft: rgba(0, 237, 100, 0.08);
+  --accent-glow: rgba(0, 237, 100, 0.16);
+
+  /* text that sits on top of the solid status fills */
+  --on-lavender: var(--slate);
+  --on-mist: var(--forest-green);
+  --on-evergreen: var(--white);
+  --on-spring-green: var(--slate);
+
+  /* --- type ------------------------------------------------------------- */
+  --font-serif: var(--font-source-serif), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-lexend-deca), "Helvetica Neue", Arial, sans-serif;
+  --font-mono: var(--font-source-code-pro), "SFMono-Regular", Menlo, monospace;
+  --weight-light: 300;
+  --weight-normal: 400;
+  --weight-mono: 500;
+
+  /* --- geometry --------------------------------------------------------- */
+  --radius: 4px;
+  --radius-pill: 999px;
+  --sidebar-width: 220px;
+  --topbar-height: 54px;
+  --content-pad-y: 26px;
+  --content-pad-x: 32px;
+  --zone-pad: 18px;
+  --section-gap: 20px;
+  --dot-grid-tile: 26px;
+}
+
+/* Light theme: Slate derivatives inverted toward White. Spring Green fails as
+   a text/icon color on a light background, so Forest Green is the substitute. */
+[data-theme="light"] {
+  --bg: var(--white);
+  --surface: #f1f6f6;
+  --surface-2: #e0ebeb;
+  --border: #c2d5d5;
+  --border-strong: #8fabab;
+  --text: var(--slate);
+  --text-muted: #2f5158;
+  --text-dim: #4a6d72;
+
+  --accent: var(--forest-green);
+  --accent-soft: rgba(0, 104, 74, 0.07);
+  --accent-glow: rgba(0, 237, 100, 0.1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-weight: var(--weight-light);
+  font-size: 13px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: inherit;
+  font-weight: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+table {
+  border-collapse: collapse;
+}
