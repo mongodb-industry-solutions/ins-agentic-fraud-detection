@@ -45,6 +45,16 @@
   font-size: 12.5px;
 }
 
+/* A failed request is not the conflict condition, so it does not borrow the
+   Evergreen banner's severity — it states the refusal plainly. */
+.errorNote {
+  padding: 10px 16px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+
 .bannerIcon {
   display: flex;
   flex: none;
@@ -92,9 +102,36 @@
   font-size: 11px;
 }
 
+/* Lifecycle flag. Deliberately outside the four-colour fraud status system —
+   OPEN/CLOSED is a different axis, so it stays neutral and never competes with
+   the status pill sitting next to it. */
+.lifecycleFlag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+/* Closed reads as inert: filled and dimmed, matching the disabled actions. */
+.closedFlag {
+  composes: lifecycleFlag;
+  background: var(--surface-2);
+  border-color: var(--border);
+  color: var(--text-dim);
+}
+
 .subline {
   font-size: 13px;
   color: var(--text-muted);
+}
+
+.closedNote {
+  font-size: 11.5px;
+  color: var(--text-dim);
 }
 
 .facts {
@@ -147,8 +184,16 @@
   white-space: nowrap;
 }
 
-.outlineButton:hover {
+.outlineButton:hover:not(:disabled) {
   background: var(--surface-2);
+}
+
+/* A closed claim is a closed record: editing and closing are both refused
+   outright rather than offered and then rejected on submit. */
+.outlineButton:disabled {
+  border-color: var(--border);
+  color: var(--text-dim);
+  cursor: not-allowed;
 }
 
 /* The one button on this screen in the agent/report color family. */

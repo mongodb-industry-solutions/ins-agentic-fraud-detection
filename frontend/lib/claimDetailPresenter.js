@@ -53,6 +53,10 @@ export function toClaimStatusKey(claim) {
 export function toClaimHeader(claim) {
   const fraud = claim.fraud || {};
   const statusKey = toClaimStatusKey(claim);
+  // Any CLOSED* lifecycle counts as closed. The live data also carries
+  // CLOSED_DENIED, which is just as final as CLOSED — treating only the exact
+  // string "CLOSED" as closed would leave denied claims editable.
+  const isClosed = (claim.claimStatus || "").startsWith("CLOSED");
 
   return {
     claimId: claim.claimId,
@@ -72,7 +76,13 @@ export function toClaimHeader(claim) {
     // imply a score exists in some form before one does.
     scoreLabel: fraud.processed ? toScoreLabel(fraud.computedScore) : null,
     isProcessed: Boolean(fraud.processed),
-    isClosed: claim.claimStatus === "CLOSED",
+    // Lifecycle is a separate axis from the fraud status above: a claim can be
+    // CLOSED and flagged at the same time. It drives which actions are allowed.
+    isClosed: isClosed,
+    // Keeps the distinction visible: "Closed — denied" is not the same outcome
+    // as a plain close, even though both block the same actions.
+    lifecycleLabel: isClosed ? humanizeEnum(claim.claimStatus).replace("Closed denied", "Closed — denied") : "Open",
+    closedAtLabel: isClosed ? toMonoDateFull(claim.closedAt) : null,
   };
 }
 

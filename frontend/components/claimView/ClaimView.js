@@ -42,6 +42,8 @@ export default function ClaimView({ claimId, backLabel, onBack, onOpenClaim, nud
         </div>
       )}
 
+      {claim.closeError && <div className={styles.errorNote}>Couldn&apos;t close this claim: {claim.closeError}</div>}
+
       {claim.isLoading || !header ? (
         <div className={styles.skeleton} />
       ) : (
@@ -52,8 +54,18 @@ export default function ClaimView({ claimId, backLabel, onBack, onOpenClaim, nud
                 <span className={styles.claimId}>{header.claimId}</span>
                 <span className={styles.complexityBadge}>{header.complexityLabel}</span>
                 <StatusPill statusKey={header.statusKey} label={header.statusLabel} />
+                {/* Lifecycle flag, separate from the fraud status pill. */}
+                <span className={header.isClosed ? styles.closedFlag : styles.lifecycleFlag}>
+                  <Icon name="flag" size={11} />
+                  {header.lifecycleLabel}
+                </span>
               </div>
-              <span className={styles.subline}>{header.subline}</span>
+              <span className={styles.subline}>
+                {header.subline}
+                {header.closedAtLabel && (
+                  <span className={styles.closedNote}> · closed {header.closedAtLabel}</span>
+                )}
+              </span>
 
               <div className={styles.facts}>
                 {header.facts.map((fact) => (
@@ -77,17 +89,27 @@ export default function ClaimView({ claimId, backLabel, onBack, onOpenClaim, nud
             </div>
 
             <div className={styles.headerActions}>
+              {/* Both actions are gated on the lifecycle flag: available while
+                  OPEN, blocked once CLOSED. */}
               <button
                 type="button"
                 className={styles.outlineButton}
                 onClick={claim.startEditing}
-                disabled={claim.isEditing}
+                disabled={claim.isEditing || header.isClosed}
+                title={header.isClosed ? "This claim is closed and can't be edited" : undefined}
               >
-                <Icon name="settings" size={12} />
+                <Icon name={header.isClosed ? "lock" : "settings"} size={12} />
                 {claim.isEditing ? "Editing…" : "Edit claim"}
               </button>
-              <button type="button" className={styles.outlineButton} onClick={claim.requestClose}>
-                Close claim
+              <button
+                type="button"
+                className={styles.outlineButton}
+                onClick={claim.requestClose}
+                disabled={header.isClosed}
+                title={header.isClosed ? "This claim is already closed" : undefined}
+              >
+                <Icon name={header.isClosed ? "lock" : "check"} size={12} />
+                {header.isClosed ? "Closed" : "Close claim"}
               </button>
               <button
                 type="button"

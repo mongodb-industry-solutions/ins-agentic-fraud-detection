@@ -30,6 +30,7 @@ export default function useClaimView(claimId) {
   const [isEditing, setIsEditing] = useState(false);
   const [drafts, setDrafts] = useState({});
   const [closeConflict, setCloseConflict] = useState(false);
+  const [closeError, setCloseError] = useState(null);
 
   const load = useCallback(
     async (signal) => {
@@ -65,6 +66,7 @@ export default function useClaimView(claimId) {
     setIsEditing(false);
     setDrafts({});
     setCloseConflict(false);
+    setCloseError(null);
     load(controller.signal);
     return () => controller.abort();
   }, [claimId, load]);
@@ -107,18 +109,38 @@ export default function useClaimView(claimId) {
   }, [claimId, drafts, load, cancelEditing]);
 
   const requestClose = useCallback(async () => {
+    if (header?.isClosed) return;
+
     try {
       await closeClaim(claimId);
       setCloseConflict(false);
+      setCloseError(null);
       await load();
     } catch (error) {
-      // 409 is the real backend answer for "scored but still undecided". With
-      // no backend reachable, fall back to evaluating that same condition
-      // locally so the banner reflects the claim's actual state either way.
-      const isPendingDecision = header?.statusKey === STATUS.PENDING;
-      if (error.status === 409 || isPendingDecision) {
+      // 409 is the real backend answer for "scored but still undecided".
+      if (error.status === 409) {
         setCloseConflict(true);
+        return;
       }
+
+      // 502 is this app's own proxy reporting the backend unreachable, so fall
+      // back to demo behaviour: apply the backend's own guard locally, and
+      // otherwise mark the claim closed so the gated actions can be seen.
+      if (error.status === 502 || !error.status) {
+        if (header?.statusKey === STATUS.PENDING) {
+          setCloseConflict(true);
+        } else {
+          setDetail((current) =>
+            current
+              ? { ...current, claimStatus: "CLOSED", closedAt: new Date().toISOString() }
+              : current
+          );
+        }
+        return;
+      }
+
+      // Any other status is a real backend refusal and gets stated as one.
+      setCloseError(error.message);
     }
   }, [claimId, load, header]);
 
@@ -140,6 +162,7 @@ export default function useClaimView(claimId) {
     changeDraft,
     save,
     closeConflict,
+    closeError,
     requestClose,
   };
 }
