@@ -15,6 +15,10 @@ from core.db import create_connector
 from core.exceptions import DomainError
 from routers.audit import router as audit_router
 from routers.claims import router as claims_router
+from routers.customers import router as customers_router
+from routers.fraud import router as fraud_router
+from routers.patterns import router as patterns_router
+from routers.policies import router as policies_router
 
 load_dotenv()
 
@@ -75,6 +79,10 @@ def create_app() -> FastAPI:
 
     app.include_router(claims_router, prefix="/api")
     app.include_router(audit_router, prefix="/api")
+    app.include_router(customers_router, prefix="/api")
+    app.include_router(policies_router, prefix="/api")
+    app.include_router(patterns_router, prefix="/api")
+    app.include_router(fraud_router, prefix="/api")
 
     return app
 

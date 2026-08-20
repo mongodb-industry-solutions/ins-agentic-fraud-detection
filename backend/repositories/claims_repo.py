@@ -196,6 +196,122 @@ class ClaimsRepository:
         )
         return {doc["claimId"]: doc for doc in cursor}
 
+    def find_by_pattern(self, pattern_id: str, limit: int = 200) -> list[dict[str, Any]]:
+        """Claims whose fraud assessment matched a given pattern, worst first."""
+        pipeline = [
+            {"$match": {"fraud.matchedPatterns.patternId": pattern_id}},
+            {"$sort": {"fraud.computedScore": DESCENDING}},
+            {"$limit": limit},
+            {"$lookup": {
+                "from": get_settings().CUSTOMERS_COLLECTION,
+                "localField": "customerId",
+                "foreignField": "customerId",
+                "as": "customer",
+            }},
+            {"$unwind": {"path": "$customer", "preserveNullAndEmptyArrays": True}},
+            {"$project": {
+                "_id": 0,
+                "claimId": 1,
+                "claimDate": 1,
+                "customerName": {"$concat": ["$customer.firstName", " ", "$customer.lastName"]},
+                "computedScore": "$fraud.computedScore",
+                "fraudFlag": "$fraud.fraudFlag",
+            }},
+        ]
+        return list(self.collection.aggregate(pipeline))
+
+    # ------------------------------------------------------------ portfolio
+
+    def trend_by_bucket(
+        self,
+        date_from: datetime,
+        date_to: datetime,
+        unit: str = "week",
+    ) -> list[dict[str, Any]]:
+        """Claim outcomes per time bucket, oldest bucket first."""
+        pipeline = [
+            {"$match": {"claimDate": {"$gte": date_from, "$lte": date_to}}},
+            {"$group": {
+                "_id": {"$dateTrunc": {"date": "$claimDate", "unit": unit}},
+                "flagged": {"$sum": {"$cond": [{"$eq": ["$fraud.fraudFlag", True]}, 1, 0]}},
+                "cleared": {"$sum": {"$cond": [{"$eq": ["$fraud.fraudFlag", False]}, 1, 0]}},
+                "pending": {"$sum": {"$cond": [
+                    {"$and": [
+                        {"$eq": ["$fraud.processed", True]},
+                        {"$eq": ["$fraud.fraudFlag", None]},
+                    ]}, 1, 0]}},
+                "unprocessed": {"$sum": {"$cond": [{"$eq": ["$fraud.processed", False]}, 1, 0]}},
+            }},
+            {"$sort": {"_id": ASCENDING}},
+            {"$project": {
+                "_id": 0,
+                "bucket": "$_id",
+                "flagged": 1,
+                "cleared": 1,
+                "pending": 1,
+                "unprocessed": 1,
+            }},
+        ]
+        return list(self.collection.aggregate(pipeline))
+
+    def score_distribution(self, boundaries: list[int]) -> list[dict[str, Any]]:
+        """Histogram of computedScore over scored claims only.
+
+        Boundaries span 0..12 because computedScore is capped at 12 by the
+        scoring step, even though the raw pre-cap score can run higher.
+        """
+        pipeline = [
+            {"$match": {"fraud.processed": True, "fraud.computedScore": {"$ne": None}}},
+            {"$bucket": {
+                "groupBy": "$fraud.computedScore",
+                "boundaries": boundaries,
+                "default": "other",
+                "output": {"count": {"$sum": 1}},
+            }},
+        ]
+        return list(self.collection.aggregate(pipeline))
+
+    def overall_decision_counts(self) -> dict[str, int]:
+        """Flagged/cleared totals across the *whole* portfolio, undated."""
+        pipeline = [
+            {"$group": {
+                "_id": None,
+                "flagged": {"$sum": {"$cond": [{"$eq": ["$fraud.fraudFlag", True]}, 1, 0]}},
+                "cleared": {"$sum": {"$cond": [{"$eq": ["$fraud.fraudFlag", False]}, 1, 0]}},
+            }},
+        ]
+        row = next(iter(self.collection.aggregate(pipeline)), {})
+        return {"flagged": row.get("flagged", 0), "cleared": row.get("cleared", 0)}
+
+    # ---------------------------------------------------------------- graph
+
+    def find_graph_candidates(self, scope: str = "ALL", limit: int = 60) -> list[dict[str, Any]]:
+        """The bounded candidate set the relationship graph is built from.
+
+        Only the fields the pairing logic needs are returned; the pairing
+        itself is done in the service, in Python.
+        """
+        scope_matches = {
+            "ALL": {},
+            "FLAGGED": {"fraud.fraudFlag": True},
+            "PENDING": {"fraud.processed": True, "fraud.fraudFlag": None},
+        }
+        pipeline = [
+            {"$match": scope_matches[scope]},
+            {"$sort": {"fraud.processed": DESCENDING, "updatedAt": DESCENDING}},
+            {"$limit": limit},
+            {"$project": {
+                "_id": 0,
+                "claimId": 1,
+                "customerId": 1,
+                "repairShop": 1,
+                "computedScore": "$fraud.computedScore",
+                "fraudFlag": "$fraud.fraudFlag",
+                "matchedPatterns": {"$ifNull": ["$fraud.matchedPatterns", []]},
+            }},
+        ]
+        return list(self.collection.aggregate(pipeline))
+
     # --------------------------------------------------------------- writes
 
     def update_fields(self, claim_id: str, fields: dict[str, Any]) -> int:

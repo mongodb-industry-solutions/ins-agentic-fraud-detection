@@ -5,6 +5,9 @@ from typing import Any
 
 from core.config import get_settings
 from db.mdb import MongoDBConnector
+from repositories.claims_repo import parse_sort
+
+DEFAULT_PATTERN_SORT = "-stats.timesTriggered"
 
 
 class PatternsRepository:
@@ -14,6 +17,27 @@ class PatternsRepository:
         self.db = db
         self.collection_name = get_settings().PATTERNS_COLLECTION
         self.collection = db.get_collection(self.collection_name)
+
+    def list_all(
+        self,
+        pattern_type: str = "ALL",
+        active: bool | None = None,
+        sort: str = DEFAULT_PATTERN_SORT,
+    ) -> list[dict[str, Any]]:
+        """The whole pattern catalogue, filtered and sorted.
+
+        No joins and no pagination: `stats.confirmedFraudRate` is already
+        maintained by the decision endpoint, and the catalogue is a fixed,
+        small set of hand-authored patterns.
+        """
+        query: dict[str, Any] = {}
+        if pattern_type != "ALL":
+            query["patternType"] = pattern_type
+        if active is not None:
+            query["active"] = active
+
+        sort_field, sort_dir = parse_sort(sort)
+        return list(self.collection.find(query).sort(sort_field, sort_dir))
 
     def get_by_id(self, pattern_id: str) -> dict[str, Any] | None:
         return self.collection.find_one({"patternId": pattern_id})
