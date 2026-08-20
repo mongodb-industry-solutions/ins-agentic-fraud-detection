@@ -4,9 +4,11 @@ import {
   humanizeEnum,
   toCustomerName,
   toMonoDateFull,
+  toMoney,
   toMonoTimestamp,
   toScoreLabel,
 } from "./claimsPresenter";
+import { toCoverageRows } from "./policiesPresenter";
 import {
   CHANNELS,
   CLAIM_STATUSES,
@@ -59,11 +61,6 @@ const enumOptions = (values, current, disabledValues = []) =>
     disabled: disabledValues.includes(value),
   }));
 
-const money = (amount) =>
-  amount === null || amount === undefined
-    ? null
-    : `$${Number(amount).toLocaleString("en-US")}`;
-
 const yesNo = (value) => (value === null || value === undefined ? null : value ? "Yes" : "No");
 
 const place = (location) =>
@@ -108,7 +105,7 @@ export function toClaimHeader(claim) {
       cell("Claim type", humanizeEnum(claim.claimType)),
       cell("Coverage", humanizeEnum(claim.coverageType)),
       cell("Opened", toMonoDateFull(claim.claimDate), { mono: true }),
-      cell("Claim amount", money(claim.claimAmount), { mono: true }),
+      cell("Claim amount", toMoney(claim.claimAmount), { mono: true }),
     ],
     // Absent — not dashed — before the claim is processed, so the header can't
     // imply a score exists in some form before one does.
@@ -189,7 +186,7 @@ export function toOverviewSections(claim) {
             ? "Closing is blocked until the fraud recommendation is confirmed or dismissed."
             : null,
         }),
-        cell("Paid amount", money(claim.paidAmount), {
+        cell("Paid amount", toMoney(claim.paidAmount), {
           mono: true,
           editableKey: "paidAmount",
           rawValue: claim.paidAmount ?? "",
@@ -219,7 +216,7 @@ export function toOverviewSections(claim) {
           "Vehicle",
           [vehicle.brand, vehicle.model].filter(Boolean).join(" ") || null
         ),
-        cell("Vehicle value", money(vehicle.value), { mono: true }),
+        cell("Vehicle value", toMoney(vehicle.value), { mono: true }),
         cell("Prior claims at filing", customerSnapshot.numPreviousClaims),
         cell("Policies held at filing", customerSnapshot.numPolicies),
       ],
@@ -241,16 +238,12 @@ export function toPolicyTab(claim) {
       cell("Type", humanizeEnum(policy.policyType)),
       cell("Status", humanizeEnum(policy.status)),
       cell("Effective period", dates.length ? dates.join(" – ") : null, { mono: true }),
-      cell("Annual premium", money(premium.annualPremium), { mono: true }),
-      cell("Outstanding balance", money(premium.outstandingBalance), { mono: true }),
+      cell("Annual premium", toMoney(premium.annualPremium), { mono: true }),
+      cell("Outstanding balance", toMoney(premium.outstandingBalance), { mono: true }),
     ],
-    coverages: (policy.coverages || []).map((coverage) => ({
-      id: coverage.coverageCode || coverage.coverageType,
-      name: humanizeEnum(coverage.coverageType) || coverage.coverageCode,
-      limit: money(coverage.limit) || "—",
-      deductible: money(coverage.deductible) || "—",
-      premium: money(coverage.annualPremium) || "—",
-    })),
+    // Same row shape the shared CoveragesTable expects, so the claim view's
+    // Policy tab and Policy Detail render through one component.
+    coverages: toCoverageRows(policy.coverages),
   };
 }
 

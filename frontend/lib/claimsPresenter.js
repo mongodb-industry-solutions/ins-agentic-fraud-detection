@@ -67,6 +67,22 @@ export function toMonoDateFull(value) {
     .toUpperCase();
 }
 
+/**
+ * Currency. Whole amounts show no decimals; fractional ones always show two,
+ * so a stored 1201.1 renders "$1,201.10" rather than the "$1,201.1" a plain
+ * toLocaleString produces.
+ */
+export function toMoney(amount) {
+  if (amount === null || amount === undefined || amount === "") return null;
+  const value = Number(amount);
+  if (!Number.isFinite(value)) return null;
+  const decimals = Number.isInteger(value) ? 0 : 2;
+  return `$${value.toLocaleString("en-US", {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  })}`;
+}
+
 /** The agent's raw score is capped at this many points. */
 export const MAX_SCORE = 12;
 

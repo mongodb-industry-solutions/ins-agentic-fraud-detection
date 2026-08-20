@@ -1,0 +1,101 @@
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 1180px;
+  padding: var(--content-pad-y) var(--content-pad-x);
+  min-width: 0;
+}
+
+.headerZone {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+/* The only place outside the dashboard's page title where the headline serif
+   appears: a person's name carries the same weight as a page headline. */
+.name {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-weight: var(--weight-normal);
+  font-size: 22px;
+  line-height: 1.2;
+}
+
+.subline {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  text-transform: uppercase;
+}
+
+.facts {
+  display: flex;
+  gap: 28px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.fact {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.factLabel {
+  font-size: 10.5px;
+  color: var(--text-muted);
+}
+
+.factValue {
+  font-size: 12.5px;
+}
+
+.factMono {
+  composes: factValue;
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.note {
+  padding: 10px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+
+.skeleton {
+  height: 110px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}

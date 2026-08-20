@@ -1,0 +1,112 @@
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 1180px;
+  padding: var(--content-pad-y) var(--content-pad-x);
+  min-width: 0;
+}
+
+.headerZone {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* A policy id is an identifier, not a name: mono, not the headline serif. */
+.policyId {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 19px;
+  text-transform: uppercase;
+}
+
+.headerMain {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+
+.outlineButton {
+  padding: 6px 13px;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.outlineButton:hover {
+  background: var(--surface-2);
+}
+
+.subline {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.facts {
+  display: flex;
+  gap: 28px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.fact {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.factLabel {
+  font-size: 10.5px;
+  color: var(--text-muted);
+}
+
+.factValue {
+  font-size: 12.5px;
+}
+
+.factMono {
+  composes: factValue;
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.note {
+  padding: 10px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+
+.skeleton {
+  height: 110px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+}

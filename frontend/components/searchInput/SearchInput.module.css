@@ -1,0 +1,55 @@
+/* Section-scoped search. Styled like the global search bar that was dropped
+   from the topbar, but this one is real and searches exactly one collection. */
+.wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  max-width: 380px;
+  padding: 6px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.wrap:focus-within {
+  border-color: var(--border-strong);
+}
+
+.icon {
+  display: flex;
+  flex: none;
+  color: var(--text-dim);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+}
+
+.input:focus {
+  outline: none;
+}
+
+.input::placeholder {
+  color: var(--text-dim);
+}
+
+.clear {
+  flex: none;
+  padding: 0 2px;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 13px;
+  line-height: 1;
+}
+
+.clear:hover {
+  color: var(--text);
+}

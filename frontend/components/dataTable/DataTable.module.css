@@ -1,0 +1,105 @@
+/* Shared bordered table zone: same header/row/hairline treatment as the
+   dashboard's claims table, so every table in the app reads as one component. */
+.zone {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.title {
+  display: block;
+  padding: 12px 16px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  font-size: 10.5px;
+  font-weight: var(--weight-normal);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.table {
+  width: 100%;
+}
+
+.headerCell {
+  padding: 10px 16px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: var(--weight-light);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: left;
+  white-space: nowrap;
+}
+
+/* A titled zone already has a surface-2 band above the header row, so the
+   header row itself drops back to the zone background. */
+.titled .headerCell {
+  background: transparent;
+}
+
+.right {
+  text-align: right;
+}
+
+.row {
+  border-bottom: 1px solid var(--border);
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.row:hover {
+  background: var(--surface);
+}
+
+.cell {
+  padding: 11px 16px;
+  font-size: 12.5px;
+  vertical-align: middle;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+/* The row's primary subject — a person's or record's name. */
+.strong {
+  font-weight: var(--weight-normal);
+}
+
+.muted {
+  color: var(--text-muted);
+}
+
+.actionCell {
+  composes: cell;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.viewButton {
+  padding: 5px 12px;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 11.5px;
+}
+
+.viewButton:hover {
+  background: var(--surface-2);
+}
+
+.empty {
+  padding: 28px 16px;
+  color: var(--text-muted);
+  font-size: 12.5px;
+  text-align: center;
+}

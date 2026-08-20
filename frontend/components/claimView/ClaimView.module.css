@@ -10,28 +10,6 @@
   min-width: 0;
 }
 
-.back {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  align-self: flex-start;
-  padding: 0;
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  font-size: 12.5px;
-  font-weight: var(--weight-light);
-}
-
-.back:hover {
-  color: var(--text);
-}
-
-.chevronLeft {
-  display: flex;
-  transform: rotate(90deg);
-}
-
 /* Solid Evergreen — the same "most severe state = darkest solid fill"
    convention as the flagged pill. Persistent inline banner, not a toast. */
 .conflictBanner {
@@ -91,15 +69,6 @@
   font-weight: var(--weight-mono);
   font-size: 19px;
   text-transform: uppercase;
-}
-
-/* Complexity is a category, not a status — plain outline, no status color. */
-.complexityBadge {
-  padding: 2px 8px;
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius);
-  color: var(--text-muted);
-  font-size: 11px;
 }
 
 /* Lifecycle flag. Deliberately outside the four-colour fraud status system —

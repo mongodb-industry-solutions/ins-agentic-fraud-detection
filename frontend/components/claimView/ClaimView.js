@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import BackLink from "@/components/backLink/BackLink";
+import Badge from "@/components/badge/Badge";
 import ClaimAudit from "@/components/claimAudit/ClaimAudit";
 import ClaimCustomer from "@/components/claimCustomer/ClaimCustomer";
 import ClaimLinked from "@/components/claimLinked/ClaimLinked";
@@ -24,12 +26,7 @@ export default function ClaimView({ claimId, backLabel, onBack, onOpenClaim, nud
 
   return (
     <main className={styles.content}>
-      <button type="button" className={styles.back} onClick={onBack}>
-        <span className={styles.chevronLeft}>
-          <Icon name="chevronDown" size={12} />
-        </span>
-        {backLabel}
-      </button>
+      <BackLink label={backLabel} onClick={onBack} />
 
       {/* Persistent while the blocking condition holds — not a toast. */}
       {claim.closeConflict && (
@@ -52,7 +49,7 @@ export default function ClaimView({ claimId, backLabel, onBack, onOpenClaim, nud
             <div className={styles.headerMain}>
               <div className={styles.titleRow}>
                 <span className={styles.claimId}>{header.claimId}</span>
-                <span className={styles.complexityBadge}>{header.complexityLabel}</span>
+                <Badge label={header.complexityLabel} />
                 <StatusPill statusKey={header.statusKey} label={header.statusLabel} />
                 {/* Lifecycle flag, separate from the fraud status pill. */}
                 <span className={header.isClosed ? styles.closedFlag : styles.lifecycleFlag}>
