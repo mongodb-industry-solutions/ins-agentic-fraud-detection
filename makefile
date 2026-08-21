@@ -42,6 +42,9 @@ check-indexes:
 run-backend:
 	cd backend && uv run uvicorn main:app --reload --port 8000
 
+run-frontend:
+	cd frontend && npm run dev
+
 # Phase 2 acceptance checks. Mutates data — reseed afterwards.
 verify-phase2:
 	cd backend && uv run python scripts/verify_phase2.py
