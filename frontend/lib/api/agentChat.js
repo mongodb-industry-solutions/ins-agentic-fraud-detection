@@ -36,12 +36,13 @@ function safeJsonParse(raw) {
  *
  * `handlers` — all optional: `onText(chunk)`, `onProgress(activity)`,
  * `onSuspend({ reason, context, executionId })`, `onDone()`,
- * `onSessionId(executionId)`, `onStreamError(reason)`. None may throw; the read
+ * `onSessionId(sessionId)`, `onStreamError(reason)`. None may throw; the read
  * loop has no per-handler recovery.
  *
- * `onSessionId` fires on the **terminal** frame only. The execution id it
- * carries is the conversation handle, but only the first turn's is — the
- * write-once rule lives in `useFraudChat`, not here.
+ * `onSessionId` fires from the `x-session-id` **response header**, before any
+ * frame is parsed. That header is the conversation handle; the `execution_id` in
+ * the body identifies a single run and must never be used to continue a
+ * conversation. The write-once rule lives in `useFraudChat`, not here.
  *
  * Resolves `{ text, errorReason, suspendInfo }`. Rejects if the request itself
  * fails, including `AbortError` when `signal` aborts — on rejection nothing is
@@ -75,6 +76,11 @@ export async function streamAgentMessage({ message, sessionId, userId, signal },
     const payload = await response.json().catch(() => null);
     throw new Error(payload?.message || payload?.error || `Request failed (${response.status})`);
   }
+
+  // Available as soon as the headers land, so the handle exists even if the
+  // user stops the stream before the first token.
+  const headerSessionId = response.headers.get("x-session-id");
+  if (headerSessionId) onSessionId?.(headerSessionId);
 
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
@@ -111,13 +117,11 @@ export async function streamAgentMessage({ message, sessionId, userId, signal },
         continue;
       }
 
-      // The opening `metadata` frame also carries an execution id, but the
-      // handle is taken from the terminal frame — a conversation that never
-      // produced a reply is not one worth rehydrating.
+      // `metadata` and `done` both carry an `execution_id`. It is per-run
+      // tracing only — deliberately not treated as the session handle.
       if (parsed.chunk_type === "metadata") continue;
 
       if (parsed.chunk_type === "done") {
-        if (parsed.execution_id) onSessionId?.(parsed.execution_id);
 
         if (parsed.metadata?.status === "suspended") {
           const context = safeJsonParse(parsed.metadata.suspend_context);

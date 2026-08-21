@@ -10,6 +10,7 @@ from fastapi.responses import StreamingResponse
 
 from core.dependencies import AgentChatServiceDep
 from schemas.chat import ChatRequest, ResumeRequest
+from services.agent_chat_service import SESSION_HEADER
 
 router = APIRouter(prefix="/chat", tags=["agent-chat"])
 
@@ -25,7 +26,7 @@ async def invoke_agent(payload: ChatRequest, service: AgentChatServiceDep) -> St
     Frame shapes (`chunk_type: text | progress | error | done`) are the
     platform's contract with the browser — deliberately not decoded here.
     """
-    stream, content_type = await service.invoke_stream(
+    stream, content_type, session_id = await service.invoke_stream(
         message=payload.message,
         session_id=payload.sessionId,
         user_id=payload.userId,
@@ -34,6 +35,9 @@ async def invoke_agent(payload: ChatRequest, service: AgentChatServiceDep) -> St
         stream,
         media_type=content_type,
         headers={
+            # Relayed so the browser can store the conversation handle. Headers
+            # are flushed before the first token, so turn 1 gets it immediately.
+            **({SESSION_HEADER: session_id} if session_id else {}),
             "Cache-Control": "no-cache",
             # Stops nginx/Kanopy ingress from buffering the stream into one
             # response, which would defeat token-by-token rendering.

@@ -9,18 +9,18 @@ import { getOrCreateUserId } from "@/lib/userIdentity";
  * Owns one conversation with the fraud assessment agent: the message feed, the
  * in-flight stream and the session id.
  *
- * The session id is the `execution_id` the platform returns on the terminal
- * frame of the **first** turn. There is no separate session concept upstream:
- * the first execution id doubles as the conversation handle, and the engine
- * rehydrates that conversation's state when it is sent back.
+ * The session id is the value Magenta returns in the `x-session-id` response
+ * header on the first turn. Sending it back on later turns is what makes the
+ * engine load that conversation's checkpoint. The `execution_id` in the response
+ * body is *not* this: it identifies one run, and using it as the conversation
+ * key opens a brand-new conversation on every turn.
  *
  * Three things here are load-bearing:
  *
- * 1. **Write-once.** Every turn returns a *fresh* execution id, but only the
- *    first is the handle. Overwriting it each turn silently starts a new
- *    conversation while still looking like it works — replies keep arriving and
- *    the transcript keeps growing, the agent just has no memory of anything
- *    before the current message.
+ * 1. **Write-once.** Every turn returns the header, and re-anchoring on each
+ *    one risks drifting off the original conversation. Get this wrong and it
+ *    still *looks* like it works — replies keep arriving and the transcript
+ *    keeps growing, the agent just has no memory of earlier turns.
  * 2. **A ref, not state.** Nothing renders the id, and one arriving mid-stream
  *    must not re-render the transcript. The consequence is deliberate: memory
  *    does not survive a page reload.
@@ -82,12 +82,12 @@ export default function useFraudChat() {
             signal: controller.signal,
           },
           {
-            onSessionId: (executionId) => {
-              // Write-once, and only for the stream still in flight: a `done`
-              // frame arriving after the user hit "New chat" belongs to a
-              // conversation that no longer exists and must not revive it.
+            onSessionId: (sessionId) => {
+              // Write-once, and only for the stream still in flight: a header
+              // arriving after the user hit "New chat" belongs to a conversation
+              // that no longer exists and must not revive it.
               if (!sessionIdRef.current && abortRef.current === controller) {
-                sessionIdRef.current = executionId;
+                sessionIdRef.current = sessionId;
               }
             },
             // `activity` is cleared the moment real content starts, so the tool

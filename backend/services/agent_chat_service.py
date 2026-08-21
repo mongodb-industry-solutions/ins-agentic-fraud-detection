@@ -25,6 +25,19 @@ logger = logging.getLogger(__name__)
 STREAM_TIMEOUT = httpx.Timeout(connect=15.0, read=None, write=30.0, pool=15.0)
 REQUEST_TIMEOUT = httpx.Timeout(30.0)
 
+# Magenta returns the conversation handle in a response *header*, not in the
+# body. The body's `execution_id` identifies a single run and must never be used
+# to continue a conversation — doing so opens a new one on every turn.
+SESSION_HEADER = "x-session-id"
+
+# ...and it must be sent back the same way. Measured against this deployment:
+# passing the id in the request *body* as `session_id` is silently ignored — the
+# response comes back with a brand-new session id and the agent has no history.
+# Sent as this request header, the same id is echoed back and the conversation
+# continues. Both are sent, since the body field is the documented contract and
+# doing both is confirmed to work; the header is what actually carries it today.
+SESSION_REQUEST_HEADER = "X-Session-ID"
+
 
 class AgentChatService:
     """Invoke, resume and status calls against one configured agent workspace."""
@@ -77,8 +90,13 @@ class AgentChatService:
         message: str,
         session_id: str | None,
         user_id: str | None,
-    ) -> tuple[AsyncIterator[bytes], str]:
-        """Open the agent's SSE stream and return (byte iterator, content type).
+    ) -> tuple[AsyncIterator[bytes], str, str | None]:
+        """Open the agent's SSE stream.
+
+        Returns (byte iterator, content type, session id). The session id is read
+        from the upstream `x-session-id` header, which is available as soon as the
+        response headers land — before any tokens — so a new conversation has its
+        handle from the very first turn.
 
         The connection is established here, before the response is handed to
         Starlette, so an upstream 401/404 becomes that same status on our own
@@ -91,18 +109,22 @@ class AgentChatService:
         )
 
         payload: dict[str, str] = {"message": message}
-        # Sent only when present: the platform treats an absent session_id as
-        # "start a new conversation", where an explicit null is a bad request.
+        # Sent only when present: absent is how Magenta is told "start a new
+        # conversation", which is not the same as an explicit null. The value
+        # must be one Magenta itself issued via `x-session-id` — an id we invent,
+        # or an `execution_id` from a response body, opens a new conversation.
         if session_id:
             payload["session_id"] = session_id
         if user_id:
             payload["user_id"] = user_id
 
+        headers = self._headers(api_key)
+        if session_id:
+            headers[SESSION_REQUEST_HEADER] = session_id
+
         client = httpx.AsyncClient(timeout=STREAM_TIMEOUT)
         try:
-            request = client.build_request(
-                "POST", url, json=payload, headers=self._headers(api_key)
-            )
+            request = client.build_request("POST", url, json=payload, headers=headers)
             response = await client.send(request, stream=True)
         except httpx.HTTPError as error:
             await client.aclose()
@@ -120,7 +142,11 @@ class AgentChatService:
             )
 
         content_type = response.headers.get("content-type") or "text/event-stream"
-        return self._drain(client, response), content_type
+        return (
+            self._drain(client, response),
+            content_type,
+            response.headers.get(SESSION_HEADER),
+        )
 
     @staticmethod
     async def _drain(client: httpx.AsyncClient, response: httpx.Response) -> AsyncIterator[bytes]:

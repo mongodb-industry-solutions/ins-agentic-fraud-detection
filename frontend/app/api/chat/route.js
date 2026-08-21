@@ -39,10 +39,15 @@ export async function POST(request) {
 
     // Bytes pass through untouched — SSE framing is parsed in the browser by
     // `lib/api/agentChat.js`, so a new chunk_type never touches this file.
+    const sessionId = upstream.headers.get("x-session-id");
+
     return new Response(upstream.body, {
       status: upstream.status,
       headers: {
         "Content-Type": upstream.headers.get("content-type") || "text/event-stream",
+        // The conversation handle. Dropping it here would silently cost the
+        // agent its memory, since the browser has no other source for it.
+        ...(sessionId && { "x-session-id": sessionId }),
         "Cache-Control": "no-cache",
         "X-Accel-Buffering": "no",
       },
