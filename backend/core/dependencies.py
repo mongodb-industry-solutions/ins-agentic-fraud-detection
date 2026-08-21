@@ -15,6 +15,7 @@ from services.agent_chat_service import AgentChatService
 from services.claims_service import ClaimsService
 from services.directory_service import DirectoryService
 from services.fraud_analytics_service import FraudAnalyticsService
+from services.fraud_assessment_service import FraudAssessmentService
 from services.fraud_decision_service import FraudDecisionService
 from services.patterns_service import PatternsService
 
@@ -74,6 +75,13 @@ def get_agent_chat_service(
     return AgentChatService(settings)
 
 
+def get_fraud_assessment_service(
+    claims_repo: Annotated[ClaimsRepository, Depends(get_claims_repo)],
+    agent: Annotated[AgentChatService, Depends(get_agent_chat_service)],
+) -> FraudAssessmentService:
+    return FraudAssessmentService(claims_repo, agent)
+
+
 def get_fraud_analytics_service(
     claims_repo: Annotated[ClaimsRepository, Depends(get_claims_repo)],
     reviews_repo: Annotated[ReviewsRepository, Depends(get_reviews_repo)],
@@ -88,3 +96,4 @@ DirectoryServiceDep = Annotated[DirectoryService, Depends(get_directory_service)
 PatternsServiceDep = Annotated[PatternsService, Depends(get_patterns_service)]
 FraudAnalyticsServiceDep = Annotated[FraudAnalyticsService, Depends(get_fraud_analytics_service)]
 AgentChatServiceDep = Annotated[AgentChatService, Depends(get_agent_chat_service)]
+FraudAssessmentServiceDep = Annotated[FraudAssessmentService, Depends(get_fraud_assessment_service)]

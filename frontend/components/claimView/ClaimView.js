@@ -16,7 +16,7 @@ import StatusPill from "@/components/statusPill/StatusPill";
 import styles from "./ClaimView.module.css";
 import useClaimView from "./useClaimView";
 
-export default function ClaimView({ claimId, backLabel, onBack, onOpenClaim, nudgeAnalyze }) {
+export default function ClaimView({ claimId, backLabel, onBack, onOpenClaim, onAnalyze, nudgeAnalyze }) {
   const claim = useClaimView(claimId);
   const [isReportOpen, setIsReportOpen] = useState(false);
   const { header } = claim;
@@ -108,12 +108,25 @@ export default function ClaimView({ claimId, backLabel, onBack, onOpenClaim, nud
                 <Icon name={header.isClosed ? "lock" : "check"} size={12} />
                 {header.isClosed ? "Closed" : "Close claim"}
               </button>
+              {/* Two distinct actions, not one button with two meanings: an
+                  unscored claim has no report to view, and a scored one should
+                  not silently re-run a 90-second assessment. */}
+              {header.isProcessed && (
+                <button
+                  type="button"
+                  className={styles.reportButton}
+                  onClick={() => setIsReportOpen(true)}
+                >
+                  View fraud report
+                </button>
+              )}
               <button
                 type="button"
-                className={`${styles.reportButton} ${showPulse ? styles.pulse : ""}`}
-                onClick={() => setIsReportOpen(true)}
+                className={`${styles.analyzeButton} ${showPulse ? styles.pulse : ""}`}
+                onClick={() => onAnalyze?.(header.claimId)}
               >
-                View fraud report
+                <Icon name="sparkle" size={12} />
+                {header.isProcessed ? "Re-run analysis" : "Analyze for fraud"}
               </button>
             </div>
           </div>

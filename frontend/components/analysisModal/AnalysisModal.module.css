@@ -1,0 +1,430 @@
+/* Same overlay grammar as the report drawer and the chat modal: translucent
+   blurred scrim, and the one permitted box-shadow for content floating above it. */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(0, 10, 15, 0.55);
+  backdrop-filter: blur(6px);
+  animation: fadeIn 0.18s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 61;
+  display: flex;
+  flex-direction: column;
+  width: 820px;
+  max-width: 94vw;
+  height: 680px;
+  max-height: 88vh;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 24px 60px rgba(0, 10, 15, 0.5);
+  animation: riseIn 0.2s ease;
+}
+
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -46%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop,
+  .modal {
+    animation-duration: 0.01s;
+  }
+}
+
+/* --- header --------------------------------------------------------------- */
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex: none;
+  padding: 17px 20px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--font-serif);
+  font-size: 15px;
+}
+
+.claimId {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+.sub {
+  margin-top: 4px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.closeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex: none;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1;
+}
+
+.closeBtn:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+}
+
+/* --- agent steps ---------------------------------------------------------- */
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: 6px;
+}
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 4px 0;
+}
+
+/* Completed steps get the same Mist dot as the report drawer's step list. */
+.stepDot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex: none;
+  margin-top: 1px;
+  border-radius: var(--radius-pill);
+  background: var(--mist);
+  color: var(--on-mist);
+}
+
+.stepSpinner {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  margin: 3px 2px 0;
+  border: 1.5px solid var(--border-strong);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stepSpinner {
+    animation: none;
+  }
+}
+
+.stepText {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.stepTextActive {
+  font-size: 12px;
+  font-style: italic;
+  color: var(--text);
+}
+
+.errorNote {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* --- report --------------------------------------------------------------- */
+
+.report {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  font-size: 12.5px;
+}
+
+.streamingText {
+  white-space: pre-wrap;
+}
+
+/* --- footer / decision ---------------------------------------------------- */
+
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+  padding: 13px 20px;
+  border-top: 1px solid var(--border);
+}
+
+.footerSpacer {
+  flex: 1;
+}
+
+.runningNote {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.decisionArea {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.decisionButtons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btnConfirm {
+  padding: 7px 16px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--evergreen);
+  color: var(--on-evergreen);
+  font-size: 12.5px;
+}
+
+.btnOutline {
+  padding: 7px 16px;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 12.5px;
+}
+
+.btnConfirm:hover:not(:disabled),
+.btnOutline:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+.btnConfirm:disabled,
+.btnOutline:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.siuRow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.siuRow input {
+  accent-color: var(--accent);
+}
+
+.dismissForm {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.textarea {
+  flex: 1;
+  min-height: 40px;
+  padding: 8px 10px;
+  background: var(--bg);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-weight: var(--weight-light);
+  font-size: 12.5px;
+  resize: vertical;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.decisionMade {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+}
+
+.decisionError {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+/* --- rendered markdown ---------------------------------------------------- */
+
+.mdParagraph {
+  margin: 0 0 9px;
+  line-height: 1.55;
+}
+
+.mdParagraph:last-child {
+  margin-bottom: 0;
+}
+
+.mdHeading {
+  margin: 16px 0 8px;
+  font-family: var(--font-serif);
+  font-size: 14px;
+  font-weight: var(--weight-normal);
+}
+
+.mdSubheading {
+  margin: 13px 0 6px;
+  font-size: 12.5px;
+  font-weight: var(--weight-normal);
+}
+
+.mdHeading:first-child,
+.mdSubheading:first-child {
+  margin-top: 0;
+}
+
+/* Restated explicitly — the CSS reset strips list markers and indentation. */
+.mdList {
+  margin: 0 0 9px;
+  padding-left: 20px;
+  list-style: revert;
+}
+
+.mdListItem {
+  margin-bottom: 3px;
+  line-height: 1.5;
+}
+
+.mdStrong {
+  font-weight: var(--weight-normal);
+  color: var(--text);
+}
+
+.mdCode {
+  padding: 1px 5px;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 11.5px;
+  text-transform: uppercase;
+}
+
+.mdPre {
+  margin: 0 0 9px;
+  padding: 10px 12px;
+  overflow-x: auto;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.mdPre .mdCode {
+  padding: 0;
+  background: none;
+  text-transform: none;
+}
+
+.mdQuote {
+  margin: 0 0 9px;
+  padding-left: 11px;
+  border-left: 2px solid var(--border-strong);
+  color: var(--text-muted);
+}
+
+.mdRule {
+  margin: 14px 0;
+  border: none;
+  border-top: 1px solid var(--border);
+}
+
+/* The agent's reports lean on tables heavily, and they can be wider than the
+   modal — they scroll rather than forcing the whole report sideways. */
+.mdTableWrap {
+  margin-bottom: 10px;
+  overflow-x: auto;
+}
+
+.mdTable {
+  width: 100%;
+  font-size: 11.5px;
+}
+
+.mdTh,
+.mdTd {
+  padding: 6px 9px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+.mdTh {
+  color: var(--text-muted);
+  font-weight: var(--weight-normal);
+  white-space: nowrap;
+}

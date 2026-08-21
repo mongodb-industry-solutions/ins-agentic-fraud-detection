@@ -180,6 +180,26 @@
   opacity: 0.88;
 }
 
+/* The agent action. Solid Spring Green is the app's one "start an agent run"
+   fill, matching the chat launcher, so the two agent entry points read as the
+   same kind of action. */
+.analyzeButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 13px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--spring-green);
+  color: var(--on-spring-green);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.analyzeButton:hover {
+  opacity: 0.88;
+}
+
 /* Applied only when the person was sent here specifically to analyze this
    claim. Never applies once a score exists. */
 .pulse {

@@ -18,11 +18,21 @@ export const STATUS_LABEL = {
   [STATUS.CLEARED]: "Cleared — no fraud",
 };
 
+/**
+ * The claim's *fraud review* state — not its lifecycle. `claimStatus` is the
+ * lifecycle field (OPEN / CLOSED / CLOSED_DENIED) and is deliberately not
+ * consulted here: a closed claim can hold any fraud state, and vice versa.
+ *
+ * Branch order mirrors the backend's stats facet and STATUS_MATCHES exactly, so
+ * a row can never disagree with the stat card counting it.
+ */
 function toStatusKey(claim) {
   if (claim.fraudFlag === true) return STATUS.FLAGGED;
-  if (claim.processed === false || claim.claimStatus === "UNPROCESSED") return STATUS.UNPROCESSED;
-  if (claim.claimStatus === "CLEARED") return STATUS.CLEARED;
-  if (claim.claimStatus === "FLAGGED") return STATUS.FLAGGED;
+  if (claim.processed !== true) return STATUS.UNPROCESSED;
+  // Previously this tested `claimStatus === "CLEARED"`, a value the API never
+  // returns, so every cleared claim fell through to PENDING — closed claims
+  // with a decision on record were all mislabelled "Pending review".
+  if (claim.fraudFlag === false) return STATUS.CLEARED;
   return STATUS.PENDING;
 }
 
@@ -154,7 +164,6 @@ export function toStatStrip(response, trends = {}) {
       value: stats.pendingReview ?? 0,
       statusKey: STATUS.PENDING,
       icon: "inbox",
-      delta: "+3",
     },
     {
       id: "flagged",
@@ -166,11 +175,11 @@ export function toStatStrip(response, trends = {}) {
     },
     {
       id: "cleared",
-      label: "Cleared this week",
+      // Not "this week": the count the API returns is the whole portfolio.
+      label: "Cleared",
       value: stats.cleared ?? 0,
       statusKey: STATUS.CLEARED,
       icon: "check",
-      delta: "+5",
     },
   ];
 }
@@ -197,7 +206,11 @@ export function toPortfolioSummary(response) {
 
 /** One pending-queue row. */
 export function toPendingRow(item) {
-  const patterns = item.matchedPatterns || [];
+  // Pattern entries arrive as documents from the API but as plain strings in
+  // older fixtures; both render as a name.
+  const patterns = (item.matchedPatterns || []).map((pattern) =>
+    typeof pattern === "string" ? pattern : pattern.patternName || pattern.patternId
+  );
   return {
     id: item.claimId,
     claimId: item.claimId,
@@ -205,7 +218,9 @@ export function toPendingRow(item) {
     scoreLabel: toScoreLabel(item.computedScore),
     detail: [
       item.coverageType,
-      `scored ${toRelativeTime(item.scoredAt)}`,
+      // Omitted rather than rendered as "scored " with nothing after it: not
+      // every scored claim carries a timestamp in the data model yet.
+      item.scoredAt ? `scored ${toRelativeTime(item.scoredAt)}` : null,
       `${patterns.length} pattern ${patterns.length === 1 ? "match" : "matches"}`,
     ]
       .filter(Boolean)

@@ -14,11 +14,15 @@ from db.mdb import MongoDBConnector
 
 # Status filter -> the Mongo predicate that defines it. PENDING_REVIEW means
 # the agent has scored the claim but no human has decided yet.
+# Mutually exclusive by construction, in the same precedence the stats facet and
+# the frontend's toStatusKey use: a fraud flag wins over an unprocessed flag.
+# Without the extra clauses these overlapped, so filtering by "not yet analyzed"
+# returned claims the stat card counted as flagged.
 STATUS_MATCHES: dict[str, dict] = {
-    "UNPROCESSED": {"fraud.processed": False},
+    "UNPROCESSED": {"fraud.fraudFlag": {"$ne": True}, "fraud.processed": {"$ne": True}},
     "PENDING_REVIEW": {"fraud.processed": True, "fraud.fraudFlag": None},
     "FLAGGED": {"fraud.fraudFlag": True},
-    "CLEARED": {"fraud.fraudFlag": False},
+    "CLEARED": {"fraud.processed": True, "fraud.fraudFlag": False},
     "ALL": {},
 }
 
@@ -36,6 +40,24 @@ LIST_PROJECTION = {
     "computedScore": "$fraud.computedScore",
     "fraudFlag": "$fraud.fraudFlag",
 }
+
+
+# The pending queue needs the two fields the list projection deliberately omits
+# to stay lean: when it was scored, and which patterns matched.
+PENDING_PROJECTION = {
+    "_id": 0,
+    "claimId": 1,
+    "coverageType": 1,
+    "customerName": {"$concat": ["$customer.firstName", " ", "$customer.lastName"]},
+    "computedScore": "$fraud.computedScore",
+    "scoredAt": "$fraud.scoredAt",
+    "matchedPatterns": "$fraud.matchedPatterns",
+}
+
+# Scored, but with no human decision yet. Mirrors the `pendingReview` arm of the
+# stats facet in `list_with_stats`, so the queue length and the stat card cannot
+# disagree.
+PENDING_MATCH = {"fraud.processed": True, "fraud.fraudFlag": None}
 
 
 def parse_sort(sort: str) -> tuple[str, int]:
@@ -76,18 +98,26 @@ class ClaimsRepository:
         pipeline = [
             {"$match": segment_match},
             {"$facet": {
-                "stats": [{"$group": {
-                    "_id": None,
-                    "total": {"$sum": 1},
-                    "unprocessed": {"$sum": {"$cond": [{"$eq": ["$fraud.processed", False]}, 1, 0]}},
-                    "pendingReview": {"$sum": {"$cond": [
-                        {"$and": [
-                            {"$eq": ["$fraud.processed", True]},
-                            {"$eq": ["$fraud.fraudFlag", None]},
-                        ]}, 1, 0]}},
-                    "flagged": {"$sum": {"$cond": [{"$eq": ["$fraud.fraudFlag", True]}, 1, 0]}},
-                    "cleared": {"$sum": {"$cond": [{"$eq": ["$fraud.fraudFlag", False]}, 1, 0]}},
-                }}],
+                # Each claim is classified into exactly one bucket, then
+                # counted — rather than four independent $sum conditions, which
+                # double-counted any claim whose flags disagreed (a claim with
+                # processed=false and fraudFlag=true landed in both
+                # `unprocessed` and `flagged`, so the buckets summed to more
+                # than `total` and the dashboard donut overflowed its circle).
+                # The branch order mirrors the frontend's per-row precedence in
+                # claimsPresenter.toStatusKey, so a status card can never
+                # disagree with the rows in the table beneath it.
+                "stats": [
+                    {"$project": {"bucket": {"$switch": {
+                        "branches": [
+                            {"case": {"$eq": ["$fraud.fraudFlag", True]}, "then": "flagged"},
+                            {"case": {"$ne": ["$fraud.processed", True]}, "then": "unprocessed"},
+                            {"case": {"$eq": ["$fraud.fraudFlag", False]}, "then": "cleared"},
+                        ],
+                        "default": "pendingReview",
+                    }}}},
+                    {"$group": {"_id": "$bucket", "n": {"$sum": 1}}},
+                ],
                 "rows": [
                     {"$match": status_match},
                     {"$sort": {sort_field: sort_dir}},
@@ -107,19 +137,46 @@ class ClaimsRepository:
         ]
 
         facet = next(iter(self.collection.aggregate(pipeline)), {})
-        stats = (facet.get("stats") or [{}])[0]
-        stats.pop("_id", None)
+        # One row per non-empty bucket; absent buckets are legitimately zero.
+        counts = {row["_id"]: row["n"] for row in (facet.get("stats") or [])}
         return {
             "stats": {
-                "total": stats.get("total", 0),
-                "unprocessed": stats.get("unprocessed", 0),
-                "pendingReview": stats.get("pendingReview", 0),
-                "flagged": stats.get("flagged", 0),
-                "cleared": stats.get("cleared", 0),
+                # Summed from the buckets rather than counted separately, so
+                # `total` and the four parts cannot contradict each other.
+                "total": sum(counts.values()),
+                "unprocessed": counts.get("unprocessed", 0),
+                "pendingReview": counts.get("pendingReview", 0),
+                "flagged": counts.get("flagged", 0),
+                "cleared": counts.get("cleared", 0),
             },
             "rows": facet.get("rows", []),
             "count": (facet.get("count") or [{}])[0].get("n", 0),
         }
+
+    def find_pending_review(self, limit: int = 10) -> tuple[list[dict[str, Any]], int]:
+        """Highest-scoring unreviewed claims first, plus the full queue count.
+
+        Sorted by score rather than date: the queue exists to be worked through
+        worst-first, and its length is shown separately from the page returned.
+        """
+        pipeline = [
+            {"$match": PENDING_MATCH},
+            {"$sort": {"fraud.computedScore": -1, "claimDate": -1}},
+            {"$limit": limit},
+            {"$lookup": {
+                "from": get_settings().CUSTOMERS_COLLECTION,
+                "localField": "customerId",
+                "foreignField": "customerId",
+                "as": "customer",
+            }},
+            # preserveNull so a claim with a missing customer still appears —
+            # dropping it would understate the queue.
+            {"$unwind": {"path": "$customer", "preserveNullAndEmptyArrays": True}},
+            {"$project": PENDING_PROJECTION},
+        ]
+        rows = list(self.collection.aggregate(pipeline))
+        total = self.collection.count_documents(PENDING_MATCH)
+        return rows, total
 
     def get_by_id(self, claim_id: str) -> dict[str, Any] | None:
         """A claim merged with its policy and customer, or None."""

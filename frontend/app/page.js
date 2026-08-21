@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 
+import AnalysisModal from "@/components/analysisModal/AnalysisModal";
 import AppShell from "@/components/appShell/AppShell";
 import ClaimView from "@/components/claimView/ClaimView";
 import CustomerDetail from "@/components/customerDetail/CustomerDetail";
@@ -29,6 +30,14 @@ export default function Home() {
   // Set only by the "Analyze for fraud" entry point, which exists to send
   // someone to a claim specifically to trigger analysis.
   const [nudgeAnalyze, setNudgeAnalyze] = useState(false);
+  // The claim currently being assessed by the agent. Owned here rather than in
+  // Dashboard or ClaimView so the same overlay serves every entry point, and so
+  // it survives navigating between them.
+  const [analyzeClaimId, setAnalyzeClaimId] = useState(null);
+  // Bumped when a decision is recorded, to make the views behind the overlay
+  // refetch — otherwise a claim's status pill keeps contradicting the decision
+  // that was just committed.
+  const [dataVersion, setDataVersion] = useState(0);
 
   const push = useCallback((entry, options = {}) => {
     setDetailStack((stack) => [...stack, entry]);
@@ -89,10 +98,12 @@ export default function Home() {
       default:
         return (
           <ClaimView
+            key={`${current.id}-${dataVersion}`}
             claimId={current.id}
             backLabel={backLabel}
             onBack={goBack}
             onOpenClaim={openClaim}
+            onAnalyze={setAnalyzeClaimId}
             nudgeAnalyze={nudgeAnalyze}
           />
         );
@@ -102,7 +113,13 @@ export default function Home() {
   function renderSection() {
     switch (activeSection) {
       case "dashboard":
-        return <Dashboard onOpenClaim={openClaim} />;
+        return (
+          <Dashboard
+            key={dataVersion}
+            onOpenClaim={openClaim}
+            onAnalyze={setAnalyzeClaimId}
+          />
+        );
       case "customers":
         return <CustomersList onOpenCustomer={openCustomer} />;
       case "policies":
@@ -117,6 +134,14 @@ export default function Home() {
       <AppShell activeSection={activeSection} onNavigate={navigate}>
         {current ? renderDetail() : renderSection()}
       </AppShell>
+
+      {analyzeClaimId && (
+        <AnalysisModal
+          claimId={analyzeClaimId}
+          onClose={() => setAnalyzeClaimId(null)}
+          onDecided={() => setDataVersion((version) => version + 1)}
+        />
+      )}
       {/* Outside AppShell: the launcher and its modal are fixed to the viewport
           and must not sit inside the shell's blurred/scrolling layers. */}
       <FraudChat />

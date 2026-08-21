@@ -56,6 +56,23 @@ class RecentActivityResponse(BaseModel):
     total: int
 
 
+# ------------------------------------------------------------- pending queue
+
+class PendingQueueItem(BaseModel):
+    claimId: str
+    customerName: str | None = None
+    coverageType: str | None = None
+    computedScore: float | None = None
+    scoredAt: datetime | None = None
+    # Pattern documents as stored on the claim; the client renders their names.
+    matchedPatterns: list[dict] = Field(default_factory=list)
+
+
+class PendingQueueResponse(BaseModel):
+    items: list[PendingQueueItem]
+    total: int
+
+
 # --------------------------------------------------------- relationship graph
 
 class GraphNode(BaseModel):

@@ -99,11 +99,34 @@ class FraudAnalyticsService:
 
     # ------------------------------------------------------- recent activity
 
-    def get_recent_activity(self, limit: int = 20) -> dict[str, Any]:
-        events = to_jsonable(self.reviews.recent_activity(limit=limit))
+    def get_recent_activity(
+        self,
+        limit: int = 20,
+        days: int | None = None,
+        agent_only: bool = False,
+    ) -> dict[str, Any]:
+        """Newest activity first, optionally windowed and narrowed to the agent.
+
+        `total` is the number of events returned, not a portfolio-wide count —
+        with a window applied there is nothing else it could honestly mean.
+        """
+        since = None
+        if days is not None:
+            # Naive UTC: the stored timestamps carry no offset, and a
+            # tz-aware bound would not compare against them in Mongo.
+            since = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(days=days)
+
+        events = to_jsonable(
+            self.reviews.recent_activity(limit=limit, since=since, agent_only=agent_only)
+        )
         return {"events": events, "total": len(events)}
 
     # --------------------------------------------------- relationship graph
+
+    def get_pending_queue(self, limit: int = 10) -> dict[str, Any]:
+        """Scored claims still awaiting a confirm/dismiss decision."""
+        items, total = self.claims.find_pending_review(limit=limit)
+        return {"items": items, "total": total}
 
     def get_relationship_graph(self, scope: str = "ALL", limit: int = 60) -> dict[str, Any]:
         """Pairwise claim relationships, built in Python over a capped candidate set.

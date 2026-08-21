@@ -31,8 +31,9 @@ function safeJsonParse(raw) {
 }
 
 /**
- * Sends one turn to the agent and drives its SSE response, invoking a handler
- * per event as it arrives.
+ * POSTs to one of our agent endpoints and drives the SSE response, invoking a
+ * handler per event as it arrives. Shared by chat and assessment: the frame
+ * contract is identical, only the endpoint and request body differ.
  *
  * `handlers` — all optional: `onText(chunk)`, `onProgress(activity)`,
  * `onSuspend({ reason, context, executionId })`, `onDone()`,
@@ -50,25 +51,17 @@ function safeJsonParse(raw) {
  * failure has to accumulate it from `onText`. An *in-stream* error is not a
  * rejection: the stream completed normally, so it surfaces as `errorReason`.
  */
-export async function streamAgentMessage({ message, sessionId, userId, signal }, handlers = {}) {
+async function streamAgentEndpoint(url, body, signal, handlers = {}) {
   const { onText, onProgress, onSuspend, onDone, onSessionId, onStreamError } = handlers;
 
   let text = "";
   let errorReason = null;
   let suspendInfo = null;
 
-  const response = await fetch("/api/chat", {
+  const response = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      message,
-      // Omitted, never sent as null: "absent" is how the engine is told to
-      // start a new conversation, and a literal null does not mean the same.
-      // camelCase is deliberate — `/api/chat` is the translation boundary, so
-      // the platform's snake_case never reaches client code.
-      ...(sessionId && { sessionId }),
-      ...(userId && { userId }),
-    }),
+    body: JSON.stringify(body),
     signal,
   });
 
@@ -162,4 +155,37 @@ export async function streamAgentMessage({ message, sessionId, userId, signal },
   }
 
   return { text, errorReason, suspendInfo };
+}
+
+/**
+ * One conversational turn. `sessionId` is omitted rather than sent as null on the
+ * first turn: "absent" is how the engine is told to start a new conversation.
+ * camelCase is deliberate — `/api/chat` is the translation boundary, so the
+ * platform's snake_case never reaches client code.
+ */
+export function streamAgentMessage({ message, sessionId, userId, signal }, handlers = {}) {
+  return streamAgentEndpoint(
+    "/api/chat",
+    { message, ...(sessionId && { sessionId }), ...(userId && { userId }) },
+    signal,
+    handlers
+  );
+}
+
+/**
+ * Runs the agent's full fraud assessment of one claim.
+ *
+ * The instruction is composed server-side, so there is no `message` here — the
+ * client chooses *which* claim to assess, never what the agent is asked to do.
+ * Omit `sessionId` for the normal case: an assessment runs in its own fresh
+ * conversation rather than inheriting unrelated chat context. The handle comes
+ * back on `onSessionId`, so follow-up questions can join that same thread.
+ */
+export function streamClaimAssessment({ claimId, sessionId, userId, focus, signal }, handlers = {}) {
+  return streamAgentEndpoint(
+    `/api/fraud-assessment/${encodeURIComponent(claimId)}`,
+    { ...(sessionId && { sessionId }), ...(userId && { userId }), ...(focus && { focus }) },
+    signal,
+    handlers
+  );
 }
