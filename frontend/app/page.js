@@ -7,6 +7,7 @@ import ClaimView from "@/components/claimView/ClaimView";
 import CustomerDetail from "@/components/customerDetail/CustomerDetail";
 import CustomersList from "@/components/customersList/CustomersList";
 import Dashboard from "@/components/dashboard/Dashboard";
+import FraudChat from "@/components/fraudChat/FraudChat";
 import PoliciesList from "@/components/policiesList/PoliciesList";
 import PolicyDetail from "@/components/policyDetail/PolicyDetail";
 import SectionPlaceholder from "@/components/sectionPlaceholder/SectionPlaceholder";
@@ -112,8 +113,13 @@ export default function Home() {
   }
 
   return (
-    <AppShell activeSection={activeSection} onNavigate={navigate}>
-      {current ? renderDetail() : renderSection()}
-    </AppShell>
+    <>
+      <AppShell activeSection={activeSection} onNavigate={navigate}>
+        {current ? renderDetail() : renderSection()}
+      </AppShell>
+      {/* Outside AppShell: the launcher and its modal are fixed to the viewport
+          and must not sit inside the shell's blurred/scrolling layers. */}
+      <FraudChat />
+    </>
   );
 }

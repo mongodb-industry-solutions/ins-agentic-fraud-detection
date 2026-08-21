@@ -25,6 +25,17 @@ class Settings(BaseSettings):
     PATTERNS_COLLECTION: str = "fraud_patterns"
     REVIEWS_COLLECTION: str = "claim_fraud_reviews"
 
+    # --- fraud assessment agent (MongoDB Agentic Platform) --------------------
+    # Optional so the API still boots without them: every other route works
+    # without an agent, and /api/chat answers 503 instead of crashing at import.
+    FRAUD_AGENT_API_KEY: str | None = None
+    FRAUD_AGENT_PROJECT_ID: str | None = None
+    FRAUD_AGENT_WORKSPACE_ID: str | None = None
+    # Read from the environment with no default: the platform host is not
+    # hardcoded anywhere, so pointing the demo at staging is an .env change.
+    # Expected to already include the platform's version prefix.
+    AGENT_BASE_URL: str | None = None
+
 
 @lru_cache
 def get_settings() -> Settings:

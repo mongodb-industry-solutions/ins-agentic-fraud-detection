@@ -4,12 +4,14 @@ from typing import Annotated
 
 from fastapi import Depends
 
+from core.config import Settings, get_settings
 from core.db import DbDep
 from repositories.claims_repo import ClaimsRepository
 from repositories.customers_repo import CustomersRepository
 from repositories.patterns_repo import PatternsRepository
 from repositories.policies_repo import PoliciesRepository
 from repositories.reviews_repo import ReviewsRepository
+from services.agent_chat_service import AgentChatService
 from services.claims_service import ClaimsService
 from services.directory_service import DirectoryService
 from services.fraud_analytics_service import FraudAnalyticsService
@@ -65,6 +67,13 @@ def get_patterns_service(
     return PatternsService(patterns_repo, claims_repo)
 
 
+def get_agent_chat_service(
+    settings: Annotated[Settings, Depends(get_settings)],
+) -> AgentChatService:
+    """Stateless and credential-only, so it needs no database handle."""
+    return AgentChatService(settings)
+
+
 def get_fraud_analytics_service(
     claims_repo: Annotated[ClaimsRepository, Depends(get_claims_repo)],
     reviews_repo: Annotated[ReviewsRepository, Depends(get_reviews_repo)],
@@ -78,3 +87,4 @@ FraudDecisionServiceDep = Annotated[FraudDecisionService, Depends(get_fraud_deci
 DirectoryServiceDep = Annotated[DirectoryService, Depends(get_directory_service)]
 PatternsServiceDep = Annotated[PatternsService, Depends(get_patterns_service)]
 FraudAnalyticsServiceDep = Annotated[FraudAnalyticsService, Depends(get_fraud_analytics_service)]
+AgentChatServiceDep = Annotated[AgentChatService, Depends(get_agent_chat_service)]

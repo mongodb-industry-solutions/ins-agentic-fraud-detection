@@ -42,3 +42,24 @@ class ValidationError(DomainError):
 
     status_code = 400
     error_code = "validation_error"
+
+
+class AgentNotConfiguredError(DomainError):
+    """The fraud agent credentials are missing from the environment."""
+
+    status_code = 503
+    error_code = "agent_not_configured"
+
+
+class AgentUpstreamError(DomainError):
+    """The agent platform rejected or failed the call.
+
+    Carries the upstream status through rather than flattening everything to
+    502, so a 401 on a stale API key is distinguishable from a real outage.
+    """
+
+    error_code = "agent_upstream_error"
+
+    def __init__(self, message: str, status_code: int = 502, details: dict | None = None):
+        super().__init__(message, details)
+        self.status_code = status_code
