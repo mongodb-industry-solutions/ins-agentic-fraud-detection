@@ -8,7 +8,7 @@ from fastapi import APIRouter, Path
 from fastapi.responses import StreamingResponse
 
 from core.dependencies import FraudAssessmentServiceDep
-from schemas.assessment import AssessmentRequest
+from schemas.assessment import AssessmentRequest, DecisionInstructionRequest
 from services.agent_chat_service import SESSION_HEADER
 
 router = APIRouter(prefix="/fraud-assessment", tags=["fraud-assessment"])
@@ -45,6 +45,48 @@ async def assess_claim(
         headers={
             # Relayed so the caller can ask follow-up questions in the same
             # conversation as the assessment they just watched run.
+            **({SESSION_HEADER: session_id} if session_id else {}),
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+
+@router.post(
+    "/{claim_id}/decision",
+    summary="Hand the reviewer's verdict to the agent to commit, and stream its reply",
+    response_class=StreamingResponse,
+)
+async def commit_decision_via_agent(
+    payload: DecisionInstructionRequest,
+    service: FraudAssessmentServiceDep,
+    claim_id: str = ClaimIdPath,
+) -> StreamingResponse:
+    """The closing turn of the assessment conversation.
+
+    Distinct from `POST /claims/{claim_id}/decision`, which writes the verdict to
+    MongoDB itself. This one asks the agent to persist the outcome and its own
+    audit record, on the session where it did the analysis — so the record is
+    written by the thing that produced the findings.
+
+    Streams the agent's confirmation of what it wrote. 400 if the decision is
+    unusable, 404 if the claim does not exist, 503 if the agent is not
+    configured.
+    """
+    stream, content_type, session_id = await service.stream_decision(
+        claim_id=claim_id,
+        decision=payload.decision,
+        reviewed_by=payload.reviewedBy,
+        session_id=payload.sessionId,
+        dismiss_reason=payload.dismissReason,
+        siu_referred=payload.siuReferred,
+        user_id=payload.userId,
+    )
+
+    return StreamingResponse(
+        stream,
+        media_type=content_type,
+        headers={
             **({SESSION_HEADER: session_id} if session_id else {}),
             "Cache-Control": "no-cache",
             "X-Accel-Buffering": "no",

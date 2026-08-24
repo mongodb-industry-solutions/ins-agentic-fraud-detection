@@ -46,6 +46,17 @@ class FraudDecisionService:
             "fraud.flagSource": "HUMAN",
             "fraud.reviewedBy": reviewed_by,
             "fraud.reviewedAt": reviewed_at,
+            # A human verdict means this claim has been through fraud review,
+            # which is what every consumer reads `processed` to mean.
+            #
+            # Without this the status branches — here, in the stats facet, and in
+            # claimsPresenter.toStatusKey — all test `processed` before
+            # `fraudFlag === false`, so a DISMISSED claim that was never scored
+            # kept rendering as "Not yet analyzed" and the decision was written
+            # but invisible everywhere. Confirmations were unaffected, because
+            # `fraudFlag === true` is tested first — so only dismissals silently
+            # disappeared.
+            "fraud.processed": True,
         }
         if dismiss_reason is not None:
             claim_fields["fraud.dismissReason"] = dismiss_reason

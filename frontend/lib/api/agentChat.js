@@ -189,3 +189,34 @@ export function streamClaimAssessment({ claimId, sessionId, userId, focus, signa
     handlers
   );
 }
+
+/**
+ * Hands the reviewer's verdict to the agent so it can commit the outcome and
+ * write its own audit record, then streams its confirmation of what it wrote.
+ *
+ * `sessionId` is REQUIRED here, unlike everywhere else: the whole point is that
+ * the agent still holds the analysis it just produced. Without it the agent
+ * would be asked to record findings it never made, so the route refuses rather
+ * than quietly opening a fresh conversation.
+ *
+ * The instruction is composed server-side — the client sends the verdict, never
+ * the wording of what the agent is asked to do.
+ */
+export function streamClaimDecision(
+  { claimId, sessionId, decision, dismissReason, reviewedBy, siuReferred, userId, signal },
+  handlers = {}
+) {
+  return streamAgentEndpoint(
+    `/api/fraud-assessment/${encodeURIComponent(claimId)}/decision`,
+    {
+      decision,
+      reviewedBy,
+      sessionId,
+      ...(dismissReason && { dismissReason }),
+      ...(siuReferred && { siuReferred }),
+      ...(userId && { userId }),
+    },
+    signal,
+    handlers
+  );
+}

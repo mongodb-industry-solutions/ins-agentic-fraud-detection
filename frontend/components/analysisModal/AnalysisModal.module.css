@@ -428,3 +428,173 @@
   font-weight: var(--weight-normal);
   white-space: nowrap;
 }
+
+/* --- conversation after the assessment ------------------------------------ */
+
+/* The report is the opening turn of a conversation, not a dead end, so the
+   transcript is separated from it by a labelled rule rather than a new panel —
+   it is the same thread continuing. */
+.conversationDivider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 18px 0 14px;
+  color: var(--text-dim);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.conversationDivider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.conversationHint {
+  margin-bottom: 12px;
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+
+/* --- composer ------------------------------------------------------------- */
+
+/* Mirrors the fraud chat's composer: same textarea grammar, same Enter-to-send
+   hint, so the two places you talk to this agent do not feel like two products.
+   The message bubbles themselves are the shared ChatMessage component. */
+.composer {
+  flex: none;
+  padding: 12px 22px;
+  border-top: 1px solid var(--border);
+}
+
+.input {
+  width: 100%;
+  padding: 9px 11px;
+  background: var(--bg);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-weight: var(--weight-light);
+  font-size: 12.5px;
+  resize: none;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--text-muted);
+}
+
+.composerFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.hint {
+  color: var(--text-dim);
+  font-size: 11px;
+}
+
+.sendButton {
+  padding: 6px 14px;
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  color: var(--on-spring-green);
+  font-size: 12px;
+}
+
+[data-theme="light"] .sendButton {
+  color: var(--white);
+}
+
+.sendButton:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.stopButton {
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 12px;
+}
+
+/* --- closing the case ----------------------------------------------------- */
+
+.closeCaseTrigger {
+  padding: 7px 16px;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 12.5px;
+}
+
+.verdictRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.verdictLabel {
+  margin-right: 4px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* Selected state uses the same 8% accent tint as the sidebar's active nav item
+   and the add-form's checked chips: all three mean "this is the one chosen". */
+.verdictOption {
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.verdictOptionActive {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+/* What the agent is about to be asked to do, stated before it is asked — the
+   reviewer is handing a write to something that may not perform it. */
+.commitNote {
+  margin-top: 8px;
+  color: var(--text-dim);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* Read back from the claim document, not from what the agent said about it. */
+.persistenceOk,
+.persistenceWarn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 4px 10px;
+  border-radius: var(--radius);
+  font-size: 11.5px;
+}
+
+.persistenceOk {
+  background: var(--mist);
+  color: var(--on-mist);
+}
+
+.persistenceWarn {
+  border: 1px dashed var(--border-strong);
+  color: var(--text-muted);
+}
