@@ -44,6 +44,19 @@ class ValidationError(DomainError):
     error_code = "validation_error"
 
 
+class EmbeddingsUnavailableError(DomainError):
+    """Voyage could not produce an embedding.
+
+    503 rather than 500: the usual cause is a missing VOYAGE_API_KEY or an
+    upstream Voyage failure, which is unavailability — not a bad request. The
+    embedding layer returns None instead of raising, so this is where that None
+    becomes a status code.
+    """
+
+    status_code = 503
+    error_code = "embeddings_unavailable"
+
+
 class AgentNotConfiguredError(DomainError):
     """The fraud agent credentials are missing from the environment."""
 

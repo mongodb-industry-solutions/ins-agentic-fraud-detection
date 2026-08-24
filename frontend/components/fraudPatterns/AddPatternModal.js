@@ -13,6 +13,7 @@ import {
   validateBasics,
 } from "./FormFields";
 import useCreatePattern from "./useCreatePattern";
+import useEmbeddingInfo from "./useEmbeddingInfo";
 import styles from "./AddPatternModal.module.css";
 import panelStyles from "./PatternDetailModal.module.css";
 
@@ -20,16 +21,27 @@ export default function AddPatternModal({ open, onClose, onCreated }) {
   const basics = usePatternBasics();
   const [fullDescription, setFullDescription] = useState("");
   const [errors, setErrors] = useState({});
-  const { submit, isSaving, saveError } = useCreatePattern(onCreated);
+  // Saving a similarity pattern spends Voyage quota, so it is confirmed rather
+  // than just done. The form is validated BEFORE the prompt appears: asking
+  // someone to approve an external API call and then telling them a field was
+  // empty wastes the decision they just made.
+  const [isConfirming, setIsConfirming] = useState(false);
+  const { model, dimensions } = useEmbeddingInfo("fraud_patterns", open);
+  const { submit, isSaving, phase, saveError } = useCreatePattern(onCreated, {
+    embedAfterCreate: true,
+  });
 
-  const handleSave = () => {
+  const handleRequestSave = () => {
     const nextErrors = validateBasics(basics);
     if (!fullDescription.trim()) {
       nextErrors.embeddingText = "The description is what gets embedded, so it can't be empty.";
     }
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
+    setIsConfirming(true);
+  };
 
+  const handleConfirmedSave = () => {
     submit({
       patternType: PATTERN_TYPE.SIMILARITY,
       ...toBasicsPayload(basics),
@@ -77,30 +89,78 @@ export default function AddPatternModal({ open, onClose, onCreated }) {
               <div className={styles.fieldError}>{errors.embeddingText}</div>
             )}
             <div className={styles.formHintBox}>
-              After saving, this pattern appears immediately but reads{" "}
-              <code>Not available — pending embedding procedure</code> until its embedding has been
-              generated. It takes no part in similarity matching until then.
+              On saving, this description is embedded so the pattern can be matched by narrative
+              similarity. If that step fails the pattern is still created, and reads{" "}
+              <code>Not available — pending embedding procedure</code> until it has been embedded.
             </div>
           </FormRow>
         </div>
 
+        {isConfirming && (
+          <div className={panelStyles.section}>
+            <div className={styles.confirmBanner}>
+              <Icon name="info" size={16} className={styles.confirmIcon} />
+              <span>
+                <span className={styles.confirmTitle}>
+                  Saving this pattern will embed its description.
+                </span>
+                The description is sent to Voyage AI
+                {model ? (
+                  <>
+                    {" "}
+                    and embedded with <span className={styles.confirmModel}>{model}</span>
+                    {dimensions ? ` (${dimensions} dimensions)` : ""}
+                  </>
+                ) : null}
+                , which is what lets the fraud agent match new claims against it by narrative. This
+                calls the Voyage API and counts against your quota.
+                <span className={styles.confirmNote}>
+                  If the embedding fails, the pattern is still saved and stays pending until it has
+                  been embedded — nothing is lost.
+                </span>
+              </span>
+            </div>
+          </div>
+        )}
+
         <div className={panelStyles.footer}>
-          <button
-            type="button"
-            className={panelStyles.btnSm}
-            onClick={onClose}
-            disabled={isSaving}
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            className={panelStyles.btnPrimary}
-            onClick={handleSave}
-            disabled={isSaving}
-          >
-            {isSaving ? "Saving…" : "Save pattern"}
-          </button>
+          {isConfirming ? (
+            <>
+              <button
+                type="button"
+                className={panelStyles.btnSm}
+                onClick={() => setIsConfirming(false)}
+                disabled={isSaving}
+              >
+                Back
+              </button>
+              <button
+                type="button"
+                className={panelStyles.btnPrimary}
+                onClick={handleConfirmedSave}
+                disabled={isSaving}
+              >
+                {phase === "embedding"
+                  ? "Embedding…"
+                  : phase === "creating"
+                    ? "Saving…"
+                    : "Save and embed"}
+              </button>
+            </>
+          ) : (
+            <>
+              <button type="button" className={panelStyles.btnSm} onClick={onClose}>
+                Cancel
+              </button>
+              <button
+                type="button"
+                className={panelStyles.btnPrimary}
+                onClick={handleRequestSave}
+              >
+                Save pattern
+              </button>
+            </>
+          )}
         </div>
       </div>
     </Overlay>

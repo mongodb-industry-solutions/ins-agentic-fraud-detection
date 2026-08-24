@@ -145,6 +145,53 @@
   line-height: 1.5;
 }
 
+/* Confirmation before a save that calls a paid external API. Sits in the
+   footer region of the panel it belongs to rather than opening a second overlay
+   on top of the first — a modal over a modal buries the form it is asking
+   about. Border-strong instead of a status colour: this is a question, not a
+   warning about something that has gone wrong. */
+.confirmBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+.confirmIcon {
+  flex: none;
+  margin-top: 1px;
+  color: var(--text-dim);
+}
+
+.confirmTitle {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--text);
+  font-weight: var(--weight-normal);
+}
+
+/* The model id is an identifier, so it takes the mono treatment every other
+   identifier in the app gets. */
+.confirmModel {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  color: var(--text);
+  text-transform: uppercase;
+}
+
+.confirmNote {
+  display: block;
+  margin-top: 6px;
+  color: var(--text-dim);
+  font-size: 11.5px;
+}
+
 /* --- checkbox chips ------------------------------------------------------- */
 
 .checkboxGrid {

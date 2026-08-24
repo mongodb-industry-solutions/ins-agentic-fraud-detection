@@ -17,6 +17,7 @@ from routers.audit import router as audit_router
 from routers.chat import router as chat_router
 from routers.claims import router as claims_router
 from routers.customers import router as customers_router
+from routers.embeddings import router as embeddings_router
 from routers.fraud import router as fraud_router
 from routers.fraud_assessment import router as fraud_assessment_router
 from routers.patterns import router as patterns_router
@@ -87,6 +88,7 @@ def create_app() -> FastAPI:
     app.include_router(fraud_router, prefix="/api")
     app.include_router(chat_router, prefix="/api")
     app.include_router(fraud_assessment_router, prefix="/api")
+    app.include_router(embeddings_router, prefix="/api")
 
     return app
 

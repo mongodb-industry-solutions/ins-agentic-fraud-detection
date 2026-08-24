@@ -84,14 +84,36 @@ export default function FraudPatternsView({ onOpenClaim }) {
   const [isAddRuleOpen, setIsAddRuleOpen] = useState(false);
   const [isAddPatternOpen, setIsAddPatternOpen] = useState(false);
 
-  const handleCreated = (newPattern, response) => {
-    addPattern(newPattern);
+  /**
+   * `embedding` is the result of the embed call the similarity form makes after
+   * creating — null for rules, which are never embedded.
+   */
+  const handleCreated = (newPattern, response, embedding) => {
+    const didEmbed = embedding?.embedded === true;
+    // The create response necessarily says hasEmbedding: false — the vector did
+    // not exist yet when it was written. Patched here so the new card reads
+    // "ready" instead of contradicting the embedding that just succeeded.
+    addPattern(didEmbed ? { ...newPattern, hasEmbedding: true } : newPattern);
+
     setIsAddRuleOpen(false);
     setIsAddPatternOpen(false);
+
+    if (embedding?.error) {
+      showToast(
+        <>
+          Created {newPattern.patternId}, but embedding failed: {embedding.error} The pattern is
+          saved and stays pending until it has been embedded.
+        </>
+      );
+      return;
+    }
+
     showToast(
       <>
         Created {newPattern.patternId} — {newPattern.name}.
-        {response.embeddingPending &&
+        {didEmbed && ` Embedded with ${embedding.model} (${embedding.dimensions} dimensions).`}
+        {!didEmbed &&
+          response.embeddingPending &&
           " It won't take part in similarity matching until its embedding has been generated."}
       </>
     );

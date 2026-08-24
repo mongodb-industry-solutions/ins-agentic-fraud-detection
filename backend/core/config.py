@@ -36,6 +36,20 @@ class Settings(BaseSettings):
     # Expected to already include the platform's version prefix.
     AGENT_BASE_URL: str | None = None
 
+    # --- Voyage embeddings ----------------------------------------------------
+    # Optional, like the agent credentials: without a key the embedding routes
+    # answer 503 and every other route is unaffected.
+    VOYAGE_API_KEY: str | None = None
+    VOYAGE_MODEL: str = "voyage-3.5"
+    # Must equal numDimensions on the Atlas vector indexes below. A model change
+    # that alters this silently breaks vector search at *query* time, not write
+    # time, so the backfill checks what it actually stored against this number.
+    VOYAGE_VECTOR_DIMS: int = 1024
+    # Not used to write embeddings — only to report whether the index a vector
+    # will eventually be searched through actually exists.
+    CLAIM_VECTOR_INDEX: str = "claim_vector_index"
+    PATTERN_VECTOR_INDEX: str = "fraud_pattern_vector_index"
+
 
 @lru_cache
 def get_settings() -> Settings:
