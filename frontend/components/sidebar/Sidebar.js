@@ -31,7 +31,7 @@ export default function Sidebar({ activeSection, onNavigate }) {
       <div className={styles.brand}>
         <span className={styles.mark}>L</span>
         <span className={styles.brandText}>
-          <span className={styles.brandName}>Leafy Claim Manager</span>
+          <span className={styles.brandName}>Fraud Intelligence Manager</span>
           <span className={styles.brandSub}>Claims management & Agentic fraud detection</span>
         </span>
       </div>
