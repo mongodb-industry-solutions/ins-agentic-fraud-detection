@@ -4,7 +4,7 @@ import styles from "./SegmentedControl.module.css";
 
 export default function SegmentedControl({ segments, activeId, onChange }) {
   return (
-    <div className={styles.control} role="tablist" aria-label="Claim complexity">
+    <div className={styles.control} role="tablist" aria-label="Fraud score band">
       {segments.map((segment) => {
         const isActive = segment.id === activeId;
         return (

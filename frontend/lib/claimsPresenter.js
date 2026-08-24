@@ -96,6 +96,35 @@ export function toMoney(amount) {
 /** The agent's raw score is capped at this many points. */
 export const MAX_SCORE = 12;
 
+/**
+ * Where the severe band starts on the 0..12 capped scale, matching the top arm
+ * of the backend's score histogram (SCORE_BOUNDARIES, 9..12).
+ *
+ * This is the dashboard's own banding, not the agent's: the agent reports a
+ * `bandLabel` of its own from cutoffs held in its instructions, outside this
+ * repo. If those two ever need to agree, this constant is the thing to move
+ * server-side — do not read it as authoritative for a claim's review band.
+ */
+export const SEVERE_SCORE_MIN = 9;
+
+/**
+ * Which dashboard segment a claim belongs to, or null for neither.
+ *
+ * Derived from the fraud score, NOT from the stored `complexity` field.
+ * `complexity` is operational triage metadata written when the claim is
+ * created — how hard the claim is to handle — so it says nothing about fraud
+ * severity and is set on claims the agent has never looked at.
+ *
+ * An unscored claim is in neither band: it is not a low-scoring claim, it is a
+ * claim with no score, and it stays visible under "All claims".
+ */
+function toSegment(claim) {
+  if (claim.processed !== true || claim.computedScore === null || claim.computedScore === undefined) {
+    return null;
+  }
+  return claim.computedScore >= SEVERE_SCORE_MIN ? "severe" : "simple";
+}
+
 /** computedScore is capped points, not a ratio — shown bare in a Lavender chip. */
 export function toScoreLabel(score) {
   if (score === null || score === undefined) return null;
@@ -136,8 +165,9 @@ export function toClaimRow(claim) {
     // them — the *Label fields above are what gets rendered.
     openedAt: claim.claimDate ? Date.parse(claim.claimDate) : null,
     scoreValue: claim.computedScore ?? null,
-    // Drives which segment filter the row survives; "all" always matches.
-    segment: (claim.complexity || "SIMPLE").toLowerCase() === "complex" ? "complex" : "simple",
+    // Drives which segment filter the row survives; "all" always matches, and
+    // null survives only "all".
+    segment: toSegment(claim),
     isUnprocessed: statusKey === STATUS.UNPROCESSED,
   };
 }

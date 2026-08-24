@@ -23,10 +23,15 @@ import {
   toSortControl,
 } from "@/lib/filtersPresenter";
 /* Segment labels are UI configuration, not data — the counts beside them are
-   always recomputed from the rows actually in view, below. */
+   always recomputed from the rows actually in view, below.
+
+   Severe and Simple are score bands over *assessed* claims (see
+   claimsPresenter.toSegment), so an unanalyzed claim appears under neither and
+   the two counts do not add up to "All claims". That is the intent: a claim the
+   agent has not scored has no fraud severity to sort it by. */
 const SEGMENTS = [
   { id: "all", label: "All claims" },
-  { id: "complex", label: "Severe" },
+  { id: "severe", label: "Severe" },
   { id: "simple", label: "Simple" },
 ];
 
@@ -142,9 +147,12 @@ export default function useDashboard() {
   const filterControls = useMemo(() => toFilterControls(allRows, filters), [allRows, filters]);
   const sortControl = useMemo(() => toSortControl(sort), [sort]);
 
-  // Checkbox column and segment filter are one behavior, not two: checkboxes
-  // exist only on "Simple", so switching away also clears the selection.
-  const showCheckboxes = activeSegment === "simple";
+  /* Off everywhere for now. The checkbox column fed /claims/batch/select, which
+     accepts only claims that have NOT been processed — and every segment that
+     used to carry checkboxes now shows processed claims exclusively, so every
+     box would be rejected on submit. The selection machinery below is left
+     intact for when batch processing gets an entry point that matches it. */
+  const showCheckboxes = false;
 
   const changeSegment = useCallback((segmentId) => {
     setActiveSegment(segmentId);
