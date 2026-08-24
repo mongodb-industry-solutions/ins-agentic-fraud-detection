@@ -84,6 +84,14 @@ EDGE_TYPE_LABEL = {
     "SAME_REPAIR_SHOP": "Same repair shop",
 }
 
+# Both axes of the co-occurrence heatmap. A hard cap, not a default that grows:
+# the grid stops being readable much past this, so a larger catalogue gets a
+# denser selection rather than a bigger grid.
+MATRIX_AXIS_LIMIT = 8
+
+# How many pairs the "notable pairs" list restates in precise text.
+TOP_PAIRS_LIMIT = 6
+
 
 def _range_label(low: int, high: int | None, unit: str | None) -> str:
     """A bucket range as a person would say it.
@@ -655,12 +663,112 @@ class FraudAnalyticsService:
         ]
         pairs.sort(key=lambda p: (-p["cooccurrenceCount"], p["patternIdA"], p["patternIdB"]))
 
+        top_patterns = self._matrix_axis(observed_triggers, stats, pairs)
         return {
             "pairs": pairs,
             "total": len(pairs),
             "minCooccurrence": min_cooccurrence,
             "claimsAnalyzed": len(pattern_sets),
+            "topPatterns": top_patterns,
+            "matrix": self._build_matrix(top_patterns, pairs),
+            # Pre-sorted and pre-limited here rather than left to a client to
+            # find by scanning the grid: the notable cells are the point of the
+            # grid, and "notable" is a ranking decision.
+            "topPairs": self._top_pairs(pairs),
         }
+
+    @staticmethod
+    def _matrix_axis(
+        observed_triggers: dict[str, int],
+        stats: dict[str, dict[str, Any]],
+        pairs: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        """The patterns that form both axes of the heatmap, at most MATRIX_AXIS_LIMIT.
+
+        Selected by how often each pattern fired *within the analysed claims*,
+        not by `stats.timesTriggered`. This matters and is a deliberate
+        departure from ranking the axis by catalogue volume:
+        `stats.timesTriggered` counts history that the claims collection no
+        longer holds, so the most-triggered patterns by that measure and the
+        patterns that actually co-occur in the data are nearly disjoint sets. An
+        axis chosen by catalogue volume produced a grid that was almost entirely
+        empty, which reads as "these patterns never fire together" when the
+        truth is "no analysed claim involved them".
+
+        Restricted further to patterns that appear in at least one surviving
+        pair, so no row or column is guaranteed blank before it is drawn.
+        """
+        in_a_pair = {pair["patternIdA"] for pair in pairs} | {pair["patternIdB"] for pair in pairs}
+        ranked = sorted(
+            in_a_pair,
+            key=lambda pid: (-observed_triggers.get(pid, 0), pid),
+        )[:MATRIX_AXIS_LIMIT]
+
+        return [
+            {
+                "patternId": pattern_id,
+                "patternName": stats.get(pattern_id, {}).get("name"),
+                "observedTriggerCount": observed_triggers.get(pattern_id, 0),
+                # Carried through so a client can show how much history sits
+                # behind a pattern that the analysed sample does not cover.
+                "timesTriggered": stats.get(pattern_id, {}).get("timesTriggered"),
+            }
+            for pattern_id in ranked
+        ]
+
+    @staticmethod
+    def _build_matrix(
+        top_patterns: list[dict[str, Any]],
+        pairs: list[dict[str, Any]],
+    ) -> dict[str, dict[str, dict[str, Any]]]:
+        """A symmetric lookup of cell -> figures, for the axis patterns only.
+
+        Written both ways round (`[a][b]` and `[b][a]`) because the grid is
+        rendered by iterating rows and columns independently, and a caller
+        should not have to know which of the two orderings the pair was stored
+        under. The diagonal is deliberately absent: a pattern cannot co-occur
+        with itself, and an entry there would invite it being coloured.
+        """
+        axis = {pattern["patternId"] for pattern in top_patterns}
+        matrix: dict[str, dict[str, dict[str, Any]]] = {pid: {} for pid in axis}
+
+        for pair in pairs:
+            a, b = pair["patternIdA"], pair["patternIdB"]
+            if a not in axis or b not in axis:
+                continue
+            cell = {
+                "count": pair["cooccurrenceCount"],
+                # The figure the heatmap colours by — see the note on
+                # `observedCooccurrenceRate` in get_pattern_cooccurrence_matrix
+                # for why the observed rate is the coherent one for a grid
+                # computed over the analysed claims.
+                "rate": pair["observedCooccurrenceRate"],
+                "catalogueRate": pair["cooccurrenceRate"],
+            }
+            matrix[a][b] = cell
+            matrix[b][a] = cell
+
+        return matrix
+
+    @staticmethod
+    def _top_pairs(pairs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        """The most notable pairs, highest rate first.
+
+        Ranked on the observed rate with the raw count as the tiebreak, so a
+        pair that always fires together outranks one that merely fires together
+        often — redundancy between two rules is the finding this list exists to
+        surface.
+        """
+        ranked = sorted(
+            pairs,
+            key=lambda p: (
+                -(p["observedCooccurrenceRate"] or 0),
+                -p["cooccurrenceCount"],
+                p["patternIdA"],
+                p["patternIdB"],
+            ),
+        )
+        return ranked[:TOP_PAIRS_LIMIT]
 
     @staticmethod
     def _ratio(numerator: int, denominator: int) -> float | None:

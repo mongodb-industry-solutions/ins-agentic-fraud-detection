@@ -804,6 +804,134 @@ def check_10_graph_contract(client: TestClient, claims) -> None:
                 )
 
 
+# --------------------------------------------- 11. leaderboard + co-occurrence matrix
+
+def check_11_pattern_insights(client: TestClient, patterns) -> None:
+    """The Patterns tab's two feeds: ranked leaderboard, and a drawable matrix."""
+    print("\n[11] pattern leaderboard + co-occurrence matrix")
+
+    payload = get(client, "/api/fraud-patterns/leaderboard", limit=5)
+    if payload:
+        active = patterns.count_documents({"active": True})
+        check(
+            f"totalActivePatternCount matches Mongo ({payload['totalActivePatternCount']} == {active})",
+            payload["totalActivePatternCount"] == active,
+            str(payload["totalActivePatternCount"]),
+        )
+        rows = payload["patterns"]
+        check(f"returns exactly limit=5 rows (got {len(rows)})", len(rows) == 5, str(len(rows)))
+        check("rankedBy names the metric", payload["rankedBy"] == "timesTriggered",
+              str(payload.get("rankedBy")))
+
+        # The ranking is the product decision this endpoint exists to own.
+        volumes = [row["timesTriggered"] for row in rows]
+        check(
+            f"sorted by timesTriggered descending {volumes}",
+            all(volumes[i - 1] >= volumes[i] for i in range(1, len(volumes))),
+            str(volumes),
+        )
+        # And it must really be the top of the catalogue, not just sorted.
+        expected_top = [
+            p["patternId"]
+            for p in patterns.find({"active": True}, {"patternId": 1, "stats": 1})
+            .sort([("stats.timesTriggered", -1), ("patternId", 1)])
+            .limit(5)
+        ]
+        check(
+            f"rows are the catalogue's actual top 5 {expected_top}",
+            [row["patternId"] for row in rows] == expected_top,
+            f"got {[r['patternId'] for r in rows]}",
+        )
+
+        for row in rows:
+            check(
+                f"{row['patternId']}: whyEffective is a real sentence",
+                isinstance(row["whyEffective"], str) and len(row["whyEffective"]) > 20,
+                repr(row.get("whyEffective")),
+            )
+            check(
+                f"{row['patternId']}: confirmedCount <= timesTriggered",
+                row["confirmedCount"] <= row["timesTriggered"],
+                str(row),
+            )
+            check(f"{row['patternId']}: has a weight", row.get("weight") is not None, str(row))
+
+        # A retired pattern must not hold a leaderboard slot.
+        retired = {p["patternId"] for p in patterns.find({"active": False}, {"patternId": 1})}
+        check(
+            "no inactive pattern appears on the leaderboard",
+            not ({row["patternId"] for row in rows} & retired),
+            str({row["patternId"] for row in rows} & retired),
+        )
+
+    # `leaderboard` must not be swallowed by the /{pattern_id} route.
+    unknown = client.get("/api/fraud-patterns/FP-DOES-NOT-EXIST")
+    check("an unknown pattern id still 404s", unknown.status_code == 404, unknown.text[:150])
+
+    matrix_payload = get(client, "/api/fraud/pattern-cooccurrence", minCooccurrence=2)
+    if not matrix_payload:
+        return
+
+    axis = matrix_payload["topPatterns"]
+    matrix = matrix_payload["matrix"]
+
+    check(f"axis is capped at 8 (got {len(axis)})", len(axis) <= 8, str(len(axis)))
+    check(
+        "axis is ordered by observed trigger count descending",
+        all(
+            axis[i - 1]["observedTriggerCount"] >= axis[i]["observedTriggerCount"]
+            for i in range(1, len(axis))
+        ),
+        str([a["observedTriggerCount"] for a in axis]),
+    )
+    check(
+        "every axis pattern is named",
+        all(a.get("patternName") for a in axis),
+        str([a["patternId"] for a in axis if not a.get("patternName")]),
+    )
+    check(
+        "matrix has one row per axis pattern",
+        set(matrix) == {a["patternId"] for a in axis},
+        f"matrix={sorted(matrix)} axis={sorted(a['patternId'] for a in axis)}",
+    )
+
+    for row_id, row in matrix.items():
+        check(
+            f"matrix[{row_id}] has no self-entry (the diagonal is not a cell)",
+            row_id not in row,
+            str(list(row)),
+        )
+        for col_id, cell in row.items():
+            # Symmetry: the grid is rendered by iterating rows and columns
+            # independently, so both directions must resolve.
+            mirrored = matrix.get(col_id, {}).get(row_id)
+            check(
+                f"matrix[{row_id}][{col_id}] is symmetric",
+                mirrored is not None and mirrored["count"] == cell["count"],
+                f"{cell} vs {mirrored}",
+            )
+            check(
+                f"matrix[{row_id}][{col_id}]: rate in (0, 1]",
+                cell["rate"] is None or 0.0 <= cell["rate"] <= 1.0,
+                str(cell),
+            )
+
+    pairs = matrix_payload["topPairs"]
+    check(f"topPairs is capped at 6 (got {len(pairs)})", len(pairs) <= 6, str(len(pairs)))
+    rates = [p["observedCooccurrenceRate"] or 0 for p in pairs]
+    check(
+        f"topPairs sorted by observed rate descending {rates}",
+        all(rates[i - 1] >= rates[i] for i in range(1, len(rates))),
+        str(rates),
+    )
+    all_pairs = {(p["patternIdA"], p["patternIdB"]) for p in matrix_payload["pairs"]}
+    check(
+        "every topPair is one of the returned pairs",
+        all((p["patternIdA"], p["patternIdB"]) in all_pairs for p in pairs),
+        str([(p["patternIdA"], p["patternIdB"]) for p in pairs]),
+    )
+
+
 def main() -> int:
     connector = create_connector()
     claims = connector.get_collection("claims")
@@ -824,6 +952,7 @@ def main() -> int:
             check_8_why_effective(client, patterns)
             check_9_graph_agreement(client)
             check_10_graph_contract(client, claims)
+            check_11_pattern_insights(client, patterns)
     finally:
         connector.client.close()
 

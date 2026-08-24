@@ -89,6 +89,32 @@ class FraudPatternListResponse(BaseModel):
     total: int
 
 
+class PatternLeaderboardRow(BaseModel):
+    """One leaderboard row: flat, with `stats` unpacked into named fields."""
+
+    patternId: str
+    patternName: str | None = None
+    patternType: str | None = None
+    severity: str | None = None
+    weight: float | None = None
+    timesTriggered: int = 0
+    confirmedCount: int = 0
+    confirmedFraudRate: float = 0.0
+    # Generated narrative, never null.
+    whyEffective: str
+
+
+class PatternLeaderboardResponse(BaseModel):
+    patterns: list[PatternLeaderboardRow] = Field(default_factory=list)
+    # Rows returned, which is min(limit, active patterns).
+    total: int
+    # The whole active catalogue behind the ranking, for "top 5 of N".
+    totalActivePatternCount: int
+    # Names the ranking metric so the client's caption cannot claim a different
+    # one than the server actually sorted by.
+    rankedBy: str
+
+
 class WhyEffectiveResult(BaseModel):
     patternId: str
     changed: bool

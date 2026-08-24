@@ -8,8 +8,8 @@ import { FI_TABS } from "@/lib/fraudIntelligencePresenter";
 import styles from "./FraudIntelligenceView.module.css";
 import CorrelationsTab from "./CorrelationsTab";
 import OverviewTab from "./OverviewTab";
+import PatternsTab from "./PatternsTab";
 import RelationshipsTab from "./RelationshipsTab";
-import { EmptyState, Zone } from "./Zone";
 
 /**
  * The Fraud Intelligence section and its own internal tab bar.
@@ -20,12 +20,11 @@ import { EmptyState, Zone } from "./Zone";
  * inside one of these tabs is the thing that pushes onto detailStack, and that
  * is the caller's job — hence `onOpenClaim` being passed straight through.
  *
- * Overview, Relationships and Correlations are built. Patterns renders an honest
- * note saying it is not, rather than a mocked-up version of itself.
+ * All four tabs are built. Operations and Activity were dropped rather than
+ * left as placeholders — see FI_TABS.
  */
 export default function FraudIntelligenceView({ onOpenClaim }) {
   const [activeTab, setActiveTab] = useState("overview");
-  const activeLabel = FI_TABS.find((tab) => tab.id === activeTab)?.label || "";
 
   return (
     <main className={styles.content}>
@@ -48,11 +47,7 @@ export default function FraudIntelligenceView({ onOpenClaim }) {
       ) : activeTab === "correlations" ? (
         <CorrelationsTab />
       ) : (
-        <div className={styles.tabBody}>
-          <Zone title={activeLabel}>
-            <EmptyState message={`The ${activeLabel} view is not built yet.`} />
-          </Zone>
-        </div>
+        <PatternsTab />
       )}
     </main>
   );

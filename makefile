@@ -67,6 +67,14 @@ verify-graph-layout:
 verify-correlations:
 	cd frontend && node scripts/with-aliases.mjs scripts/check-correlations.mjs
 
+# Patterns checks: server-owned ranking, heatmap symmetry, text-contrast flip.
+# Needs the backend running on :8000.
+verify-patterns:
+	cd frontend && node scripts/with-aliases.mjs scripts/check-patterns.mjs
+
+# Every Fraud Intelligence check. Needs the backend running on :8000.
+verify-fraud-intelligence: verify-phase1-tools verify-graph-layout verify-correlations verify-patterns
+
 # Give already-decided claims a fraud.processedAt so turnaround can be measured.
 backfill-processed-at:
 	cd backend && uv run python scripts/backfill_processed_at.py

@@ -94,6 +94,55 @@ class PatternsService:
         ]
         return {"patterns": patterns, "total": len(patterns)}
 
+    # ------------------------------------------------------------- leaderboard
+
+    def get_leaderboard(self, limit: int = 5) -> dict[str, Any]:
+        """The top N active patterns by trigger volume, with their reliability blurb.
+
+        A dedicated endpoint rather than the catalogue sorted and sliced by the
+        caller, for two reasons. The ranking is a product decision that belongs
+        server-side, and `whyEffective` is generated narrative — this returns it
+        for the handful of patterns actually being shown instead of making a
+        client fetch nineteen patterns' worth of prose to display five.
+
+        Ranked purely on `timesTriggered`. Not blended with confirmedFraudRate:
+        the two orderings genuinely differ on real data, and this screen answers
+        "what is firing most", with reliability shown per row so a high-volume,
+        low-precision pattern is visible as exactly that rather than being
+        quietly demoted by a composite nobody can see.
+        """
+        patterns = self.patterns.leaderboard(limit=limit)
+        return {
+            "patterns": [self._leaderboard_row(pattern) for pattern in patterns],
+            "total": len(patterns),
+            # Lets the client say "top 5 of 19" without a second request.
+            "totalActivePatternCount": self.patterns.count_active(),
+            "rankedBy": "timesTriggered",
+        }
+
+    @classmethod
+    def _leaderboard_row(cls, pattern: dict[str, Any]) -> dict[str, Any]:
+        """One flat row: no nested `stats`, no embedding, no rule logic.
+
+        Flattened because a leaderboard row is a fixed set of five figures, and
+        handing back the whole document would invite the client to render
+        something this screen has not been designed around.
+        """
+        stats = pattern.get("stats") or {}
+        return {
+            "patternId": pattern["patternId"],
+            "patternName": pattern.get("name"),
+            "patternType": pattern.get("patternType"),
+            "severity": pattern.get("severity"),
+            "weight": pattern.get("weight"),
+            "timesTriggered": stats.get("timesTriggered") or 0,
+            "confirmedCount": stats.get("confirmedCount") or 0,
+            "confirmedFraudRate": stats.get("confirmedFraudRate") or 0.0,
+            # Stored where it has been generated, composed on the fly otherwise,
+            # so this is never null — see build_why_effective.
+            "whyEffective": pattern.get("whyEffective") or cls.build_why_effective(pattern),
+        }
+
     # -------------------------------------------------------- why-effective text
 
     @staticmethod

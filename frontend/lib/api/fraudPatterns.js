@@ -10,6 +10,20 @@ export function listFraudPatterns({ patternType = "ALL", active, sort } = {}) {
   return apiFetch(`/fraud-patterns${query}`);
 }
 
+/**
+ * The top N active patterns by trigger volume, with their `whyEffective` blurb.
+ *
+ * A dedicated endpoint rather than `listFraudPatterns` sorted and sliced here:
+ * the ranking is decided server-side, and the generated narrative is attached
+ * only for the rows actually being returned.
+ *
+ * The response carries `rankedBy` and `totalActivePatternCount`, so a caption
+ * can name the real ranking metric and catalogue size instead of assuming them.
+ */
+export function getTopPatternsLeaderboard({ limit = 5 } = {}) {
+  return apiFetch(`/fraud-patterns/leaderboard${toQuery({ limit })}`);
+}
+
 /** A pattern plus the claims it actually fired on. */
 export function getFraudPatternDetail(patternId) {
   return apiFetch(`/fraud-patterns/${patternId}`);

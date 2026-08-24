@@ -11,6 +11,7 @@ from schemas.patterns import (
     FraudPatternListResponse,
     FraudPatternUpdateRequest,
     FraudPatternWriteResponse,
+    PatternLeaderboardResponse,
     PatternTypeFilter,
     WhyEffectiveRegenerateResponse,
 )
@@ -51,6 +52,26 @@ def regenerate_why_effective(
     running it twice with no decisions in between changes nothing and reports
     `patternsChanged: 0`."""
     return service.regenerate_why_effective(patternId)
+
+
+@router.get(
+    "/leaderboard",
+    response_model=PatternLeaderboardResponse,
+    summary="The most-triggered active patterns, with their reliability blurb",
+)
+def get_top_patterns_leaderboard(
+    service: PatternsServiceDep,
+    limit: int = Query(5, ge=1, le=25, description="Rows returned, ranked by trigger volume"),
+) -> PatternLeaderboardResponse:
+    """Ranked strictly by `stats.timesTriggered`, descending, over active
+    patterns only. `totalActivePatternCount` is the catalogue size behind the
+    ranking, so the client can say "top 5 of 19" without a second request.
+
+    Declared above `/{pattern_id}`: FastAPI matches routes in declaration order,
+    and the reverse order would resolve this path as a pattern whose id is
+    literally "leaderboard" and answer 404.
+    """
+    return service.get_leaderboard(limit=limit)
 
 
 @router.post(

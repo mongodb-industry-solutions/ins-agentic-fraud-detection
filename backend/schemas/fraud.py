@@ -211,11 +211,42 @@ class CooccurrencePair(BaseModel):
     observedCooccurrenceRate: float | None = None
 
 
+class MatrixAxisPattern(BaseModel):
+    """One pattern forming a row and a column of the heatmap."""
+
+    patternId: str
+    patternName: str | None = None
+    # Times this pattern fired within the analysed claims. The axis is ordered
+    # by this rather than by `timesTriggered`, so that the grid is drawn from
+    # the same population the rates are computed over.
+    observedTriggerCount: int = 0
+    # Catalogue-wide trigger count, which can describe far more history than the
+    # claims collection currently holds.
+    timesTriggered: int | None = None
+
+
+class CooccurrenceCell(BaseModel):
+    count: int
+    # What the heatmap colours by: co-occurrences over the rarer pattern's
+    # trigger count *within the analysed claims*.
+    rate: float | None = None
+    # The same ratio against catalogue-wide trigger counts. Reads far lower
+    # wherever `stats.timesTriggered` covers history the collection has dropped.
+    catalogueRate: float | None = None
+
+
 class PatternCooccurrenceResponse(BaseModel):
     pairs: list[CooccurrencePair] = Field(default_factory=list)
     total: int
     minCooccurrence: int
     claimsAnalyzed: int
+    # Both axes of the heatmap, capped at 8 and ordered by observed volume.
+    topPatterns: list[MatrixAxisPattern] = Field(default_factory=list)
+    # matrix[rowPatternId][colPatternId] -> cell. Symmetric; the diagonal is
+    # absent because a pattern cannot co-occur with itself.
+    matrix: dict[str, dict[str, CooccurrenceCell]] = Field(default_factory=dict)
+    # The most notable pairs, pre-ranked server-side.
+    topPairs: list[CooccurrencePair] = Field(default_factory=list)
 
 
 # ------------------------------------------------------------ repeat entities

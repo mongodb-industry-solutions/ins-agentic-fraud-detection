@@ -68,6 +68,22 @@ export function getFraudRateBreakdown(dimension) {
 }
 
 /**
+ * Which fraud patterns fire together on the same claim.
+ *
+ * The response carries the heatmap's axis (`topPatterns`, capped at 8 and
+ * ordered by trigger count *within the analysed claims*), a symmetric `matrix`
+ * of cells, and `topPairs` already ranked — the notable cells are a ranking
+ * decision, not something to find by scanning the grid here.
+ *
+ * A cell's `rate` is observed within the analysed claims; `catalogueRate` is
+ * the same ratio against catalogue-wide trigger counts, which reads much lower
+ * wherever those counts cover history the claims collection no longer holds.
+ */
+export function getPatternCooccurrence({ minCooccurrence = 2 } = {}) {
+  return apiFetch(`/fraud/pattern-cooccurrence${toQuery({ minCooccurrence })}`);
+}
+
+/**
  * Paid-out cost on accepted claims, cost avoided on caught ones, and the two
  * together. Decided claims only — an open claim is neither yet.
  *

@@ -4,7 +4,7 @@ import re
 from datetime import datetime, timezone
 from typing import Any
 
-from pymongo import DESCENDING
+from pymongo import ASCENDING, DESCENDING
 
 from core.config import get_settings
 from db.mdb import MongoDBConnector
@@ -41,6 +41,26 @@ class PatternsRepository:
 
         sort_field, sort_dir = parse_sort(sort)
         return list(self.collection.find(query).sort(sort_field, sort_dir))
+
+    def leaderboard(self, limit: int = 5) -> list[dict[str, Any]]:
+        """The most-triggered active patterns, highest volume first.
+
+        Retired patterns are excluded: the leaderboard is a statement about what
+        is currently doing the work, and a deactivated rule with a long history
+        would otherwise hold the top slot indefinitely.
+
+        `patternId` is the tiebreak so equal-volume patterns keep a stable order
+        rather than swapping places between requests.
+        """
+        return list(
+            self.collection.find({"active": True}).sort(
+                [("stats.timesTriggered", DESCENDING), ("patternId", ASCENDING)]
+            ).limit(limit)
+        )
+
+    def count_active(self) -> int:
+        """Active patterns in the catalogue — the leaderboard's "of N"."""
+        return self.collection.count_documents({"active": True})
 
     def get_by_id(self, pattern_id: str) -> dict[str, Any] | None:
         return self.collection.find_one({"patternId": pattern_id})
