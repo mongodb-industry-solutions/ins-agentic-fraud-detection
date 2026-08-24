@@ -23,7 +23,11 @@ class Settings(BaseSettings):
     CUSTOMERS_COLLECTION: str = "customers"
     POLICIES_COLLECTION: str = "policies"
     PATTERNS_COLLECTION: str = "fraud_patterns"
-    REVIEWS_COLLECTION: str = "claim_fraud_reviews"
+    # The fraud-review audit trail: one document per agent run. Named
+    # `decision_traces` because that is what the agent side writes — the earlier
+    # `claim_fraud_reviews` was never created, so every audit read came back
+    # empty against a collection that did not exist.
+    REVIEWS_COLLECTION: str = "decision_traces"
 
     # --- fraud assessment agent (MongoDB Agentic Platform) --------------------
     # Optional so the API still boots without them: every other route works

@@ -1,4 +1,7 @@
-"""Audit-trail routes, backed by claim_fraud_reviews (one document per agent run)."""
+"""Audit-trail routes, backed by the review collection (one document per agent run).
+
+Collection name comes from settings.REVIEWS_COLLECTION — `decision_traces`.
+"""
 
 from fastapi import APIRouter, Path
 

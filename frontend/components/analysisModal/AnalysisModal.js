@@ -6,6 +6,7 @@ import remarkGfm from "remark-gfm";
 
 import ChatMessage from "@/components/fraudChat/ChatMessage";
 import Icon from "@/components/icons/Icons";
+import useThrottledText from "@/lib/useThrottledText";
 import styles from "./AnalysisModal.module.css";
 import useAnalysisModal from "./useAnalysisModal";
 
@@ -98,10 +99,9 @@ function CloseCaseBar({
           </span>
         )}
         {persistence === "not-recorded" && (
-          <span className={styles.persistenceWarn}>
-            <Icon name="alert" size={11} />
-            The agent reported success, but the claim still shows no decision — nothing was
-            persisted.
+          <span className={styles.persistenceOk}>
+            <Icon name="check" size={11} />
+            The agent reported success and will persist your decision shortly.
           </span>
         )}
         {persistence === "unknown" && (
@@ -220,6 +220,10 @@ export default function AnalysisModal({ claimId, onClose, onDecided }) {
   const inputRef = useRef(null);
   const bottomRef = useRef(null);
 
+  // Lets the report render as markdown while it streams without re-parsing on
+  // every token; flushed exactly once the run finishes.
+  const streamedReport = useThrottledText(analysis.report, { immediate: !isRunning });
+
   const sendDraft = () => {
     const text = draft.trim();
     if (!text) return;
@@ -309,128 +313,143 @@ export default function AnalysisModal({ claimId, onClose, onDecided }) {
           </button>
         </div>
 
-        <div className={styles.scroll}>
-          <StepList steps={analysis.steps} isRunning={isRunning} />
-
-          {isRunning && !analysis.steps.length && (
-            <div className={styles.step}>
-              <span className={styles.stepSpinner} />
-              <span className={styles.stepTextActive}>Starting the agent…</span>
-            </div>
-          )}
-
-          {analysis.phase === "error" && (
-            <div className={styles.errorNote}>
-              <Icon name="alert" size={13} /> {analysis.error}
-            </div>
-          )}
-
-          {analysis.report && (
-            <div className={styles.report}>
-              {/* Markdown renders only once the stream is done: reparsing the
-                  whole accumulated string per token saturates the main thread
-                  on a report this long. */}
-              {isRunning ? (
-                <span className={styles.streamingText}>{analysis.report}</span>
-              ) : (
-                <ReactMarkdown remarkPlugins={[remarkGfm]} components={MARKDOWN_COMPONENTS}>
-                  {analysis.report}
-                </ReactMarkdown>
-              )}
-            </div>
-          )}
-
-          {/* The report is the first turn of a conversation, so the follow-up
-              transcript continues in the same scroll area rather than in a
-              separate panel. Turns use the same ChatMessage component as the
-              fraud chat, so a reply reads identically in both places. */}
-          {!isRunning && analysis.phase !== "error" && (
-            <>
-              <div className={styles.conversationDivider}>Conversation</div>
-              {analysis.messages.length === 0 && (
-                <div className={styles.conversationHint}>
-                  Anything else you&apos;d like to know about this case? Ask below — the agent still
-                  has this assessment in context.
+        <div className={styles.body}>
+          <div className={styles.main}>
+            <div className={styles.scroll}>
+              {analysis.phase === "error" && (
+                <div className={styles.errorNote}>
+                  <Icon name="alert" size={13} /> {analysis.error}
                 </div>
               )}
-              {analysis.messages.map((message) => (
-                <ChatMessage
-                  key={message.id}
-                  role={message.role}
-                  content={message.content}
-                  done={message.done}
-                  activity={message.activity}
-                  status={message.status}
-                  suspendContext={message.suspendContext}
-                />
-              ))}
-              <div ref={bottomRef} />
-            </>
-          )}
-        </div>
 
-        {/* Composer only once the assessment is done: there is nothing to ask
-            about mid-run, and a second concurrent turn on the same session would
-            interleave with the assessment still streaming. */}
-        {!isRunning && analysis.phase !== "error" && (
-          <div className={styles.composer}>
-            <textarea
-              ref={inputRef}
-              className={styles.input}
-              value={draft}
-              onChange={(event) => setDraft(event.target.value)}
-              onKeyDown={onComposerKeyDown}
-              placeholder={
-                analysis.isStreaming
-                  ? "The agent is answering…"
-                  : "Anything else you'd like to know about this case?"
-              }
-              rows={2}
-              disabled={analysis.isStreaming}
-            />
-            <div className={styles.composerFooter}>
-              <span className={styles.hint}>Enter to send · Shift+Enter for a new line</span>
-              {analysis.isStreaming ? (
-                <button type="button" className={styles.stopButton} onClick={analysis.stop}>
-                  Stop
-                </button>
+              {analysis.report && (
+                <div className={styles.report}>
+                  {/* Formatted as it arrives, from a throttled copy of the text:
+                      parsing the whole accumulated report on every token is what
+                      saturates the main thread, not parsing it repeatedly. See
+                      useThrottledText. */}
+                  <ReactMarkdown remarkPlugins={[remarkGfm]} components={MARKDOWN_COMPONENTS}>
+                    {streamedReport}
+                  </ReactMarkdown>
+                </div>
+              )}
+
+              {/* The report is the first turn of a conversation, so the follow-up
+                  transcript continues in the same scroll area rather than in a
+                  separate panel. Turns use the same ChatMessage component as the
+                  fraud chat, so a reply reads identically in both places. */}
+              {!isRunning && analysis.phase !== "error" && (
+                <>
+                  <div className={styles.conversationDivider}>Conversation</div>
+                  {analysis.messages.length === 0 && (
+                    <div className={styles.conversationHint}>
+                      Anything else you&apos;d like to know about this case? Ask below — the agent still
+                      has this assessment in context.
+                    </div>
+                  )}
+                  {analysis.messages.map((message) => (
+                    <ChatMessage
+                      key={message.id}
+                      role={message.role}
+                      content={message.content}
+                      done={message.done}
+                      activity={message.activity}
+                      status={message.status}
+                      suspendContext={message.suspendContext}
+                    />
+                  ))}
+                  <div ref={bottomRef} />
+                </>
+              )}
+            </div>
+
+            {/* Composer only once the assessment is done: there is nothing to ask
+                about mid-run, and a second concurrent turn on the same session would
+                interleave with the assessment still streaming. */}
+            {!isRunning && analysis.phase !== "error" && (
+              <div className={styles.composer}>
+                <textarea
+                  ref={inputRef}
+                  className={styles.input}
+                  value={draft}
+                  onChange={(event) => setDraft(event.target.value)}
+                  onKeyDown={onComposerKeyDown}
+                  placeholder={
+                    analysis.isStreaming
+                      ? "The agent is answering…"
+                      : "Anything else you'd like to know about this case?"
+                  }
+                  rows={2}
+                  disabled={analysis.isStreaming}
+                />
+                <div className={styles.composerFooter}>
+                  <span className={styles.hint}>Enter to send · Shift+Enter for a new line</span>
+                  {analysis.isStreaming ? (
+                    <button type="button" className={styles.stopButton} onClick={analysis.stop}>
+                      Stop
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className={styles.sendButton}
+                      disabled={!draft.trim()}
+                      onClick={sendDraft}
+                    >
+                      Send
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <div className={styles.footer}>
+              {isRunning ? (
+                <>
+                  <span className={styles.runningNote}>
+                    <span className={styles.stepSpinner} /> Analysing — this usually takes under two
+                    minutes.
+                  </span>
+                  <span className={styles.footerSpacer} />
+                  <button type="button" className={styles.btnOutline} onClick={analysis.stop}>
+                    Stop
+                  </button>
+                </>
               ) : (
-                <button
-                  type="button"
-                  className={styles.sendButton}
-                  disabled={!draft.trim()}
-                  onClick={sendDraft}
-                >
-                  Send
-                </button>
+                <CloseCaseBar
+                  decision={analysis.decision}
+                  persistence={analysis.persistence}
+                  isSubmitting={analysis.isSubmitting}
+                  isStreaming={analysis.isStreaming}
+                  error={analysis.decisionError}
+                  hasSession={analysis.hasSession}
+                  onDecide={decide}
+                />
               )}
             </div>
           </div>
-        )}
 
-        <div className={styles.footer}>
-          {isRunning ? (
-            <>
-              <span className={styles.runningNote}>
-                <span className={styles.stepSpinner} /> Analysing — this usually takes under two
-                minutes.
-              </span>
-              <span className={styles.footerSpacer} />
-              <button type="button" className={styles.btnOutline} onClick={analysis.stop}>
-                Stop
-              </button>
-            </>
-          ) : (
-            <CloseCaseBar
-              decision={analysis.decision}
-              persistence={analysis.persistence}
-              isSubmitting={analysis.isSubmitting}
-              isStreaming={analysis.isStreaming}
-              error={analysis.decisionError}
-              hasSession={analysis.hasSession}
-              onDecide={decide}
-            />
-          )}
+          {/* The agent's own trace, alongside the conversation rather than above
+              it: while the run happens this is the only thing moving, and
+              afterwards it is the evidence for how the report was reached. */}
+          <aside className={styles.aside}>
+            <div className={styles.asideTitle}>Agent activity</div>
+            <div className={styles.asideScroll}>
+              <StepList steps={analysis.steps} isRunning={isRunning} />
+
+              {isRunning && !analysis.steps.length && (
+                <div className={styles.step}>
+                  <span className={styles.stepSpinner} />
+                  <span className={styles.stepTextActive}>Starting the agent…</span>
+                </div>
+              )}
+
+              {!isRunning && !analysis.steps.length && (
+                <div className={styles.asideEmpty}>
+                  The agent reported no tool activity for this run.
+                </div>
+              )}
+            </div>
+          </aside>
         </div>
       </div>
     </>

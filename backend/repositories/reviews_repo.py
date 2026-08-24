@@ -1,4 +1,7 @@
-"""Data access for claim_fraud_reviews — one document per agent run.
+"""Data access for the fraud-review audit trail — one document per agent run.
+
+The collection is named by settings.REVIEWS_COLLECTION (`decision_traces`), which
+is what the agent side writes.
 
 Phase 4's `write_audit_record` tool writes through this same repository.
 """

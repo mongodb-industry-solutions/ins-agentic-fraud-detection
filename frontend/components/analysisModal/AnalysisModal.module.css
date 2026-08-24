@@ -27,10 +27,12 @@
   z-index: 61;
   display: flex;
   flex-direction: column;
-  width: 820px;
+  /* Wide enough for the conversation to keep a readable measure with the tool
+     log alongside it, rather than the log squeezing the report. */
+  width: 1180px;
   max-width: 94vw;
-  height: 680px;
-  max-height: 88vh;
+  height: 740px;
+  max-height: 90vh;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -107,6 +109,75 @@
 .closeBtn:hover {
   background: var(--surface-2);
   color: var(--text);
+}
+
+/* --- two columns ---------------------------------------------------------- */
+
+/* Left: the conversation — report, transcript, composer, decision. Right: the
+   agent's tool log. The split exists because they are read at different times.
+   The log is watched while the run happens and consulted afterwards; the
+   conversation is the thing you work in. Stacking them meant the report pushed
+   the log out of view exactly when it became evidence. */
+.body {
+  display: flex;
+  flex: 1;
+  /* Without this, a long report makes the flex children grow instead of
+     scrolling, and both columns lose their own scrollbars. */
+  min-height: 0;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+.aside {
+  display: flex;
+  flex-direction: column;
+  flex: none;
+  width: 340px;
+  min-height: 0;
+  border-left: 1px solid var(--border);
+  background: var(--surface-2);
+}
+
+.asideTitle {
+  flex: none;
+  padding: 13px 18px 10px;
+  color: var(--text-dim);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.asideScroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 18px 16px;
+}
+
+.asideEmpty {
+  color: var(--text-dim);
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+/* Below this the two columns stop fitting side by side, so the log moves under
+   the conversation rather than being crushed. */
+@media (max-width: 1080px) {
+  .body {
+    flex-direction: column;
+  }
+
+  .aside {
+    width: auto;
+    max-height: 190px;
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
 }
 
 .scroll {
@@ -194,10 +265,10 @@
 
 /* --- report --------------------------------------------------------------- */
 
+/* No top rule any more: the step list used to sit directly above the report and
+   needed separating from it. The steps now live in the right column, so a border
+   here would be a hairline with nothing above it. */
 .report {
-  margin-top: 14px;
-  padding-top: 14px;
-  border-top: 1px solid var(--border);
   font-size: 12.5px;
 }
 

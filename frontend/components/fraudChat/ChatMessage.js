@@ -4,6 +4,7 @@ import { memo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
+import useThrottledText from "@/lib/useThrottledText";
 import styles from "./FraudChat.module.css";
 
 /* Tailwind's preflight strips list bullets and heading margins, so every block
@@ -41,6 +42,13 @@ const THINKING_ONLY = /^thinking\.{0,3}\s*$/i;
 const THINKING_PREFIX = /^thinking\.{0,3}\s*/i;
 
 function AssistantBody({ content, done, activity }) {
+  const visible = (content || "").replace(THINKING_PREFIX, "");
+  // Markdown renders while the reply streams, from a throttled copy of the text
+  // — see useThrottledText for why it is throttled rather than per-token. A
+  // partially arrived `**bold**` or table row formats itself once its closing
+  // syntax lands, which is the trade for live formatting.
+  const streamed = useThrottledText(visible, { immediate: done });
+
   if (!content) {
     return activity ? (
       <span className={styles.activity}>
@@ -56,16 +64,9 @@ function AssistantBody({ content, done, activity }) {
     return <span className={styles.activity}>{content}</span>;
   }
 
-  const text = content.replace(THINKING_PREFIX, "");
-
-  // Markdown renders once, on completion. Reparsing the whole accumulated
-  // string on every token saturates the main thread on a long answer, so a
-  // streaming reply is plain pre-wrapped text until `done`.
-  if (!done) return <span className={styles.streamingText}>{text}</span>;
-
   return (
     <ReactMarkdown remarkPlugins={[remarkGfm]} components={MARKDOWN_COMPONENTS}>
-      {text}
+      {streamed}
     </ReactMarkdown>
   );
 }
