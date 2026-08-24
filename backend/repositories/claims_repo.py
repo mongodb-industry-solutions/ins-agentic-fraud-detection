@@ -379,22 +379,52 @@ class ClaimsRepository:
         ]
         return list(self.collection.aggregate(pipeline))
 
-    def score_distribution(self, boundaries: list[int]) -> list[dict[str, Any]]:
-        """Histogram of computedScore over scored claims only.
+    def score_distribution(self) -> list[dict[str, Any]]:
+        """One row per exact computedScore present, over scored claims only.
 
-        Boundaries span 0..12 because computedScore is capped at 12 by the
-        scoring step, even though the raw pre-cap score can run higher.
+        Grouped per integer score rather than $bucket'd into wide ranges: the
+        histogram is drawn one bar per score, and re-deriving per-score counts
+        from four wide buckets is not possible. The service fills in the scores
+        that no claim landed on, since a missing score is a zero-height bar
+        rather than an absent one.
+
+        Scores are rounded because `computedScore` is stored as a number and a
+        fractional score would otherwise open a bar of its own between two
+        integers.
         """
         pipeline = [
             {"$match": {"fraud.processed": True, "fraud.computedScore": {"$ne": None}}},
-            {"$bucket": {
-                "groupBy": "$fraud.computedScore",
-                "boundaries": boundaries,
-                "default": "other",
-                "output": {"count": {"$sum": 1}},
+            {"$group": {
+                "_id": {"$round": ["$fraud.computedScore", 0]},
+                "count": {"$sum": 1},
             }},
+            {"$sort": {"_id": ASCENDING}},
+            {"$project": {"_id": 0, "score": "$_id", "count": 1}},
         ]
         return list(self.collection.aggregate(pipeline))
+
+    def latest_claim_date(self) -> datetime | None:
+        """The most recent `claimDate` in the portfolio, or None if empty."""
+        row = self.collection.find_one(
+            {"claimDate": {"$ne": None}},
+            sort=[("claimDate", DESCENDING)],
+            projection={"_id": 0, "claimDate": 1},
+        )
+        return (row or {}).get("claimDate")
+
+    def average_computed_score(self) -> float | None:
+        """Mean computedScore over scored claims, or None if nothing is scored.
+
+        Computed here rather than derived from the histogram: averaging bucketed
+        counts loses per-claim granularity and would report a subtly wrong
+        figure beside the exact one on the KPI strip.
+        """
+        pipeline = [
+            {"$match": {"fraud.processed": True, "fraud.computedScore": {"$ne": None}}},
+            {"$group": {"_id": None, "avg": {"$avg": "$fraud.computedScore"}}},
+        ]
+        row = next(iter(self.collection.aggregate(pipeline)), {})
+        return row.get("avg")
 
     def overall_decision_counts(self) -> dict[str, int]:
         """Flagged/cleared totals across the *whole* portfolio, undated."""

@@ -9,6 +9,7 @@ import CustomerDetail from "@/components/customerDetail/CustomerDetail";
 import CustomersList from "@/components/customersList/CustomersList";
 import Dashboard from "@/components/dashboard/Dashboard";
 import FraudChat from "@/components/fraudChat/FraudChat";
+import FraudIntelligenceView from "@/components/fraudIntelligence/FraudIntelligenceView";
 import FraudPatternsView from "@/components/fraudPatterns/FraudPatternsView";
 import PoliciesList from "@/components/policiesList/PoliciesList";
 import PolicyDetail from "@/components/policyDetail/PolicyDetail";
@@ -129,6 +130,11 @@ export default function Home() {
         // Opening a matched claim pushes onto the same detailStack every other
         // claim reference uses, so Back returns here.
         return <FraudPatternsView onOpenClaim={openClaim} />;
+      case "fraudIntelligence":
+        // Its six sub-tabs are internal state, so they never touch detailStack.
+        // Drilling into a claim from one of them does, and Back returns here
+        // because activeSection is unchanged by the drill.
+        return <FraudIntelligenceView key={dataVersion} onOpenClaim={openClaim} />;
       default:
         return <SectionPlaceholder label={SECTION_TITLE[activeSection]} />;
     }

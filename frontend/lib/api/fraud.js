@@ -22,3 +22,15 @@ export function getPendingQueue({ limit = 10 } = {}) {
 export function getRelationshipGraph({ scope = "ALL", limit = 60 } = {}) {
   return apiFetch(`/fraud/relationship-graph${toQuery({ scope, limit })}`);
 }
+
+/**
+ * Paid-out cost on accepted claims, cost avoided on caught ones, and the two
+ * together. Decided claims only — an open claim is neither yet.
+ *
+ * `potentialImpactWithoutTool` is returned by the API rather than summed here
+ * on purpose: the definition of "what this would have cost" lives server-side,
+ * so this client cannot drift out of step with it.
+ */
+export function getFinancialImpact() {
+  return apiFetch("/fraud/financial-impact");
+}

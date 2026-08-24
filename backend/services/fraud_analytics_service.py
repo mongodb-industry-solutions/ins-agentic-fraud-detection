@@ -17,8 +17,27 @@ DEFAULT_TREND_DAYS = 90
 RATE_PRECISION = 4
 
 # computedScore is capped at 12 by the scoring step (the raw pre-cap score can
-# run higher), so the histogram spans 0..12 and 13 is the exclusive top edge.
-SCORE_BOUNDARIES = [0, 3, 6, 9, 12, 13]
+# run higher), so the histogram spans 0..12 inclusive.
+MAX_SCORE = 12
+
+# Review-band cutoffs on the 0..12 capped scale, as (inclusive minimum, label)
+# in descending order.
+#
+# This is the server-side home for banding, and it exists so that a score is
+# labelled in exactly one place. The frontend previously carried its own
+# `SEVERE_SCORE_MIN` in claimsPresenter.js, documented there as explicitly NOT
+# authoritative — which was honest but left the histogram with no authority to
+# read from. Anything that needs to know what band a score falls into should now
+# read it from a response rather than re-deriving it from a threshold of its own.
+#
+# Note this is still not the *agent's* banding: the agent reports a bandLabel
+# from cutoffs held in its own instructions, outside this repo. Reconciling those
+# two is a separate job; this constant is the authority for portfolio analytics.
+SCORE_BANDS: tuple[tuple[int, str], ...] = (
+    (9, "HIGH"),
+    (6, "REVIEW"),
+    (0, "LOW"),
+)
 
 # One enormous cluster — a pattern that fired on 40 claims — would otherwise
 # produce ~800 edges and an unreadable graph, so each group is truncated
@@ -80,13 +99,23 @@ class FraudAnalyticsService:
         grouping logic differs: the trend is date-bucketed over every claim in
         the range, the histogram is score-bucketed over scored claims only.
         """
-        date_to = date_to or datetime.now(timezone.utc)
+        # The trailing window is anchored to the newest claim in the portfolio,
+        # not to the wall clock. On live data the two are the same thing. On the
+        # seeded demo data they are eighteen months apart, and anchoring to
+        # "now" returned an empty trend for every caller — the dashboard's
+        # sparklines have been silently drawing nothing for exactly this reason.
+        # An explicit dateTo still wins, so a caller can ask for any window.
+        if date_to is None:
+            latest = self.claims.latest_claim_date()
+            date_to = latest or datetime.now(timezone.utc)
+            # Stored timestamps are naive UTC; mixing in a tz-aware bound would
+            # raise on the subtraction below and never compare in Mongo.
+            if latest is not None and date_from is not None and date_from.tzinfo:
+                date_from = date_from.replace(tzinfo=None)
         date_from = date_from or (date_to - timedelta(days=DEFAULT_TREND_DAYS))
 
         trend = self.claims.trend_by_bucket(date_from, date_to, unit=bucket)
-        distribution = self._label_distribution(
-            self.claims.score_distribution(SCORE_BOUNDARIES)
-        )
+        distribution = self._label_distribution(self.claims.score_distribution())
 
         # Deliberately unfiltered by date: this is a portfolio-level
         # reliability figure, not a point on the trend line.
@@ -94,36 +123,40 @@ class FraudAnalyticsService:
         decided = counts["flagged"] + counts["cleared"]
         rate = round(counts["flagged"] / decided, RATE_PRECISION) if decided else 0.0
 
+        average = self.claims.average_computed_score()
+
         return {
             "trend": to_jsonable(trend),
             "scoreDistribution": distribution,
             "overallConfirmedFraudRate": rate,
+            # None, not 0.0, when nothing has been scored: an unscored portfolio
+            # has no average score, and 0.0 would read as "every claim scored 0".
+            "avgComputedScore": round(average, 2) if average is not None else None,
             "dateFrom": date_from,
             "dateTo": date_to,
             "bucket": bucket,
         }
 
     @staticmethod
-    def _label_distribution(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
-        """Turn `_id` lower-bounds into human ranges ("0-2", "3-5", ...).
+    def score_band(score: int) -> str:
+        """The review band a score falls into. The one place this is decided."""
+        return next(label for minimum, label in SCORE_BANDS if score >= minimum)
 
-        $bucket omits ranges that caught nothing; they are filled back in with
-        a zero so the histogram always has the same bars in the same order.
+    @classmethod
+    def _label_distribution(cls, rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        """One entry per score 0..12, each tagged with its band.
+
+        Every score is present even when no claim landed on it: the histogram
+        draws a bar per score, and omitting the empty ones would silently
+        compress the x-axis so that neighbouring bars stopped being neighbouring
+        scores. A gap in the distribution is information, so it is rendered as a
+        zero rather than closed up.
         """
-        counts = {row["_id"]: row.get("count", 0) for row in rows}
-        edges = SCORE_BOUNDARIES
-
-        distribution = [
-            {
-                "range": str(low) if high - low == 1 else f"{low}-{high - 1}",
-                "count": counts.pop(low, 0),
-            }
-            for low, high in zip(edges, edges[1:])
+        counts = {row["score"]: row.get("count", 0) for row in rows}
+        return [
+            {"score": score, "count": counts.get(score, 0), "band": cls.score_band(score)}
+            for score in range(0, MAX_SCORE + 1)
         ]
-        # Anything outside the boundaries lands in $bucket's "other" default.
-        if counts.get("other"):
-            distribution.append({"range": "other", "count": counts["other"]})
-        return distribution
 
     # ------------------------------------------------------- recent activity
 

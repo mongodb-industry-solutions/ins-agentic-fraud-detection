@@ -13,6 +13,7 @@ import Icon from "@/components/icons/Icons";
 import ReportDrawer from "@/components/reportDrawer/ReportDrawer";
 import ScoreChip from "@/components/scoreChip/ScoreChip";
 import StatusPill from "@/components/statusPill/StatusPill";
+import TabBar from "@/components/tabBar/TabBar";
 import styles from "./ClaimView.module.css";
 import useClaimView from "./useClaimView";
 
@@ -132,20 +133,12 @@ export default function ClaimView({ claimId, backLabel, onBack, onOpenClaim, onA
           </div>
 
           {/* Pure visibility toggle — all tab content came from one fetch. */}
-          <div className={styles.tabs} role="tablist">
-            {claim.tabs.map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                role="tab"
-                aria-selected={tab.id === claim.activeTab}
-                className={`${styles.tab} ${tab.id === claim.activeTab ? styles.activeTab : ""}`}
-                onClick={() => claim.setActiveTab(tab.id)}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+          <TabBar
+            tabs={claim.tabs}
+            activeId={claim.activeTab}
+            onChange={claim.setActiveTab}
+            label="Claim sections"
+          />
 
           {claim.activeTab === "overview" && (
             <ClaimOverview

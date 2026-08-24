@@ -28,14 +28,22 @@ class TrendPoint(BaseModel):
 
 
 class ScoreBucket(BaseModel):
-    range: str
+    """One exact score, not a range: the histogram draws a bar per score."""
+
+    score: int
     count: int = 0
+    # LOW / REVIEW / HIGH, assigned by SCORE_BANDS server-side. Clients colour
+    # bars from this rather than re-deriving thresholds of their own.
+    band: str
 
 
 class PortfolioStatsResponse(BaseModel):
     trend: list[TrendPoint]
     scoreDistribution: list[ScoreBucket]
     overallConfirmedFraudRate: float
+    # None when no claim has been scored yet — distinct from 0.0, which would
+    # mean every scored claim scored zero.
+    avgComputedScore: float | None = None
     dateFrom: datetime
     dateTo: datetime
     bucket: str
