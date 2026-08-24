@@ -189,11 +189,11 @@ export default function ReportDrawer({ claimId, row, onClose, onViewClaim }) {
                 <div className={styles.section}>
                   <span className={styles.sectionTitle}>How the agent got here</span>
                   {report.steps.map((step) => (
-                    <div key={step} className={styles.step}>
+                    <div key={step.id} className={styles.step}>
                       <span className={styles.stepDot}>
                         <Icon name="check" size={9} />
                       </span>
-                      {step}
+                      {step.label}
                     </div>
                   ))}
                 </div>

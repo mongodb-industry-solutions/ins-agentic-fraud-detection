@@ -294,6 +294,37 @@ export function toMonoTimestamp(value) {
  * patternId/patternName/weight, which cannot render rationale text or
  * similarity evidence — that richer content has to come off the review doc.
  */
+/**
+ * "How the agent got here" as {id, label} rows.
+ *
+ * Two shapes reach this. A decision trace records `steps` as objects — one per
+ * pattern that fired, carrying the comparison that fired it — while the offline
+ * fixture uses plain narration strings. Both are normalised here rather than in
+ * the drawer, which renders view models and never raw API JSON.
+ *
+ * The id matters: the drawer used the step itself as its React key, which was
+ * fine for unique strings and produced duplicate `[object Object]` keys the
+ * moment real traces arrived.
+ */
+function toReportSteps(steps) {
+  return (steps || [])
+    .map((step, index) => {
+      if (typeof step === "string") {
+        return step.trim() ? { id: `step-${index}`, label: step } : null;
+      }
+      if (!step || typeof step !== "object") return null;
+
+      const name = step.patternName || step.patternId || "Pattern evaluated";
+      return {
+        id: step.patternId || `step-${index}`,
+        // The detail IS the evidence ("claimAmount=35000 > 25000"), so it is
+        // kept verbatim next to the pattern it justifies.
+        label: step.detail ? `${name} — ${step.detail}` : name,
+      };
+    })
+    .filter(Boolean);
+}
+
 export function toFraudReportViewModel(claim, review) {
   if (!claim) return null;
 
@@ -349,7 +380,7 @@ export function toFraudReportViewModel(claim, review) {
       review?.patternsEvaluatedCount != null
         ? `${matchedPatterns.length} patterns matched out of ${review.patternsEvaluatedCount} active patterns evaluated`
         : `${matchedPatterns.length} patterns matched`,
-    steps: review?.steps || [],
+    steps: toReportSteps(review?.steps),
     matchedPatterns,
     similarClaims,
     decision: toDecision(fraud),

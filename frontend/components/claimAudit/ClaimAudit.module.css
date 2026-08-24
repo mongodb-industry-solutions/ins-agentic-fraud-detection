@@ -89,3 +89,244 @@
   font-size: 12.5px;
   text-align: center;
 }
+
+/* --- run header ----------------------------------------------------------- */
+
+.head {
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.headSpacer {
+  flex: 1;
+}
+
+.traceId {
+  flex: none;
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+/* --- score ---------------------------------------------------------------- */
+
+.scoreRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 10px;
+}
+
+.scoreMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.scoreOutOf {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 12.5px;
+}
+
+.scoreNotes {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+/* The band is the agent's own classification of the score, so it reads as a
+   value rather than as prose. Uncolored: it is a category, and the four status
+   colours are reserved for a claim's review state. */
+.band {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+/* --- run facts ------------------------------------------------------------ */
+
+/* What triggered the run and what the claim looked like at the time, as
+   label/value pairs on one line — they are reference facts, not a narrative. */
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.fact {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.factLabel {
+  font-size: 10.5px;
+  color: var(--text-dim);
+}
+
+.factValue {
+  font-size: 11.5px;
+}
+
+.factValueMono {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 11.5px;
+  text-transform: uppercase;
+}
+
+/* --- summary -------------------------------------------------------------- */
+
+.summary {
+  margin: 12px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+/* --- patterns ------------------------------------------------------------- */
+
+.section {
+  margin-top: 14px;
+}
+
+.sectionTitle {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 10.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.patternRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  border-top: 1px solid var(--border);
+}
+
+.patternRow:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+
+/* Points contributed by this pattern — agent output, so the same solid Lavender
+   as every other agent-computed number. */
+.weight {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  flex: none;
+  padding: 2px 6px;
+  border-radius: var(--radius);
+  background: var(--lavender);
+  color: var(--on-lavender);
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 11px;
+}
+
+.patternBody {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.patternHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.patternName {
+  font-size: 12px;
+}
+
+.patternId {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.badge {
+  padding: 1px 6px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+/* The actual comparison that fired. Mono because it is data, not language. */
+.evidence {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 10.5px;
+  color: var(--text-muted);
+  word-break: break-word;
+}
+
+.similarity {
+  color: var(--text-dim);
+}
+
+/* --- human decision ------------------------------------------------------- */
+
+.decision {
+  margin-top: 14px;
+  padding: 11px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.decisionHead {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+
+.decisionBy {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  text-transform: uppercase;
+}
+
+/* Dashed rather than filled: an SIU referral is a routing fact, not a fifth
+   status colour. */
+.siuTag {
+  padding: 1px 8px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-pill);
+  font-size: 10.5px;
+  color: var(--text-muted);
+}
+
+.reasoning {
+  margin: 8px 0 0;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--text-muted);
+}

@@ -1,4 +1,5 @@
 import {
+  MAX_SCORE,
   STATUS,
   STATUS_LABEL,
   humanizeEnum,
@@ -288,27 +289,128 @@ export function toLinkedClaims(response) {
   }));
 }
 
-/** Audit timeline. Agent runs read as Lavender; lifecycle events as neutral. */
-export function toAuditTimeline(response) {
-  return (response?.records || []).map((record, index) => {
-    const isAgentRun = record.computedScore != null || record.matchedPatterns != null;
-    const matched = record.matchedPatterns?.length ?? null;
+/**
+ * One decision trace -> everything the audit tab renders for that run.
+ *
+ * A trace holds four different kinds of information and they are kept apart
+ * here rather than flattened into a list of sentences:
+ *
+ *   what triggered the run  — triggerType, triggeredBy, batchId
+ *   what the agent found    — score, band, matchedPatterns, steps, agentSummary
+ *   what the claim looked
+ *   like at the time        — contextSnapshot
+ *   what the human did      — humanDecision / outcome
+ *
+ * `steps` is the per-pattern evidence and is a SUBSET of `matchedPatterns` —
+ * four patterns can match while only two carry a recorded detail. So the
+ * pattern list is built from `matchedPatterns` (authoritative for what fired)
+ * and enriched from `steps` where a detail exists, instead of rendering `steps`
+ * alone and silently dropping the rest.
+ *
+ * Field fallbacks exist because two trace shapes are in the data: the
+ * established one below, and the agent's own writes which use `subjectRef` and
+ * `occurredAt`. Reading both means an agent-written trace still appears rather
+ * than vanishing on a key name.
+ */
+function toAuditEntry(record, index) {
+  const claimId = record.claimId || record.subjectRef || null;
+  const at = record.createdAt || record.triggeredAt || record.occurredAt || null;
+  const context = record.contextSnapshot || {};
+  const outcome = record.outcome || {};
+  const human = record.humanDecision || null;
 
+  const computedScore = record.computedScore ?? context.computedScore ?? outcome.proposedScore ?? null;
+  const rawScore = record.rawScore ?? context.rawScore ?? outcome.rawScore ?? null;
+  const band = context.band || outcome.band || null;
+
+  const isAgentRun = computedScore != null || Boolean(record.matchedPatterns);
+
+  // A cap is worth stating explicitly: a claim at 12/12 that raw-scored 18 is a
+  // different fact from one that scored exactly 12.
+  const capApplied =
+    outcome.capApplied === true || (rawScore != null && computedScore != null && rawScore > computedScore);
+
+  const stepsByPattern = new Map(
+    // Optional-chained: a trace can carry narration strings in `steps` instead
+    // of pattern objects, and those have no patternId to index by.
+    (record.steps || []).filter((step) => step?.patternId).map((step) => [step.patternId, step])
+  );
+
+  // Counted from the raw array but rendered only from usable entries: the
+  // offline fixture carries `new Array(7)` as shorthand for "seven matched, no
+  // detail", so a row list built without this guard dereferences undefined.
+  const matchedCount = (record.matchedPatterns || []).length;
+
+  const patterns = (record.matchedPatterns || []).filter((pattern) => pattern?.patternId).map((pattern) => {
+    const step = stepsByPattern.get(pattern.patternId) || {};
     return {
-      id: `${record.claimId || "record"}-${index}`,
-      isAgentRun,
-      title: isAgentRun ? "Fraud analysis run" : humanizeEnum(record.eventType) || "Claim event",
-      timestampLabel: toMonoTimestamp(record.createdAt),
-      details: [
-        isAgentRun
-          ? `Triggered by ${record.triggeredBy || record.agentName || "agent"}`
-          : record.detail || "Routine lifecycle event",
-        isAgentRun && record.patternsEvaluatedCount != null
-          ? `${record.patternsEvaluatedCount} patterns checked, ${matched ?? 0} matched`
-          : null,
-      ].filter(Boolean),
+      patternId: pattern.patternId,
+      name: pattern.patternName || pattern.name || pattern.patternId,
+      weight: pattern.weight ?? step.weight ?? null,
+      typeLabel: step.patternType === "HISTORICAL_SIMILARITY" ? "Similarity" : step.patternType ? "Rule" : null,
+      severity: step.severity || null,
+      // The comparison that actually fired, e.g. "claimAmount=35000 > 25000".
+      detail: step.detail || null,
+      similarityLabel: step.similarity != null ? `${Math.round(step.similarity * 100)}%` : null,
     };
   });
+
+  const decision = human?.decision || outcome.finalDecision || null;
+  const decidedAt = human?.decidedAt || outcome.decidedAt || null;
+
+  return {
+    id: record.traceId || `${claimId || "record"}-${index}`,
+    traceId: record.traceId || null,
+    isAgentRun,
+    title: isAgentRun ? "Fraud analysis run" : humanizeEnum(record.eventType) || "Claim event",
+    timestampLabel: toMonoTimestamp(at),
+
+    scoreLabel: computedScore != null ? `${Math.round(computedScore)}` : null,
+    scoreOutOf: computedScore != null ? `${Math.round(computedScore)} / ${MAX_SCORE}` : null,
+    bandLabel: band ? humanizeEnum(band) : null,
+    capNote: capApplied ? `Capped from a raw total of ${Math.round(rawScore)}` : null,
+
+    // Facts about the run itself, as label/value pairs so the component does no
+    // formatting of its own.
+    runFacts: [
+      record.triggeredBy ? { label: "Triggered by", value: record.triggeredBy, mono: true } : null,
+      record.triggerType
+        ? { label: "Trigger", value: humanizeEnum(record.triggerType), mono: false }
+        : null,
+      record.batchId ? { label: "Batch", value: record.batchId, mono: true } : null,
+      context.claimAmount != null
+        ? { label: "Claim amount", value: toMoney(context.claimAmount), mono: true }
+        : null,
+      context.complexity
+        ? { label: "Complexity", value: humanizeEnum(context.complexity), mono: false }
+        : null,
+    ].filter(Boolean),
+
+    summary: record.agentSummary || null,
+    patterns,
+    patternsNote:
+      matchedCount > 0
+        ? `${matchedCount} pattern${matchedCount === 1 ? "" : "s"} matched`
+        : "No patterns matched",
+
+    decision: decision
+      ? {
+          // Same status vocabulary as every other fraud state in the app, so the
+          // pill here means what it means everywhere else.
+          statusKey: decision.startsWith("CONFIRM") ? STATUS.FLAGGED : STATUS.CLEARED,
+          label: decision.startsWith("CONFIRM") ? "Confirmed fraud" : "Dismissed",
+          byLabel: human?.decidedBy || outcome.reviewedBy || null,
+          atLabel: decidedAt ? toMonoTimestamp(decidedAt) : null,
+          reasoning: human?.reasoning || outcome.reason || outcome.notes || null,
+          siuReferred: human?.siuReferred === true || outcome.siuReferred === true,
+        }
+      : null,
+  };
+}
+
+/** Audit timeline, newest first as the API returns it. */
+export function toAuditTimeline(response) {
+  return (response?.records || []).map(toAuditEntry);
 }
 
 /** Tab bar. The linked count only appears when there is something to count. */
