@@ -26,7 +26,7 @@ import {
    always recomputed from the rows actually in view, below. */
 const SEGMENTS = [
   { id: "all", label: "All claims" },
-  { id: "complex", label: "Complex" },
+  { id: "complex", label: "Severe" },
   { id: "simple", label: "Simple" },
 ];
 

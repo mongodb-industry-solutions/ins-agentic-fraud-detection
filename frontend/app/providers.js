@@ -3,6 +3,8 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import LeafyGreenProvider from "@leafygreen-ui/leafygreen-provider";
 
+import { ToastProvider } from "@/components/shared/ToastProvider";
+
 const ThemeContext = createContext({ theme: "dark", toggleTheme: () => {} });
 
 export function useTheme() {
@@ -24,7 +26,12 @@ export function Providers({ children }) {
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      <LeafyGreenProvider darkMode={theme === "dark"}>{children}</LeafyGreenProvider>
+      <LeafyGreenProvider darkMode={theme === "dark"}>
+        {/* Mounted once for the whole app: every placeholder action anywhere
+            calls useToast(), so there is one toast mechanism, not one per
+            screen. */}
+        <ToastProvider>{children}</ToastProvider>
+      </LeafyGreenProvider>
     </ThemeContext.Provider>
   );
 }

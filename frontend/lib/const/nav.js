@@ -1,16 +1,18 @@
 /** Sidebar structure. `icon` keys resolve against components/icons/Icons.js. */
 
+/* Fraud Patterns sits directly above Fraud Intelligence rather than under
+   System: maintaining the ruleset is day-to-day claims work on the same
+   subject, not platform configuration, and the pattern a claim matched is read
+   in one and explained in the other. */
 export const WORKSPACE_NAV = [
   { id: "dashboard", label: "Dashboard", icon: "grid" },
   { id: "customers", label: "Customers", icon: "users" },
   { id: "policies", label: "Policies", icon: "file" },
+  { id: "fraudPatterns", label: "Fraud Patterns", icon: "activity" },
   { id: "fraudIntelligence", label: "Fraud Intelligence", icon: "shield" },
 ];
 
-export const SYSTEM_NAV = [
-  { id: "fraudPatterns", label: "Fraud Patterns", icon: "activity" },
-  { id: "settings", label: "Settings", icon: "settings" },
-];
+export const SYSTEM_NAV = [{ id: "settings", label: "Settings", icon: "settings" }];
 
 export const DEFAULT_SECTION = "dashboard";
 

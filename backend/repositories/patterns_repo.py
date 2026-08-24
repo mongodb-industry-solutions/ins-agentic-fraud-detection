@@ -1,7 +1,10 @@
 """Data access for the fraud_patterns collection."""
 
+import re
 from datetime import datetime, timezone
 from typing import Any
+
+from pymongo import DESCENDING
 
 from core.config import get_settings
 from db.mdb import MongoDBConnector
@@ -44,6 +47,40 @@ class PatternsRepository:
 
     def get_many(self, pattern_ids: list[str]) -> list[dict[str, Any]]:
         return list(self.collection.find({"patternId": {"$in": pattern_ids}}))
+
+    def next_pattern_id(self) -> str:
+        """The next free FP-nnn.
+
+        Ids are zero-padded to three digits, so the highest is also the last
+        lexicographically and one indexed read finds it. This assumes the
+        catalogue stays under FP-999; past that the padding, and this sort,
+        would need widening.
+        """
+        latest = self.collection.find_one(
+            {"patternId": {"$regex": r"^FP-\d{3}$"}},
+            sort=[("patternId", DESCENDING)],
+            projection={"patternId": 1},
+        )
+        highest = int(re.sub(r"\D", "", latest["patternId"])) if latest else 0
+        return f"FP-{highest + 1:03d}"
+
+    def insert_pattern(self, document: dict[str, Any]) -> dict[str, Any]:
+        """Insert and return the stored document, `_id` stripped."""
+        self.collection.insert_one(document)
+        return {key: value for key, value in document.items() if key != "_id"}
+
+    def update_fields(self, pattern_id: str, fields: dict[str, Any]) -> dict[str, Any] | None:
+        """$set the given fields plus updatedAt, returning the updated document.
+
+        Returns the document rather than a matched count: the caller sends the
+        new state straight back to the client, so a second read would only
+        create a window in which the two could disagree.
+        """
+        return self.collection.find_one_and_update(
+            {"patternId": pattern_id},
+            {"$set": {**fields, "updatedAt": datetime.now(timezone.utc)}},
+            return_document=True,
+        )
 
     def increment_confirmed_count(self, pattern_id: str) -> dict[str, Any] | None:
         """+1 to stats.confirmedCount, returning the updated document."""

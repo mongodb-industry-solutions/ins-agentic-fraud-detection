@@ -1,0 +1,179 @@
+/* Form grammar shared by AddRuleModal and AddPatternModal. The panel, header,
+   section and footer styling comes from PatternDetailModal.module.css — the two
+   add-forms are the same centred panel with form controls inside. */
+
+.formRow {
+  margin-bottom: 14px;
+}
+
+.formRow:last-child {
+  margin-bottom: 0;
+}
+
+.formLabel {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* Forest Green, not a status color: this marks a required field, it does not
+   report a state. */
+.req {
+  color: var(--forest-green);
+}
+
+[data-theme="dark"] .req {
+  color: var(--accent);
+}
+
+.hintInline {
+  color: var(--text-dim);
+  font-weight: var(--weight-light);
+}
+
+.formInput,
+.formSelect,
+.formTextarea {
+  width: 100%;
+  padding: 8px 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-weight: var(--weight-light);
+  font-size: 13px;
+}
+
+.formInput:focus,
+.formSelect:focus,
+.formTextarea:focus {
+  outline: none;
+  border-color: var(--text-muted);
+}
+
+.formTextarea {
+  min-height: 70px;
+  resize: vertical;
+}
+
+.narrow {
+  max-width: 120px;
+}
+
+.medium {
+  max-width: 200px;
+}
+
+.tall {
+  min-height: 120px;
+}
+
+/* States what happens after saving, in the same recessed-panel treatment used
+   for explanatory notes elsewhere. */
+.formHintBox {
+  margin-top: 6px;
+  padding: 10px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: 11.5px;
+  line-height: 1.55;
+}
+
+.formHintBox code {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  color: var(--text);
+}
+
+/* A rejected save states the reason in place, where the field is, rather than
+   in a toast that disappears before it can be acted on. */
+.formError {
+  margin-bottom: 12px;
+  padding: 9px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.fieldError {
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+/* Fields the update endpoint refuses: shown, because you need to see what the
+   pattern does while editing the rest of it, but visibly not a control. */
+.readOnlyBlock {
+  padding: 10px 12px;
+  background: var(--surface-2);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.readOnlyRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0;
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 11.5px;
+  color: var(--text);
+  text-transform: uppercase;
+}
+
+.readOnlyOp {
+  color: var(--text-dim);
+  font-family: var(--font-sans);
+  font-weight: var(--weight-light);
+  text-transform: none;
+}
+
+.readOnlyNote {
+  margin-top: 6px;
+  color: var(--text-dim);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* --- checkbox chips ------------------------------------------------------- */
+
+.checkboxGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.checkChip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 2px;
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* Accent at 8% — the same tint the sidebar's active nav item uses. Both mean
+   "this one is selected", so it is the existing usage, not a new color. */
+.checked {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.checkChip input {
+  margin: 0;
+  accent-color: var(--accent);
+}

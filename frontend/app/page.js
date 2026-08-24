@@ -9,6 +9,7 @@ import CustomerDetail from "@/components/customerDetail/CustomerDetail";
 import CustomersList from "@/components/customersList/CustomersList";
 import Dashboard from "@/components/dashboard/Dashboard";
 import FraudChat from "@/components/fraudChat/FraudChat";
+import FraudPatternsView from "@/components/fraudPatterns/FraudPatternsView";
 import PoliciesList from "@/components/policiesList/PoliciesList";
 import PolicyDetail from "@/components/policyDetail/PolicyDetail";
 import SectionPlaceholder from "@/components/sectionPlaceholder/SectionPlaceholder";
@@ -124,6 +125,10 @@ export default function Home() {
         return <CustomersList onOpenCustomer={openCustomer} />;
       case "policies":
         return <PoliciesList onOpenPolicy={openPolicy} />;
+      case "fraudPatterns":
+        // Opening a matched claim pushes onto the same detailStack every other
+        // claim reference uses, so Back returns here.
+        return <FraudPatternsView onOpenClaim={openClaim} />;
       default:
         return <SectionPlaceholder label={SECTION_TITLE[activeSection]} />;
     }
