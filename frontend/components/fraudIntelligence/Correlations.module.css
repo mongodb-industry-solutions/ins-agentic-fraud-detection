@@ -1,0 +1,199 @@
+/* Correlations sub-tab. Zone shell, skeleton, error and empty states come from
+   FraudIntelligenceView.module.css.
+
+   The only colour here is the Mist -> Forest-Green intensity ramp below. No
+   reserved chart-only colours: a sequential ramp reads correctly from two
+   approved tokens, so this is not a case where they would be needed. */
+
+.note {
+  margin: 0;
+  padding: 9px 12px;
+  border-left: 2px solid var(--border-strong);
+  color: var(--text-muted);
+  font-size: 11.5px;
+  font-weight: var(--weight-light);
+}
+
+.legendRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+}
+
+.legendCaption {
+  font-size: 11.5px;
+  font-weight: var(--weight-light);
+  color: var(--text-dim);
+}
+
+/* --- bar chart ------------------------------------------------------------ */
+
+.barChart {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+/* Fixed label and value columns so every track starts and ends at the same x —
+   bar lengths are only comparable if they share an origin. */
+.barRow {
+  display: grid;
+  grid-template-columns: 168px 1fr 58px;
+  align-items: center;
+  gap: 14px;
+}
+
+.barLabel {
+  font-size: 12px;
+  font-weight: var(--weight-light);
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The track is the full 0–100% range, always. A short bar means a low rate,
+   not a small share of some other bar. */
+.barTrack {
+  display: block;
+  height: 20px;
+  border-radius: 2px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.barFill {
+  display: block;
+  height: 100%;
+  min-width: 2px;
+  border-radius: 2px;
+  transition: width 220ms ease-out;
+}
+
+.barValue {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 12.5px;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+/* --- the intensity ramp --------------------------------------------------- */
+
+/* Six steps from Mist (#e3fcf7) to Forest Green (#00684a). The four middle
+   values are interpolated between those two brand colours and introduce no new
+   hue. Absolute scale: these classes are chosen by the rate itself, never by
+   the rate's rank within the current dataset. */
+.rate0 {
+  background: var(--mist);
+}
+
+.rate1 {
+  background: #c9eedf;
+}
+
+.rate2 {
+  background: #b0e5d0;
+}
+
+.rate3 {
+  background: #8fd6ba;
+}
+
+.rate4 {
+  background: #4fae8c;
+}
+
+.rate5 {
+  background: var(--forest-green);
+}
+
+/* --- table --------------------------------------------------------------- */
+
+/* Scrolls rather than crushing eight columns on a narrow viewport. */
+.tableWrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.tableCaption {
+  padding: 0 0 10px;
+  color: var(--text-dim);
+  font-size: 11.5px;
+  font-weight: var(--weight-light);
+  text-align: left;
+  caption-side: top;
+}
+
+.table th,
+.table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.table thead th {
+  border-bottom: 1px solid var(--border-strong);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: var(--weight-normal);
+}
+
+.table tbody tr:last-child th,
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table tbody tr:hover {
+  background: var(--surface);
+}
+
+/* Category names are labels, so they stay in the sans face. */
+.rowHead {
+  font-weight: var(--weight-light);
+  color: var(--text);
+}
+
+.numHead,
+.num {
+  text-align: right;
+}
+
+/* Every count and rate is numeric, so it takes the mono face. */
+.num {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.rateCell {
+  /* The swatch ties a table row back to its bar above without needing a
+     second colour legend. */
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+}
+
+.rateSwatch {
+  width: 9px;
+  height: 9px;
+  flex: none;
+  border-radius: 2px;
+}
+
+@media (max-width: 900px) {
+  .barRow {
+    grid-template-columns: 112px 1fr 52px;
+    gap: 10px;
+  }
+}

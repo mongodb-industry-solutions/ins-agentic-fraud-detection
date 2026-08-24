@@ -52,6 +52,22 @@ export function getRepeatEntities({ entityType, minAppearances = 2 } = {}) {
 }
 
 /**
+ * Outcome counts and confirmed-fraud rate grouped by one claim dimension.
+ *
+ * `dimension` is required and decides the aggregation the backend runs — a
+ * plain $group for category fields, a $bucket for the two numeric ones. There
+ * is no combined response to re-slice client-side, so switching dimension is a
+ * new request.
+ *
+ * Each row's `label` is the display text and comes from the response: bucket
+ * boundaries are server-side and get recalibrated, so labels are never built
+ * here. `value` is the stable key.
+ */
+export function getFraudRateBreakdown(dimension) {
+  return apiFetch(`/fraud/rate-breakdown${toQuery({ dimension })}`);
+}
+
+/**
  * Paid-out cost on accepted claims, cost avoided on caught ones, and the two
  * together. Decided claims only — an open claim is neither yet.
  *

@@ -171,7 +171,12 @@ class BreakdownDimension(str, Enum):
 
 
 class BreakdownRow(BaseModel):
+    # Stable machine key for the group ("COLLISION", "2500-4999").
     value: str
+    # Display text. Formatted range for a bucketed dimension, where the
+    # boundaries are server-side knowledge; the raw enum for a category
+    # dimension, which the client humanises as it does elsewhere.
+    label: str
     total: int = 0
     flagged: int = 0
     cleared: int = 0

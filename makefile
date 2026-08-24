@@ -62,6 +62,11 @@ verify-phase1-tools-verbose:
 verify-graph-layout:
 	cd frontend && node scripts/check-force-layout.mjs
 
+# Correlations checks: sort order, absolute colour scale, backend-owned labels.
+# Needs the backend running on :8000.
+verify-correlations:
+	cd frontend && node scripts/with-aliases.mjs scripts/check-correlations.mjs
+
 # Give already-decided claims a fraud.processedAt so turnaround can be measured.
 backfill-processed-at:
 	cd backend && uv run python scripts/backfill_processed_at.py

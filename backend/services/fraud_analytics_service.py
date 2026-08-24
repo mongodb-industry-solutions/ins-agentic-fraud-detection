@@ -85,6 +85,29 @@ EDGE_TYPE_LABEL = {
 }
 
 
+def _range_label(low: int, high: int | None, unit: str | None) -> str:
+    """A bucket range as a person would say it.
+
+    `unit` is None for money and "years" for tenure, which is the only thing
+    separating "$2,500 – $5,000" from "1 – 3 years" — the shape of the label is
+    otherwise identical, so the two are formatted by one function rather than
+    two that could drift apart.
+    """
+    if unit == "years":
+        if high is None:
+            return f"{low}+ years"
+        if low == 0:
+            return f"Under {high} year" + ("" if high == 1 else "s")
+        return f"{low} – {high} years"
+
+    money = lambda amount: f"${amount:,}"  # noqa: E731 — one local formatter
+    if high is None:
+        return f"{money(low)}+"
+    if low == 0:
+        return f"Under {money(high)}"
+    return f"{money(low)} – {money(high)}"
+
+
 class FraudAnalyticsService:
     """Read-only aggregate views across the whole claims portfolio."""
 
@@ -506,6 +529,14 @@ class FraudAnalyticsService:
         breakdown = [
             {
                 "value": row["value"],
+                # Display text. For a bucketed dimension this is the formatted
+                # range and it is authored here on purpose: the boundaries are
+                # server-side and get recalibrated as the real distribution
+                # becomes clearer, so a client that formatted its own labels
+                # would start captioning the wrong ranges the moment they moved.
+                # For a category dimension it is the raw enum, which the client
+                # humanises the same way it does every other enum it renders.
+                "label": row.get("label", row["value"]),
                 "total": row.get("total", 0),
                 "flagged": row.get("flagged", 0),
                 "cleared": row.get("cleared", 0),
@@ -532,28 +563,37 @@ class FraudAnalyticsService:
 
     @staticmethod
     def _label_bucket_row(row: dict[str, Any]) -> dict[str, Any]:
-        """Turn a `$bucket` lower bound into the range label it stands for.
+        """Turn a `$bucket` lower bound into a stable key and a readable label.
 
-        `$bucket` keys each group by its lower edge, so the label has to be
-        rebuilt from the boundary list the repository used — the top band gets
-        an open-ended "20000+" because its real upper edge is infinity.
+        `$bucket` keys each group by its lower edge, so both have to be rebuilt
+        from the boundary list the repository used. Two separate fields:
+
+        * `value` is the machine key ("2500-4999") and stays stable for
+          identity and sorting.
+        * `label` is what a person reads ("$2,500 – $5,000"). The top band is
+          open-ended because its real upper edge is infinity, and the bottom
+          band reads as "Under X" rather than "$0 – X", since a claim amount
+          starting at zero is not a fact worth stating.
+
+        Ranges are labelled by their boundaries rather than by
+        lower..upper-minus-one: "$2,500 – $5,000" is how the band would be
+        described out loud, where "$2,500 – $4,999" invites the question of
+        which bucket $4,999.50 landed in.
         """
         boundaries = row["_boundaries"]
         unit = row.get("_unit")
-        suffix = f" {unit}" if unit else ""
         low = row["_id"]
 
         if low == "other":
             # Out-of-range values, e.g. a negative claim amount.
-            label = "other"
-        else:
-            index = boundaries.index(low)
-            is_top = index == len(boundaries) - 1
-            label = (
-                f"{low}+{suffix}" if is_top
-                else f"{low}-{boundaries[index + 1] - 1}{suffix}"
-            )
-        return {**row, "value": label}
+            return {**row, "value": "other", "label": "Other"}
+
+        index = boundaries.index(low)
+        is_top = index == len(boundaries) - 1
+        high = None if is_top else boundaries[index + 1]
+
+        key = f"{low}+" if is_top else f"{low}-{high - 1}"
+        return {**row, "value": key, "label": _range_label(low, high, unit)}
 
     # ------------------------------------------------------ pattern co-occurrence
 

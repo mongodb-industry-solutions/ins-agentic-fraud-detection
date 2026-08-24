@@ -6,16 +6,24 @@
  * plausible-looking number.
  */
 
-import { STATUS } from "@/lib/claimsPresenter";
+import { STATUS } from "./claimsPresenter";
 
-/** The six sub-tabs. Only Overview is built; the rest are separate passes. */
+/**
+ * The sub-tabs. Overview, Relationships and Correlations are built; Patterns is
+ * a separate pass.
+ *
+ * Operations and Activity were dropped rather than left as permanent
+ * placeholders — a tab that will never be built is worse than no tab, because it
+ * reads as unfinished work rather than as a decision. The backing tools
+ * (`get_review_queue_metrics`, `get_reviewer_activity_stats`,
+ * `get_recent_agent_activity`) are still live and tested; nothing in this
+ * section surfaces them now.
+ */
 export const FI_TABS = [
   { id: "overview", label: "Overview" },
   { id: "relationships", label: "Relationships" },
   { id: "patterns", label: "Patterns" },
   { id: "correlations", label: "Correlations" },
-  { id: "operations", label: "Operations" },
-  { id: "activity", label: "Activity" },
 ];
 
 /**
