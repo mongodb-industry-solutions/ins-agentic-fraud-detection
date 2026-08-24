@@ -57,6 +57,11 @@ verify-phase1-tools:
 verify-phase1-tools-verbose:
 	cd backend && uv run python scripts/verify_phase1_tools.py --verbose
 
+# Relationship-graph layout checks: determinism, bounds, no overlapping nodes.
+# Needs the backend running on :8000.
+verify-graph-layout:
+	cd frontend && node scripts/check-force-layout.mjs
+
 # Give already-decided claims a fraud.processedAt so turnaround can be measured.
 backfill-processed-at:
 	cd backend && uv run python scripts/backfill_processed_at.py

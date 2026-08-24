@@ -124,6 +124,19 @@ REPEAT_ENTITY_FIELDS = {
     "adjuster": "$adjusterId",
 }
 
+# The candidate set behind each relationship-graph scope. Shared by the graph
+# query and the scope counts so the filter's labels cannot disagree with what
+# selecting that filter actually returns.
+#
+# ALL is unfiltered, which means unprocessed claims are graph candidates: they
+# have no score and no matched patterns, but they can still share a customer or
+# a repair shop with something, and that link is worth seeing.
+GRAPH_SCOPE_MATCHES: dict[str, dict] = {
+    "ALL": {},
+    "FLAGGED": {"fraud.fraudFlag": True},
+    "PENDING": {"fraud.processed": True, "fraud.fraudFlag": None},
+}
+
 
 def parse_sort(sort: str) -> tuple[str, int]:
     """Turn a `-field` / `field` sort token into a (field, direction) pair."""
@@ -446,13 +459,8 @@ class ClaimsRepository:
         Only the fields the pairing logic needs are returned; the pairing
         itself is done in the service, in Python.
         """
-        scope_matches = {
-            "ALL": {},
-            "FLAGGED": {"fraud.fraudFlag": True},
-            "PENDING": {"fraud.processed": True, "fraud.fraudFlag": None},
-        }
         pipeline = [
-            {"$match": scope_matches[scope]},
+            {"$match": GRAPH_SCOPE_MATCHES[scope]},
             {"$sort": {"fraud.processed": DESCENDING, "updatedAt": DESCENDING}},
             {"$limit": limit},
             {"$project": {
@@ -462,10 +470,27 @@ class ClaimsRepository:
                 "repairShop": 1,
                 "computedScore": "$fraud.computedScore",
                 "fraudFlag": "$fraud.fraudFlag",
+                # Without this, a pending-review claim and a never-analysed one
+                # are indistinguishable to the caller: both carry a null
+                # fraudFlag, so the graph drew them identically and a claim
+                # nobody had looked at rendered as one awaiting a decision.
+                "processed": {"$ifNull": ["$fraud.processed", False]},
                 "matchedPatterns": {"$ifNull": ["$fraud.matchedPatterns", []]},
             }},
         ]
         return list(self.collection.aggregate(pipeline))
+
+    def graph_scope_counts(self) -> dict[str, int]:
+        """How many claims each graph scope would consider, for the scope filter.
+
+        All three counts every time, not just the active scope: the segmented
+        control labels every option with its own count, so it needs the two the
+        caller is not currently looking at as well.
+        """
+        return {
+            scope: self.collection.count_documents(match)
+            for scope, match in GRAPH_SCOPE_MATCHES.items()
+        }
 
     # ---------------------------------------------------- fraud-rate breakdown
 
@@ -597,10 +622,45 @@ class ClaimsRepository:
             }},
             {"$match": {"claimCount": {"$gte": min_appearances}}},
             {"$sort": {"claimCount": DESCENDING, "confirmedCount": DESCENDING, "_id": ASCENDING}},
+            *self._entity_label_stages(entity_type),
             {"$project": {"_id": 0, "entityValue": "$_id", "claimCount": 1,
-                          "confirmedCount": 1, "claimIds": 1, "totalClaimAmount": 1}},
+                          "confirmedCount": 1, "claimIds": 1, "totalClaimAmount": 1,
+                          "entityLabel": 1}},
         ]
         return list(self.collection.aggregate(pipeline))
+
+    @staticmethod
+    def _entity_label_stages(entity_type: str) -> list[dict[str, Any]]:
+        """Resolve a customer id to the customer's name, for display.
+
+        Only customers get a lookup: a repair shop and an adjuster are already
+        identified by the value stored on the claim, but a customer is stored as
+        `CUST-2001`, and a screen that asks "which customers recur across your
+        flagged claims" should answer with people's names rather than making the
+        reader resolve ids by hand.
+
+        The label is a separate field from `entityValue` rather than replacing
+        it, because the id is still what identifies the group — two customers
+        can share a name.
+        """
+        if entity_type != "customer":
+            return [{"$addFields": {"entityLabel": "$_id"}}]
+
+        return [
+            {"$lookup": {
+                "from": get_settings().CUSTOMERS_COLLECTION,
+                "localField": "_id",
+                "foreignField": "customerId",
+                "as": "_customer",
+            }},
+            {"$unwind": {"path": "$_customer", "preserveNullAndEmptyArrays": True}},
+            {"$addFields": {"entityLabel": {"$ifNull": [
+                # Falls back to the id when the customer document is missing —
+                # better a resolvable id than a blank row.
+                {"$concat": ["$_customer.firstName", " ", "$_customer.lastName"]},
+                "$_id",
+            ]}}},
+        ]
 
     # -------------------------------------------------------- financial impact
 

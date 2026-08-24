@@ -11,12 +11,20 @@ import styles from "./FraudIntelligenceView.module.css";
  * looking at — an empty state where an error belongs reads as "no fraud found".
  */
 
-export function Zone({ title, subtitle, children, label }) {
+/**
+ * `action` puts a control (a segmented filter, typically) on the header's right
+ * while the title and subtitle stay left. Rendered outside the title stack so a
+ * long subtitle wraps under the title rather than under the control.
+ */
+export function Zone({ title, subtitle, children, label, action }) {
   return (
     <section className={styles.zone} aria-label={label || title}>
-      <div className={styles.zoneHead}>
-        <span className={styles.zoneTitle}>{title}</span>
-        {subtitle && <span className={styles.zoneSubtitle}>{subtitle}</span>}
+      <div className={action ? styles.zoneHeadRow : styles.zoneHead}>
+        <div className={styles.zoneHead}>
+          <span className={styles.zoneTitle}>{title}</span>
+          {subtitle && <span className={styles.zoneSubtitle}>{subtitle}</span>}
+        </div>
+        {action}
       </div>
       {children}
     </section>

@@ -7,6 +7,7 @@ import TabBar from "@/components/tabBar/TabBar";
 import { FI_TABS } from "@/lib/fraudIntelligencePresenter";
 import styles from "./FraudIntelligenceView.module.css";
 import OverviewTab from "./OverviewTab";
+import RelationshipsTab from "./RelationshipsTab";
 import { EmptyState, Zone } from "./Zone";
 
 /**
@@ -18,8 +19,8 @@ import { EmptyState, Zone } from "./Zone";
  * inside one of these tabs is the thing that pushes onto detailStack, and that
  * is the caller's job — hence `onOpenClaim` being passed straight through.
  *
- * Only Overview is built. The other five render an honest note saying so rather
- * than a mocked-up version of themselves.
+ * Overview and Relationships are built. The other four render an honest note
+ * saying so rather than a mocked-up version of themselves.
  */
 export default function FraudIntelligenceView({ onOpenClaim }) {
   const [activeTab, setActiveTab] = useState("overview");
@@ -41,6 +42,8 @@ export default function FraudIntelligenceView({ onOpenClaim }) {
 
       {activeTab === "overview" ? (
         <OverviewTab onOpenClaim={onOpenClaim} />
+      ) : activeTab === "relationships" ? (
+        <RelationshipsTab onOpenClaim={onOpenClaim} />
       ) : (
         <div className={styles.tabBody}>
           <Zone title={activeLabel}>

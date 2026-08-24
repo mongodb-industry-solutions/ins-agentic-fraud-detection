@@ -19,8 +19,36 @@ export function getPendingQueue({ limit = 10 } = {}) {
   return apiFetch(`/fraud/pending-queue${toQuery({ limit })}`);
 }
 
+/**
+ * Claims linked by shared customer, repair shop or fraud pattern.
+ *
+ * One edge per pair of claims however many reasons connect them: the reasons
+ * are collected onto `edge.reasons`, and `edge.type` is the strongest of them,
+ * which is what the line style encodes. `node.status` is resolved server-side —
+ * do not re-derive it from fraudFlag + processed.
+ */
 export function getRelationshipGraph({ scope = "ALL", limit = 60 } = {}) {
   return apiFetch(`/fraud/relationship-graph${toQuery({ scope, limit })}`);
+}
+
+/**
+ * The same connections as the graph, ranked as a flat triage list.
+ *
+ * `limit` caps returned clusters, not claims; the response's `total` says how
+ * many were found, so a truncated list still reports what it left out.
+ */
+export function getSimilarityLeaderboard({ scope = "ALL", limit = 10 } = {}) {
+  return apiFetch(`/fraud/similarity-leaderboard${toQuery({ scope, limit })}`);
+}
+
+/**
+ * Customers, repair shops or adjusters recurring across open or flagged claims.
+ *
+ * `entityType` is a required backend parameter, not a client-side slice of one
+ * combined result — switching it is a new request.
+ */
+export function getRepeatEntities({ entityType, minAppearances = 2 } = {}) {
+  return apiFetch(`/fraud/repeat-entities${toQuery({ entityType, minAppearances })}`);
 }
 
 /**

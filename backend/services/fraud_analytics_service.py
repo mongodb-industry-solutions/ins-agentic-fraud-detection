@@ -68,7 +68,20 @@ CLUSTER_SIZE_BONUS = 1.0
 CLUSTER_REASONS = {
     "SAME_CUSTOMER": "claims filed by customer {key}",
     "SAME_REPAIR_SHOP": "claims routed through repair shop {key}",
-    "SHARED_PATTERN": "claims that all triggered pattern {key}",
+    "SHARED_PATTERN": "claims that all triggered {key}",
+}
+
+# Which reason wins when several connect the same pair of claims, strongest
+# first. A shared fraud pattern is a statement about the claims' mechanism and
+# is the most actionable; a shared customer is an identity link; a shared repair
+# shop is the weakest on its own, since a busy garage legitimately appears on
+# many unrelated claims. This order decides only which reason styles the line —
+# every reason is still listed on the edge.
+EDGE_PRECEDENCE = ("SHARED_PATTERN", "SAME_CUSTOMER", "SAME_REPAIR_SHOP")
+
+EDGE_TYPE_LABEL = {
+    "SAME_CUSTOMER": "Same customer",
+    "SAME_REPAIR_SHOP": "Same repair shop",
 }
 
 
@@ -196,6 +209,13 @@ class FraudAnalyticsService:
         within every group, for three different grouping keys" as a pipeline
         needs nested $lookup/$unwind/$group that is far harder to read — and
         to change — than the dictionaries below.
+
+        One edge per pair of claims, however many reasons connect them. The
+        reasons are collected onto that single edge instead: two claims sharing
+        a customer AND a repair shop are one relationship with two explanations,
+        and emitting two edges made the renderer draw overlapping lines it had
+        to pick between arbitrarily. Four claims sharing four patterns produced
+        four identical parallel edges for the same reason.
         """
         claims = self.claims.find_graph_candidates(scope=scope, limit=limit)
 
@@ -213,30 +233,120 @@ class FraudAnalyticsService:
                 if pattern.get("patternId"):
                     by_pattern.setdefault(pattern["patternId"], []).append(claim_id)
 
-        edges: list[dict[str, Any]] = []
-        edges += self._pair_groups(by_customer, "SAME_CUSTOMER")
-        edges += self._pair_groups(by_shop, "SAME_REPAIR_SHOP")
-        edges += self._pair_groups(by_pattern, "SHARED_PATTERN", tag_pattern=True)
+        raw: list[dict[str, Any]] = []
+        raw += self._pair_groups(by_customer, "SAME_CUSTOMER")
+        raw += self._pair_groups(by_shop, "SAME_REPAIR_SHOP")
+        raw += self._pair_groups(by_pattern, "SHARED_PATTERN", tag_pattern=True)
 
-        # The frontend draws RULE and HISTORICAL_SIMILARITY edges differently,
-        # so each shared-pattern edge carries the pattern's type.
-        pattern_types = self._pattern_types(by_pattern.keys())
-        for edge in edges:
-            if edge.get("patternId"):
-                edge["patternType"] = pattern_types.get(edge["patternId"])
+        edges = self._merge_edges(raw, self._pattern_meta(by_pattern.keys()))
 
-        # An unconnected claim is still a node: the absence of links is itself
-        # a finding, so nothing is filtered out here.
-        nodes = [
-            {
-                "claimId": c["claimId"],
-                "customerId": c.get("customerId"),
-                "computedScore": c.get("computedScore"),
-                "fraudFlag": c.get("fraudFlag"),
+        nodes = [self._graph_node(claim) for claim in claims]
+        return {
+            "nodes": nodes,
+            "edges": edges,
+            "scope": scope,
+            # Lets the scope filter label every option with its own count,
+            # including the two not currently selected.
+            "scopeCounts": self.claims.graph_scope_counts(),
+        }
+
+    @staticmethod
+    def _graph_node(claim: dict[str, Any]) -> dict[str, Any]:
+        """One node, carrying the status the renderer colours it by.
+
+        `status` is resolved here rather than left to the client to infer from
+        the flag-plus-boolean combination, in the same precedence every other
+        status read in the app uses. Without it a never-analysed claim and one
+        awaiting a decision both arrive as `fraudFlag: null` and are drawn
+        identically, which is exactly the confusion the status system exists to
+        prevent.
+        """
+        flag = claim.get("fraudFlag")
+        processed = claim.get("processed") is True
+
+        if flag is True:
+            status = "flagged"
+        elif not processed:
+            status = "unprocessed"
+        elif flag is False:
+            status = "cleared"
+        else:
+            status = "pending"
+
+        return {
+            "claimId": claim["claimId"],
+            "customerId": claim.get("customerId"),
+            "computedScore": claim.get("computedScore"),
+            "fraudFlag": flag,
+            "processed": processed,
+            "status": status,
+        }
+
+    @classmethod
+    def _merge_edges(
+        cls,
+        raw: list[dict[str, Any]],
+        pattern_meta: dict[str, dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        """Collapse every reason connecting a pair of claims onto one edge.
+
+        The surviving edge's `type` is its strongest reason by EDGE_PRECEDENCE
+        and is what the client styles the line from; `reasons` carries all of
+        them, in the same order, for the edge's tooltip. Keeping both means the
+        line style stays a single unambiguous channel while nothing about the
+        relationship is lost.
+        """
+        merged: dict[tuple[str, str], dict[str, Any]] = {}
+
+        for edge in raw:
+            # Sorted so the same pair keys identically no matter which grouping
+            # pass produced it or which claim it happened to list first.
+            key = tuple(sorted((edge["source"], edge["target"])))
+            meta = pattern_meta.get(edge.get("patternId")) or {}
+            reason = {
+                "type": edge["type"],
+                "patternId": edge.get("patternId"),
+                "patternName": meta.get("name"),
+                "patternType": meta.get("patternType"),
+                "label": cls._reason_label(edge, meta),
             }
-            for c in claims
-        ]
-        return {"nodes": nodes, "edges": edges, "scope": scope}
+
+            existing = merged.get(key)
+            if existing is None:
+                merged[key] = {
+                    "source": key[0],
+                    "target": key[1],
+                    "reasons": [reason],
+                }
+            else:
+                existing["reasons"].append(reason)
+
+        for edge in merged.values():
+            edge["reasons"].sort(key=lambda r: EDGE_PRECEDENCE.index(r["type"]))
+            primary = edge["reasons"][0]
+            edge["type"] = primary["type"]
+            # Kept at the top level as well as inside `reasons`: existing
+            # readers of this response address the primary pattern directly.
+            edge["patternId"] = primary["patternId"]
+            edge["patternType"] = primary["patternType"]
+            edge["reasonCount"] = len(edge["reasons"])
+
+        return sorted(merged.values(), key=lambda e: (e["source"], e["target"]))
+
+    @staticmethod
+    def _reason_label(edge: dict[str, Any], meta: dict[str, Any]) -> str:
+        """One reason as a sentence fragment, for the edge tooltip.
+
+        Named by the pattern rather than its id where a name is available: a
+        reader can act on "Repair shop on internal watchlist" and has to go and
+        look up "FP-012".
+        """
+        edge_type = edge["type"]
+        if edge_type == "SHARED_PATTERN":
+            pattern_id = edge.get("patternId")
+            name = meta.get("name")
+            return f"Shared pattern {pattern_id} — {name}" if name else f"Shared pattern {pattern_id}"
+        return EDGE_TYPE_LABEL.get(edge_type, edge_type)
 
     @staticmethod
     def _pair_groups(
@@ -256,12 +366,13 @@ class FraudAnalyticsService:
                 edges.append(edge)
         return edges
 
-    def _pattern_types(self, pattern_ids) -> dict[str, str]:
-        ids = list(pattern_ids)
+    def _pattern_meta(self, pattern_ids) -> dict[str, dict[str, Any]]:
+        """Name and type per pattern id — the name is what edge tooltips read."""
+        ids = [pid for pid in pattern_ids if pid]
         if not ids:
             return {}
         return {
-            p["patternId"]: p.get("patternType")
+            p["patternId"]: {"name": p.get("name"), "patternType": p.get("patternType")}
             for p in self.patterns.get_many(ids)
         }
 
@@ -296,8 +407,15 @@ class FraudAnalyticsService:
                     key = ("SHARED_PATTERN", pattern["patternId"])
                     groups.setdefault(key, []).append(claim_id)
 
+        # Pattern names, so a cluster explains itself as "…triggered FP-012 —
+        # Repair shop on internal watchlist" rather than citing a bare id the
+        # reader has to go and resolve.
+        pattern_meta = self._pattern_meta(
+            key for (kind, key) in groups if kind == "SHARED_PATTERN"
+        )
+
         clusters = [
-            self._build_cluster(kind, key, members, scores, flags)
+            self._build_cluster(kind, key, members, scores, flags, pattern_meta)
             for (kind, key), members in groups.items()
             if len(members) >= 2
         ]
@@ -318,9 +436,14 @@ class FraudAnalyticsService:
         members: list[str],
         scores: dict[str, Any],
         flags: dict[str, Any],
+        pattern_meta: dict[str, dict[str, Any]] | None = None,
     ) -> dict[str, Any]:
         """One leaderboard row from one group of claims sharing a connection."""
         claim_ids = sorted(set(members))
+        # A pattern group is described by name where one is known; a customer or
+        # repair-shop group is already named by its key.
+        name = ((pattern_meta or {}).get(key) or {}).get("name")
+        described = f"{key} — {name}" if kind == "SHARED_PATTERN" and name else key
         # An unscored claim contributes nothing to the average rather than
         # counting as a zero, which would drag a cluster of one 11 and one
         # unassessed claim below a cluster of two 6s and bury the real lead.
@@ -331,7 +454,7 @@ class FraudAnalyticsService:
         return {
             "clusterId": f"{kind}:{key}",
             "claimIds": claim_ids,
-            "sharedReason": f"{len(claim_ids)} {CLUSTER_REASONS[kind].format(key=key)}",
+            "sharedReason": f"{len(claim_ids)} {CLUSTER_REASONS[kind].format(key=described)}",
             "linkType": kind,
             "avgScore": avg_score,
             "maxScore": max_score,
@@ -542,6 +665,7 @@ class FraudAnalyticsService:
         entities = [
             {
                 "entityValue": row["entityValue"],
+                "entityLabel": row.get("entityLabel") or row["entityValue"],
                 "claimCount": row["claimCount"],
                 "confirmedCount": row["confirmedCount"],
                 # Over the group's whole claim count, not just its decided ones:
@@ -555,7 +679,7 @@ class FraudAnalyticsService:
             }
             for row in rows
         ]
-        entities.sort(key=lambda e: (-e["claimCount"], -e["confirmedRate"], e["entityValue"]))
+        entities.sort(key=lambda e: (-e["claimCount"], -e["confirmedRate"], e["entityLabel"]))
 
         return {
             "entityType": entity_type,

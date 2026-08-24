@@ -1,6 +1,9 @@
 .control {
   display: inline-flex;
   align-self: flex-start;
+  /* Never stretched by a flex/grid parent — the control is sized by its
+     segments, not by the row it sits in. */
+  flex: none;
   gap: 2px;
   padding: 2px;
   border: 1px solid var(--border);

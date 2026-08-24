@@ -95,20 +95,44 @@ class GraphNode(BaseModel):
     customerId: str | None = None
     computedScore: float | None = None
     fraudFlag: bool | None = None
+    processed: bool = False
+    # flagged / cleared / pending / unprocessed, resolved server-side in the same
+    # precedence every other status read uses. Clients colour the node from this
+    # rather than re-deriving it from fraudFlag + processed.
+    status: str
+
+
+class EdgeReason(BaseModel):
+    """One explanation for an edge. An edge can carry several."""
+
+    type: str
+    patternId: str | None = None
+    patternName: str | None = None
+    patternType: str | None = None
+    # Ready-to-render sentence fragment, e.g. "Shared pattern FP-012 — Repair
+    # shop on internal watchlist".
+    label: str
 
 
 class GraphEdge(BaseModel):
     source: str
     target: str
+    # The strongest reason, by EDGE_PRECEDENCE. This is the one the line style
+    # encodes; `reasons` holds every reason including this one.
     type: str
     patternId: str | None = None
     patternType: str | None = None
+    reasons: list[EdgeReason] = Field(default_factory=list)
+    reasonCount: int = 0
 
 
 class RelationshipGraphResponse(BaseModel):
     nodes: list[GraphNode] = Field(default_factory=list)
     edges: list[GraphEdge] = Field(default_factory=list)
     scope: str
+    # Candidate count per scope (ALL / FLAGGED / PENDING), so a scope filter can
+    # label the options it is not currently showing.
+    scopeCounts: dict[str, int] = Field(default_factory=dict)
 
 
 # ------------------------------------------------------ similarity leaderboard
@@ -199,6 +223,9 @@ class RepeatEntityType(str, Enum):
 
 class RepeatEntity(BaseModel):
     entityValue: str
+    # Display name. Equals `entityValue` for repair shops and adjusters, which
+    # are already stored as names; a customer id resolves to the customer's name.
+    entityLabel: str | None = None
     claimCount: int
     confirmedCount: int
     # Confirmed over the group's whole claim count — a concentration measure,

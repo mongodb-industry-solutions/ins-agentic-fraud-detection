@@ -669,6 +669,141 @@ def check_9_graph_agreement(client: TestClient) -> None:
     )
 
 
+# ------------------------------------------------- 10. relationship graph shape
+
+def check_10_graph_contract(client: TestClient, claims) -> None:
+    """One edge per pair, a real status per node, and honest scope counts.
+
+    These are the invariants the Relationships tab's renderer depends on: it
+    styles one line per pair from `type` and colours one circle per node from
+    `status`, so a duplicated pair or an unresolved status is a drawing bug
+    rather than a data curiosity.
+    """
+    print("\n[10] get_claim_relationship_graph — edge merge, node status, scope counts")
+
+    payload = get(client, "/api/fraud/relationship-graph", scope="ALL", limit=200)
+    if not payload:
+        return
+
+    # Scope counts must match direct counts, or the filter lies about what
+    # selecting it would show.
+    expected = {
+        "ALL": claims.count_documents({}),
+        "FLAGGED": claims.count_documents({"fraud.fraudFlag": True}),
+        "PENDING": claims.count_documents({"fraud.processed": True, "fraud.fraudFlag": None}),
+    }
+    for scope, count in expected.items():
+        check(
+            f"scopeCounts[{scope}] matches Mongo ({payload['scopeCounts'].get(scope)} == {count})",
+            payload["scopeCounts"].get(scope) == count,
+            str(payload["scopeCounts"]),
+        )
+
+    # The whole point of the merge: a pair of claims appears at most once.
+    pairs = [(edge["source"], edge["target"]) for edge in payload["edges"]]
+    check(
+        f"no duplicate edge pairs ({len(pairs)} edges, {len(set(pairs))} distinct pairs)",
+        len(pairs) == len(set(pairs)),
+        str([pair for pair in pairs if pairs.count(pair) > 1]),
+    )
+    check(
+        "edges are normalised (source < target)",
+        all(source < target for source, target in pairs),
+        str([pair for pair in pairs if pair[0] >= pair[1]]),
+    )
+
+    VALID_STATUS = {"flagged", "cleared", "pending", "unprocessed"}
+    node_ids = {node["claimId"] for node in payload["nodes"]}
+
+    for node in payload["nodes"]:
+        check(
+            f"{node['claimId']}: status is one of {sorted(VALID_STATUS)}",
+            node.get("status") in VALID_STATUS,
+            str(node),
+        )
+        # Status must agree with the flags it was derived from, in the same
+        # precedence the rest of the app uses.
+        if node["status"] == "flagged":
+            ok = node["fraudFlag"] is True
+        elif node["status"] == "unprocessed":
+            ok = node["fraudFlag"] is not True and node["processed"] is False
+        elif node["status"] == "cleared":
+            ok = node["processed"] is True and node["fraudFlag"] is False
+        else:
+            ok = node["processed"] is True and node["fraudFlag"] is None
+        check(f"{node['claimId']}: status agrees with fraudFlag/processed", ok, str(node))
+
+    for edge in payload["edges"]:
+        check(
+            f"{edge['source']}--{edge['target']}: both endpoints are nodes",
+            edge["source"] in node_ids and edge["target"] in node_ids,
+            str(edge),
+        )
+        check(
+            f"{edge['source']}--{edge['target']}: reasonCount matches reasons",
+            edge["reasonCount"] == len(edge["reasons"]) and edge["reasonCount"] >= 1,
+            str(edge),
+        )
+        # The primary type must be the strongest reason present, since that is
+        # what the line style encodes.
+        precedence = ["SHARED_PATTERN", "SAME_CUSTOMER", "SAME_REPAIR_SHOP"]
+        strongest = min(edge["reasons"], key=lambda r: precedence.index(r["type"]))
+        check(
+            f"{edge['source']}--{edge['target']}: type is the strongest reason",
+            edge["type"] == strongest["type"],
+            f"type={edge['type']} strongest={strongest['type']} reasons={edge['reasons']}",
+        )
+        check(
+            f"{edge['source']}--{edge['target']}: every reason has a label",
+            all(r.get("label") for r in edge["reasons"]),
+            str(edge["reasons"]),
+        )
+        # A shared-pattern edge that cited a bare id would defeat the tooltip.
+        for reason in edge["reasons"]:
+            if reason["type"] == "SHARED_PATTERN":
+                check(
+                    f"{edge['source']}--{edge['target']}: pattern reason names the pattern",
+                    bool(reason.get("patternId")),
+                    str(reason),
+                )
+
+    # A narrower scope can only ever return a subset of ALL's nodes.
+    flagged = get(client, "/api/fraud/relationship-graph", scope="FLAGGED", limit=200)
+    if flagged:
+        flagged_ids = {node["claimId"] for node in flagged["nodes"]}
+        check(
+            "FLAGGED nodes are a subset of ALL nodes",
+            flagged_ids <= node_ids,
+            str(sorted(flagged_ids - node_ids)),
+        )
+        check(
+            "every FLAGGED node really is flagged",
+            all(node["status"] == "flagged" for node in flagged["nodes"]),
+            str([n["claimId"] for n in flagged["nodes"] if n["status"] != "flagged"]),
+        )
+
+    # entityLabel backs the repeat-entity rows; a customer id there would show
+    # "CUST-2001" where a person's name belongs.
+    entities = get(client, "/api/fraud/repeat-entities", entityType="customer", minAppearances=2)
+    if entities:
+        for entity in entities["entities"]:
+            check(
+                f"customer {entity['entityValue']}: entityLabel is present",
+                bool(entity.get("entityLabel")),
+                str(entity),
+            )
+            expected_name = claims.database["customers"].find_one(
+                {"customerId": entity["entityValue"]}, {"firstName": 1, "lastName": 1}
+            )
+            if expected_name:
+                full = f"{expected_name['firstName']} {expected_name['lastName']}"
+                check(
+                    f"customer {entity['entityValue']}: entityLabel is the real name ({full})",
+                    entity["entityLabel"] == full,
+                    f"got {entity['entityLabel']!r}, expected {full!r}",
+                )
+
+
 def main() -> int:
     connector = create_connector()
     claims = connector.get_collection("claims")
@@ -688,6 +823,7 @@ def main() -> int:
             check_7_reviewer_activity(client, claims)
             check_8_why_effective(client, patterns)
             check_9_graph_agreement(client)
+            check_10_graph_contract(client, claims)
     finally:
         connector.client.close()
 
