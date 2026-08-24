@@ -34,7 +34,13 @@ export default function Dashboard({ onOpenClaim, onAnalyze }) {
         <>
           <StatStrip stats={dashboard.stats} />
 
-          <PendingQueue queue={dashboard.pendingQueue} onReview={onOpenClaim} />
+          {/* Two actions, because the queue holds two kinds of work: a scored
+              claim opens for a decision, an unanalysed one runs the agent. */}
+          <PendingQueue
+            queue={dashboard.pendingQueue}
+            onReview={onOpenClaim}
+            onAnalyze={onAnalyze}
+          />
 
           <InsightsZone breakdown={dashboard.breakdown} events={dashboard.activityFeed} />
 

@@ -234,39 +234,77 @@ export function toPortfolioSummary(response) {
   return `${total} claims in portfolio — ${stats.pendingReview ?? 0} awaiting your decision`;
 }
 
-/** One pending-queue row. */
+/**
+ * One pending-queue row.
+ *
+ * The queue holds two kinds of work and they must not look alike. A scored
+ * claim shows its score and the patterns that fired, and the action is a
+ * decision. An unanalysed claim has neither — so it says so, and its action is
+ * to run the assessment. Rendering an em-dash score next to "0 pattern matches"
+ * would read as "the agent found nothing", which is the opposite of the truth.
+ */
 export function toPendingRow(item) {
   // Pattern entries arrive as documents from the API but as plain strings in
   // older fixtures; both render as a name.
   const patterns = (item.matchedPatterns || []).map((pattern) =>
     typeof pattern === "string" ? pattern : pattern.patternName || pattern.patternId
   );
+  // Absent `processed` means the fixture predates the field; those rows are all
+  // scored ones, so the queue keeps its old behaviour rather than relabelling
+  // everything as unanalysed.
+  const isUnprocessed = item.processed === false || item.processed === null;
+
   return {
     id: item.claimId,
     claimId: item.claimId,
     customerName: item.customerName || "Unknown customer",
-    scoreLabel: toScoreLabel(item.computedScore),
-    detail: [
-      item.coverageType,
-      // Omitted rather than rendered as "scored " with nothing after it: not
-      // every scored claim carries a timestamp in the data model yet.
-      item.scoredAt ? `scored ${toRelativeTime(item.scoredAt)}` : null,
-      `${patterns.length} pattern ${patterns.length === 1 ? "match" : "matches"}`,
-    ]
-      .filter(Boolean)
-      .join(" · "),
-    tags: patterns.slice(0, 2),
-    overflowTag: patterns.length > 2 ? `+${patterns.length - 2} more` : null,
+    scoreLabel: isUnprocessed ? null : toScoreLabel(item.computedScore),
+    isUnprocessed,
+    actionLabel: isUnprocessed ? "Analyze" : "Review",
+    detail: isUnprocessed
+      ? [item.coverageType, "not yet analyzed", item.claimDate ? `opened ${toRelativeTime(item.claimDate)}` : null]
+          .filter(Boolean)
+          .join(" · ")
+      : [
+          item.coverageType,
+          // Omitted rather than rendered as "scored " with nothing after it: not
+          // every scored claim carries a timestamp in the data model yet.
+          item.scoredAt ? `scored ${toRelativeTime(item.scoredAt)}` : null,
+          `${patterns.length} pattern ${patterns.length === 1 ? "match" : "matches"}`,
+        ]
+          .filter(Boolean)
+          .join(" · "),
+    tags: isUnprocessed ? [] : patterns.slice(0, 2),
+    overflowTag: !isUnprocessed && patterns.length > 2 ? `+${patterns.length - 2} more` : null,
   };
 }
 
 export function toPendingQueue(response) {
   const items = (response?.items || []).map(toPendingRow);
   const total = response?.total ?? items.length;
+  const awaitingAnalysis = items.filter((item) => item.isUnprocessed).length;
+  const awaitingDecision = items.length - awaitingAnalysis;
+
+  // The caption names both kinds of work when both are present, because "12
+  // claims awaiting confirm/dismiss" would misdescribe a queue that is mostly
+  // claims nobody has analysed yet.
+  const parts = [
+    awaitingDecision > 0 ? `${awaitingDecision} awaiting confirm/dismiss` : null,
+    awaitingAnalysis > 0 ? `${awaitingAnalysis} not yet analyzed` : null,
+  ].filter(Boolean);
+
+  // The breakdown is counted from the page, so it is only shown when the page
+  // *is* the whole queue. Otherwise "14 claims — 3 awaiting, 7 not analyzed"
+  // would invite the reader to add 3 and 7 and get 14.
+  const isWholeQueue = items.length >= total;
+
   return {
     total,
     items,
-    caption: `${total} claims — agent scored, awaiting confirm/dismiss`,
+    caption:
+      isWholeQueue && parts.length
+        ? `${total} claims — ${parts.join(", ")}`
+        : `${total} claims waiting on you — showing the top ${items.length}`,
   };
 }
 

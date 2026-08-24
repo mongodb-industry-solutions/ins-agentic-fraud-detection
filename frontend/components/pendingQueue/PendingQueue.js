@@ -3,7 +3,13 @@
 import ScoreChip from "@/components/scoreChip/ScoreChip";
 import styles from "./PendingQueue.module.css";
 
-export default function PendingQueue({ queue, onReview }) {
+/**
+ * The reviewer's work queue: claims the agent has scored but nobody has decided,
+ * and claims nobody has analysed yet. The row's action follows from which it is
+ * — deciding needs the report, analysing needs the agent — so an unanalysed row
+ * runs the assessment rather than opening a claim with nothing to review.
+ */
+export default function PendingQueue({ queue, onReview, onAnalyze }) {
   return (
     <section className={styles.zone} aria-label="Pending your review">
       <div className={styles.header}>
@@ -35,9 +41,11 @@ export default function PendingQueue({ queue, onReview }) {
           <button
             type="button"
             className={styles.reviewButton}
-            onClick={() => onReview?.(item.claimId)}
+            onClick={() =>
+              item.isUnprocessed ? onAnalyze?.(item.claimId) : onReview?.(item.claimId)
+            }
           >
-            Review
+            {item.actionLabel}
           </button>
         </div>
       ))}

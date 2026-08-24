@@ -52,12 +52,27 @@ PENDING_PROJECTION = {
     "computedScore": "$fraud.computedScore",
     "scoredAt": "$fraud.scoredAt",
     "matchedPatterns": "$fraud.matchedPatterns",
+    # Lets the caller tell the two kinds of pending work apart: an unanalysed
+    # claim needs an assessment, a scored one needs a decision.
+    "processed": "$fraud.processed",
+    "claimDate": 1,
 }
 
-# Scored, but with no human decision yet. Mirrors the `pendingReview` arm of the
-# stats facet in `list_with_stats`, so the queue length and the stat card cannot
-# disagree.
-PENDING_MATCH = {"fraud.processed": True, "fraud.fraudFlag": None}
+# Everything waiting on a human, which is two different states:
+#
+#   * never analysed        — needs the agent run
+#   * scored, no decision   — needs a confirm/dismiss
+#
+# Both are "pending your review" in the sense that matters: nobody has finished
+# with them. Restricting the queue to the second state left it permanently empty,
+# because an assessment and its decision happen in one sitting in the analysis
+# modal — a claim almost never rests in "scored but undecided".
+PENDING_MATCH = {
+    "$or": [
+        {"fraud.processed": {"$ne": True}},
+        {"fraud.processed": True, "fraud.fraudFlag": None},
+    ]
+}
 
 
 def parse_sort(sort: str) -> tuple[str, int]:
@@ -154,14 +169,22 @@ class ClaimsRepository:
         }
 
     def find_pending_review(self, limit: int = 10) -> tuple[list[dict[str, Any]], int]:
-        """Highest-scoring unreviewed claims first, plus the full queue count.
+        """Everything still waiting on a human, worst-first, plus the queue count.
 
-        Sorted by score rather than date: the queue exists to be worked through
-        worst-first, and its length is shown separately from the page returned.
+        Scored claims come before unanalysed ones and are ordered by score: the
+        queue is meant to be worked top-down, and a claim the agent has already
+        called a 10 is more urgent than one nobody has looked at. Within the
+        unanalysed group the newest claim leads, since there is no score to rank
+        them by and recency is the only signal available.
+
+        `$ifNull` is what puts the two groups in that order — an unscored claim
+        sorts as -1 rather than as null, which MongoDB would otherwise order
+        above 0.
         """
         pipeline = [
             {"$match": PENDING_MATCH},
-            {"$sort": {"fraud.computedScore": -1, "claimDate": -1}},
+            {"$addFields": {"_sortScore": {"$ifNull": ["$fraud.computedScore", -1]}}},
+            {"$sort": {"_sortScore": -1, "claimDate": -1}},
             {"$limit": limit},
             {"$lookup": {
                 "from": get_settings().CUSTOMERS_COLLECTION,

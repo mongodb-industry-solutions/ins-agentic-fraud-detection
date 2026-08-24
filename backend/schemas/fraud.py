@@ -66,6 +66,13 @@ class PendingQueueItem(BaseModel):
     scoredAt: datetime | None = None
     # Pattern documents as stored on the claim; the client renders their names.
     matchedPatterns: list[dict] = Field(default_factory=list)
+    # The queue holds two kinds of work — never analysed, and scored but
+    # undecided — and the client labels the row's action from this. Declared
+    # explicitly because an undeclared field is dropped from the response, which
+    # would make every row look like it was already scored.
+    processed: bool | None = None
+    # Ranks the unanalysed rows, which have no score to rank them by.
+    claimDate: datetime | None = None
 
 
 class PendingQueueResponse(BaseModel):
