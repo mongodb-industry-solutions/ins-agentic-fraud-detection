@@ -75,11 +75,32 @@ class FraudPattern(BaseModel):
     weight: float | None = None
     active: bool | None = None
     stats: PatternStats = Field(default_factory=PatternStats)
+    # A generated sentence on the pattern's real-world reliability. Never null:
+    # the service falls back to composing one from the current stats when no
+    # generated text has been stored yet.
+    whyEffective: str | None = None
+    # Absent means `whyEffective` was composed on the fly for this response
+    # rather than read from storage.
+    whyEffectiveGeneratedAt: datetime | None = None
 
 
 class FraudPatternListResponse(BaseModel):
     patterns: list[FraudPattern]
     total: int
+
+
+class WhyEffectiveResult(BaseModel):
+    patternId: str
+    changed: bool
+    whyEffective: str
+
+
+class WhyEffectiveRegenerateResponse(BaseModel):
+    generatedAt: datetime
+    patternsProcessed: int
+    patternsChanged: int
+    results: list[WhyEffectiveResult] = Field(default_factory=list)
+    message: str
 
 
 class MatchedClaim(BaseModel):

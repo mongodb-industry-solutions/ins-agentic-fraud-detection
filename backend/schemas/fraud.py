@@ -101,3 +101,174 @@ class RelationshipGraphResponse(BaseModel):
     nodes: list[GraphNode] = Field(default_factory=list)
     edges: list[GraphEdge] = Field(default_factory=list)
     scope: str
+
+
+# ------------------------------------------------------ similarity leaderboard
+
+class SimilarityCluster(BaseModel):
+    clusterId: str
+    claimIds: list[str] = Field(default_factory=list)
+    sharedReason: str
+    # The graph edge type this cluster corresponds to, or MULTIPLE where several
+    # kinds of link cover exactly the same claims.
+    linkType: str
+    avgScore: float = 0.0
+    maxScore: float = 0.0
+    claimCount: int = 0
+    scoredCount: int = 0
+    confirmedCount: int = 0
+    priority: float = 0.0
+
+
+class SimilarityLeaderboardResponse(BaseModel):
+    clusters: list[SimilarityCluster] = Field(default_factory=list)
+    # Clusters found in total, before `limit` truncated the list.
+    total: int
+    scope: str
+    candidatesConsidered: int
+
+
+# --------------------------------------------------------- fraud-rate breakdown
+
+class BreakdownDimension(str, Enum):
+    complexity = "complexity"
+    coverageType = "coverageType"
+    claimType = "claimType"
+    claimAmountBucket = "claimAmountBucket"
+    customerTenureBucket = "customerTenureBucket"
+
+
+class BreakdownRow(BaseModel):
+    value: str
+    total: int = 0
+    flagged: int = 0
+    cleared: int = 0
+    pending: int = 0
+    unprocessed: int = 0
+    # flagged / (flagged + cleared): undecided claims are excluded from the
+    # denominator rather than counted as legitimate.
+    confirmedFraudRate: float = 0.0
+    decidedCount: int = 0
+
+
+class FraudRateBreakdownResponse(BaseModel):
+    dimension: str
+    breakdown: list[BreakdownRow] = Field(default_factory=list)
+    total: int = 0
+
+
+# ------------------------------------------------------- pattern co-occurrence
+
+class CooccurrencePair(BaseModel):
+    patternIdA: str
+    patternIdB: str
+    patternNameA: str | None = None
+    patternNameB: str | None = None
+    cooccurrenceCount: int
+    # None when neither pattern has a recorded trigger count to divide by —
+    # distinct from 0.0, which would claim they never fire together.
+    cooccurrenceRate: float | None = None
+    # The same ratio over trigger counts observed in the analysed claims only.
+    # Meaningful on datasets where stats.timesTriggered describes more history
+    # than the collection currently holds.
+    observedCooccurrenceRate: float | None = None
+
+
+class PatternCooccurrenceResponse(BaseModel):
+    pairs: list[CooccurrencePair] = Field(default_factory=list)
+    total: int
+    minCooccurrence: int
+    claimsAnalyzed: int
+
+
+# ------------------------------------------------------------ repeat entities
+
+class RepeatEntityType(str, Enum):
+    customer = "customer"
+    repairShop = "repairShop"
+    adjuster = "adjuster"
+
+
+class RepeatEntity(BaseModel):
+    entityValue: str
+    claimCount: int
+    confirmedCount: int
+    # Confirmed over the group's whole claim count — a concentration measure,
+    # not a verdict accuracy rate.
+    confirmedRate: float = 0.0
+    claimIds: list[str] = Field(default_factory=list)
+    totalClaimAmount: float = 0.0
+
+
+class RepeatEntityResponse(BaseModel):
+    entityType: str
+    entities: list[RepeatEntity] = Field(default_factory=list)
+    total: int
+    minAppearances: int
+
+
+# ----------------------------------------------------------- financial impact
+
+class FinancialImpactResponse(BaseModel):
+    currentFinancialImpact: float
+    fraudCostAvoided: float
+    # Intentionally the sum of the two fields above, computed server-side so the
+    # definition lives in exactly one place.
+    potentialImpactWithoutTool: float
+    avgClaimAmountFraud: float
+    avgClaimAmountLegitimate: float
+    fraudClaimCount: int = 0
+    legitimateClaimCount: int = 0
+
+
+# --------------------------------------------------------------- review queue
+
+class BacklogSegment(BaseModel):
+    complexity: str
+    backlog: int
+    awaitingDecision: int
+    awaitingAssessment: int
+
+
+class OldestPendingClaim(BaseModel):
+    claimId: str
+    complexity: str | None = None
+    computedScore: float | None = None
+    processedAt: datetime | None = None
+    waitingSince: datetime | None = None
+    # "processedAt" or "claimDate" — a never-assessed claim has been waiting
+    # since it was filed, so the response names which clock was used.
+    waitingSinceBasis: str | None = None
+    daysWaiting: int | None = None
+
+
+class ReviewQueueMetricsResponse(BaseModel):
+    avgHoursToDecision: float = 0.0
+    maxHoursToDecision: int | None = None
+    decidedCount: int = 0
+    # How many decided claims actually had both timestamps. The average above
+    # describes these claims only.
+    timeToDecisionSampleSize: int = 0
+    timeToDecisionCoverage: float = 0.0
+    backlogByComplexity: list[BacklogSegment] = Field(default_factory=list)
+    totalBacklog: int = 0
+    oldestPendingClaim: OldestPendingClaim | None = None
+
+
+# ------------------------------------------------------------ reviewer activity
+
+class ReviewerStats(BaseModel):
+    reviewer: str
+    totalDecided: int
+    confirmedCount: int
+    dismissedCount: int
+    # Reflects the mix of claims a reviewer was handed as much as their calls on
+    # them; not a quality score.
+    confirmRate: float = 0.0
+    lastDecisionAt: datetime | None = None
+
+
+class ReviewerActivityResponse(BaseModel):
+    reviewers: list[ReviewerStats] = Field(default_factory=list)
+    total: int
+    totalDecisions: int

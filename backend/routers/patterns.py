@@ -12,6 +12,7 @@ from schemas.patterns import (
     FraudPatternUpdateRequest,
     FraudPatternWriteResponse,
     PatternTypeFilter,
+    WhyEffectiveRegenerateResponse,
 )
 
 router = APIRouter(prefix="/fraud-patterns", tags=["fraud-patterns"])
@@ -26,8 +27,30 @@ def list_fraud_patterns(
     active: bool | None = Query(None, description="Omit for both active and retired patterns"),
     sort: str = Query(DEFAULT_PATTERN_SORT, description="Field name, prefix with '-' for descending"),
 ) -> FraudPatternListResponse:
-    """Unpaginated on purpose: the catalogue is a small, hand-authored set."""
+    """Unpaginated on purpose: the catalogue is a small, hand-authored set.
+
+    Every pattern carries a `whyEffective` sentence describing how much a match
+    by it is actually worth. It is read from storage where it has been generated
+    and composed on the fly otherwise, so it is never null — see
+    POST /fraud-patterns/why-effective/regenerate.
+    """
     return service.list_patterns(pattern_type=patternType.value, active=active, sort=sort)
+
+
+@router.post(
+    "/why-effective/regenerate",
+    response_model=WhyEffectiveRegenerateResponse,
+    summary="Regenerate the stored reliability blurbs from current stats",
+)
+def regenerate_why_effective(
+    service: PatternsServiceDep,
+    patternId: str | None = Query(None, description="Omit to regenerate the whole catalogue"),
+) -> WhyEffectiveRegenerateResponse:
+    """Meant to be run periodically, or after a batch of decisions has moved
+    `confirmedFraudRate`. The text is a pure function of the pattern's stats, so
+    running it twice with no decisions in between changes nothing and reports
+    `patternsChanged: 0`."""
+    return service.regenerate_why_effective(patternId)
 
 
 @router.post(

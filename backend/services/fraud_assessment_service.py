@@ -68,6 +68,7 @@ Now close the case. Do all of the following, in order:
    - fraud.flagSource: "HUMAN"
    - fraud.reviewedBy: "{reviewed_by}"
    - fraud.reviewedAt: the current timestamp
+   - fraud.processedAt: the current timestamp, but ONLY if the claim does not already have one. If fraud.processedAt is already set, leave it exactly as it is — it records when the claim entered the review queue, and overwriting it would erase how long the claim waited.
    - fraud.computedScore and fraud.rawScore: the score you computed in this assessment
    - fraud.matchedPatterns: the patterns you matched, each with its patternId, name and weight
    fraud.processed must be true even though the score was not saved earlier in this

@@ -18,8 +18,42 @@ RULE_PATTERN_TYPE = "RULE"
 # The request schema already forbids them; this repeats the check for service
 # level callers (the Phase 4 agent tools) that build the dict directly.
 FORBIDDEN_UPDATE_KEYS = frozenset(
-    {"patternId", "patternType", "stats", "embedding", "embeddingText", "createdAt"}
+    {
+        "patternId",
+        "patternType",
+        "stats",
+        "embedding",
+        "embeddingText",
+        "createdAt",
+        # Generated from the pattern's own stats by `regenerate_why_effective`.
+        # Hand-editing it would produce a sentence that contradicts the numbers
+        # printed beside it, and the next regeneration would silently discard it.
+        "whyEffective",
+        "whyEffectiveGeneratedAt",
+    }
 )
+
+# Reliability bands for the generated `whyEffective` blurb, as
+# (minimum confirmedFraudRate, sentence template) in descending order. The
+# thresholds are the same ones the severity guidance in the catalogue uses, so
+# the prose and the severity label cannot tell a reviewer different stories.
+RELIABILITY_BANDS: tuple[tuple[float, str], ...] = (
+    (0.75, "Highly reliable: {confirmed} of the {triggered} claims it fired on were "
+           "confirmed fraud, so a match is strong evidence on its own."),
+    (0.50, "Reliable more often than not: {confirmed} of {triggered} matches were "
+           "confirmed fraud, which makes it worth acting on but not conclusive alone."),
+    (0.25, "A moderate signal: {confirmed} of {triggered} matches were confirmed fraud, "
+           "so it earns its weight in combination with other patterns rather than by itself."),
+    (0.0, "Low precision: only {confirmed} of {triggered} matches were confirmed fraud, "
+          "so a match is context for a reviewer rather than evidence against the claim."),
+)
+
+# Below this, the rate is arithmetic on too few cases to describe as a track record.
+MIN_TRIGGERS_FOR_RELIABILITY = 5
+
+# Above this, the pattern is doing broad screening rather than picking out
+# individual claims, which changes how a reviewer should read a match.
+HIGH_VOLUME_TRIGGERS = 30
 
 
 class PatternsService:
@@ -42,6 +76,13 @@ class PatternsService:
         """
         public = {key: value for key, value in to_jsonable(pattern).items() if key != "embedding"}
         public["hasEmbedding"] = bool(pattern.get("embedding"))
+        # Never null. A stored blurb is used as-is; a pattern that has not been
+        # through generation yet gets one composed from its current stats, so the
+        # field is always renderable and a caller never has to handle its absence.
+        # `whyEffectiveGeneratedAt` is how a caller tells the two apart.
+        public["whyEffective"] = (
+            pattern.get("whyEffective") or PatternsService.build_why_effective(pattern)
+        )
         return public
 
     def list_patterns(self, pattern_type: str, active: bool | None, sort: str) -> dict[str, Any]:
@@ -52,6 +93,94 @@ class PatternsService:
             )
         ]
         return {"patterns": patterns, "total": len(patterns)}
+
+    # -------------------------------------------------------- why-effective text
+
+    @staticmethod
+    def build_why_effective(pattern: dict[str, Any]) -> str:
+        """A sentence on how much a match by this pattern is actually worth.
+
+        Composed from the pattern's own recorded stats by template rather than
+        written by a model. Three reasons: the output has to stay consistent with
+        the `confirmedFraudRate` displayed next to it, regenerating the whole
+        catalogue has to be cheap enough to run on a schedule, and a claim about
+        a rule's reliability is not something worth letting a model improvise.
+
+        The wording is therefore a function of the stats alone — the same stats
+        always produce the same sentence, which is what makes it safe to
+        regenerate whenever `confirmedFraudRate` shifts.
+        """
+        stats = pattern.get("stats") or {}
+        triggered = stats.get("timesTriggered") or 0
+        confirmed = stats.get("confirmedCount") or 0
+        rate = stats.get("confirmedFraudRate") or 0.0
+
+        if not triggered:
+            return (
+                "No track record yet: this pattern has not fired on any claim, so its "
+                "weight is an author's estimate rather than a measured rate."
+            )
+
+        if triggered < MIN_TRIGGERS_FOR_RELIABILITY:
+            return (
+                f"Too little history to judge: it has fired {triggered} time(s), "
+                f"{confirmed} of which were confirmed fraud. Treat the rate as "
+                "provisional until it has more matches behind it."
+            )
+
+        sentence = next(
+            template for threshold, template in RELIABILITY_BANDS if rate >= threshold
+        ).format(confirmed=confirmed, triggered=triggered)
+
+        if triggered >= HIGH_VOLUME_TRIGGERS:
+            sentence += (
+                " It fires across a large share of the portfolio, so it works as a "
+                "screen rather than as a way of singling out one claim."
+            )
+        return sentence
+
+    def regenerate_why_effective(self, pattern_id: str | None = None) -> dict[str, Any]:
+        """Regenerate and store the blurb for one pattern, or the whole catalogue.
+
+        Stored rather than computed per request so the text is stable between
+        regenerations: `list_fraud_patterns` is called on every dashboard load,
+        and a sentence that changed under the reader the moment a single decision
+        was recorded would be worse than one that is explicitly a few hours old.
+        Intended to be run on a schedule, or after a batch of decisions.
+        """
+        if pattern_id:
+            pattern = self.patterns.get_by_id(pattern_id)
+            if not pattern:
+                raise NotFoundError("fraud pattern", pattern_id)
+            targets = [pattern]
+        else:
+            targets = self.patterns.list_all(pattern_type="ALL", active=None)
+
+        generated_at = datetime.now(timezone.utc)
+        results = []
+        for target in targets:
+            text = self.build_why_effective(target)
+            # Skip the write when nothing changed: a scheduled run over an
+            # unchanged catalogue should not look like activity.
+            if target.get("whyEffective") == text:
+                results.append({"patternId": target["patternId"], "changed": False,
+                                "whyEffective": text})
+                continue
+            self.patterns.set_why_effective(target["patternId"], text, generated_at)
+            results.append({"patternId": target["patternId"], "changed": True,
+                            "whyEffective": text})
+
+        changed = sum(1 for r in results if r["changed"])
+        return {
+            "generatedAt": generated_at,
+            "patternsProcessed": len(results),
+            "patternsChanged": changed,
+            "results": results,
+            "message": (
+                f"Regenerated whyEffective for {len(results)} pattern(s); "
+                f"{changed} changed."
+            ),
+        }
 
     def create_pattern(self, payload: dict[str, Any]) -> dict[str, Any]:
         """Add a pattern to the catalogue.

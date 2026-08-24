@@ -1,4 +1,5 @@
-"""Portfolio-level fraud analytics: trend, score spread, activity feed, graph."""
+"""Portfolio-level fraud analytics: trend, score spread, activity feed, graph,
+and the Phase 1 fraud-intelligence lenses built on top of them."""
 
 import logging
 from datetime import datetime, timedelta, timezone
@@ -23,6 +24,33 @@ SCORE_BOUNDARIES = [0, 3, 6, 9, 12, 13]
 # produce ~800 edges and an unreadable graph, so each group is truncated
 # before pairing.
 MAX_GROUP_MEMBERS = 5
+
+MONEY_PRECISION = 2
+
+# The two dimensions that need a $bucket stage instead of a plain $group, and so
+# come back keyed by a numeric lower bound that has to be relabelled.
+BUCKETED_DIMENSIONS = frozenset({"claimAmountBucket", "customerTenureBucket"})
+
+# How much of the portfolio the leaderboard clusters over. Larger than the
+# graph's default because a flat ranked list stays readable at any length —
+# it is the *graph* that becomes unreadable past a few dozen nodes, not the
+# clustering itself.
+CLUSTER_CANDIDATE_LIMIT = 200
+
+# A cluster's priority is its members' average score plus one point for each
+# member beyond the first pair. Deliberately a formula anyone can reproduce in
+# their head from the row's own fields, rather than a tuned weighting: this list
+# is read top-down as a work queue, so a manager needs to be able to see why one
+# row outranks another.
+CLUSTER_SIZE_BONUS = 1.0
+
+# Human wording for each grouping key, and the edge type it corresponds to in
+# the relationship graph — the two views describe the same connections.
+CLUSTER_REASONS = {
+    "SAME_CUSTOMER": "claims filed by customer {key}",
+    "SAME_REPAIR_SHOP": "claims routed through repair shop {key}",
+    "SHARED_PATTERN": "claims that all triggered pattern {key}",
+}
 
 
 class FraudAnalyticsService:
@@ -202,4 +230,385 @@ class FraudAnalyticsService:
         return {
             p["patternId"]: p.get("patternType")
             for p in self.patterns.get_many(ids)
+        }
+
+    # ------------------------------------------------------ similarity leaderboard
+
+    def get_similarity_leaderboard(self, limit: int = 10, scope: str = "ALL") -> dict[str, Any]:
+        """The same shared connections as the graph, ranked as a flat work queue.
+
+        This is the triage-first complement to `get_relationship_graph`: identical
+        candidate set and identical grouping keys, but returned as ordered rows
+        rather than nodes and edges, because reading a ranking top-down and
+        reading a network layout are different tasks.
+
+        Unlike the graph, groups are *not* truncated to MAX_GROUP_MEMBERS: the
+        cap exists to keep an edge count drawable, and a cluster that quietly
+        dropped three of its eight members would misstate the very thing a
+        manager is ranking on.
+        """
+        claims = self.claims.find_graph_candidates(scope=scope, limit=CLUSTER_CANDIDATE_LIMIT)
+        scores = {c["claimId"]: c.get("computedScore") for c in claims}
+        flags = {c["claimId"]: c.get("fraudFlag") for c in claims}
+
+        groups: dict[tuple[str, str], list[str]] = {}
+        for claim in claims:
+            claim_id = claim["claimId"]
+            if claim.get("customerId"):
+                groups.setdefault(("SAME_CUSTOMER", claim["customerId"]), []).append(claim_id)
+            if claim.get("repairShop"):
+                groups.setdefault(("SAME_REPAIR_SHOP", claim["repairShop"]), []).append(claim_id)
+            for pattern in claim.get("matchedPatterns") or []:
+                if pattern.get("patternId"):
+                    key = ("SHARED_PATTERN", pattern["patternId"])
+                    groups.setdefault(key, []).append(claim_id)
+
+        clusters = [
+            self._build_cluster(kind, key, members, scores, flags)
+            for (kind, key), members in groups.items()
+            if len(members) >= 2
+        ]
+        clusters = self._merge_identical_clusters(clusters)
+        clusters.sort(key=lambda c: (-c["priority"], -c["maxScore"], c["clusterId"]))
+
+        return {
+            "clusters": clusters[:limit],
+            "total": len(clusters),
+            "scope": scope,
+            "candidatesConsidered": len(claims),
+        }
+
+    @staticmethod
+    def _build_cluster(
+        kind: str,
+        key: str,
+        members: list[str],
+        scores: dict[str, Any],
+        flags: dict[str, Any],
+    ) -> dict[str, Any]:
+        """One leaderboard row from one group of claims sharing a connection."""
+        claim_ids = sorted(set(members))
+        # An unscored claim contributes nothing to the average rather than
+        # counting as a zero, which would drag a cluster of one 11 and one
+        # unassessed claim below a cluster of two 6s and bury the real lead.
+        known = [scores[cid] for cid in claim_ids if scores.get(cid) is not None]
+        avg_score = round(sum(known) / len(known), 2) if known else 0.0
+        max_score = max(known) if known else 0.0
+
+        return {
+            "clusterId": f"{kind}:{key}",
+            "claimIds": claim_ids,
+            "sharedReason": f"{len(claim_ids)} {CLUSTER_REASONS[kind].format(key=key)}",
+            "linkType": kind,
+            "avgScore": avg_score,
+            "maxScore": max_score,
+            "claimCount": len(claim_ids),
+            "scoredCount": len(known),
+            "confirmedCount": sum(1 for cid in claim_ids if flags.get(cid) is True),
+            "priority": round(
+                avg_score + CLUSTER_SIZE_BONUS * (len(claim_ids) - 2), RATE_PRECISION
+            ),
+        }
+
+    @staticmethod
+    def _merge_identical_clusters(clusters: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        """Collapse clusters covering exactly the same claims into one row.
+
+        Two claims sharing both a customer and a repair shop produce two groups
+        with identical membership. As a graph those are two distinct edges and
+        worth drawing separately; as a triage list they are one thing to go and
+        look at, listed twice — so the reasons are joined and the row appears
+        once. Clusters that merely overlap are left alone: those genuinely are
+        different sets of claims.
+        """
+        by_members: dict[frozenset[str], dict[str, Any]] = {}
+        for cluster in clusters:
+            members = frozenset(cluster["claimIds"])
+            existing = by_members.get(members)
+            if existing is None:
+                by_members[members] = cluster
+                continue
+            existing["sharedReason"] += f"; also {cluster['sharedReason']}"
+            existing["linkType"] = "MULTIPLE"
+        return list(by_members.values())
+
+    # -------------------------------------------------------- fraud-rate breakdown
+
+    def get_fraud_rate_breakdown(self, dimension: str) -> dict[str, Any]:
+        """The literal correlation table: outcome counts and rate per dimension value.
+
+        Two code paths behind one response shape — a plain `$group` for
+        claim-level fields, a `$bucket` for the numeric ranges — because a caller
+        asking "does fraud correlate with claim size" wants the same table back
+        as one asking "does it correlate with complexity".
+        """
+        if dimension in BUCKETED_DIMENSIONS:
+            rows = [self._label_bucket_row(row) for row in self.claims.bucketed_fraud_rate(dimension)]
+        else:
+            rows = self.claims.fraud_rate_breakdown(dimension)
+
+        breakdown = [
+            {
+                "value": row["value"],
+                "total": row.get("total", 0),
+                "flagged": row.get("flagged", 0),
+                "cleared": row.get("cleared", 0),
+                "pending": row.get("pending", 0),
+                "unprocessed": row.get("unprocessed", 0),
+                # Denominator is decided claims only. A group of 20 claims with
+                # one confirmed fraud and nineteen still unreviewed has a rate of
+                # 1.0, not 0.05 — the undecided claims are not evidence of
+                # legitimacy, and dividing by `total` would quietly assume they are.
+                "confirmedFraudRate": self._rate(row.get("flagged", 0), row.get("cleared", 0)),
+                "decidedCount": row.get("flagged", 0) + row.get("cleared", 0),
+            }
+            for row in rows
+        ]
+        return {"dimension": dimension, "breakdown": breakdown, "total": sum(
+            row["total"] for row in breakdown
+        )}
+
+    @staticmethod
+    def _rate(flagged: int, cleared: int) -> float:
+        """flagged / decided, or 0.0 when nothing has been decided yet."""
+        decided = flagged + cleared
+        return round(flagged / decided, RATE_PRECISION) if decided else 0.0
+
+    @staticmethod
+    def _label_bucket_row(row: dict[str, Any]) -> dict[str, Any]:
+        """Turn a `$bucket` lower bound into the range label it stands for.
+
+        `$bucket` keys each group by its lower edge, so the label has to be
+        rebuilt from the boundary list the repository used — the top band gets
+        an open-ended "20000+" because its real upper edge is infinity.
+        """
+        boundaries = row["_boundaries"]
+        unit = row.get("_unit")
+        suffix = f" {unit}" if unit else ""
+        low = row["_id"]
+
+        if low == "other":
+            # Out-of-range values, e.g. a negative claim amount.
+            label = "other"
+        else:
+            index = boundaries.index(low)
+            is_top = index == len(boundaries) - 1
+            label = (
+                f"{low}+{suffix}" if is_top
+                else f"{low}-{boundaries[index + 1] - 1}{suffix}"
+            )
+        return {**row, "value": label}
+
+    # ------------------------------------------------------ pattern co-occurrence
+
+    def get_pattern_cooccurrence_matrix(self, min_cooccurrence: int = 2) -> dict[str, Any]:
+        """Which patterns fire together, and whether that means they are redundant.
+
+        Built in application code for the same reason the relationship graph is:
+        "every pair within every claim's matched-pattern array, counted across
+        claims" is a handful of readable lines here and a nest of
+        `$unwind`/`$group` stages as a pipeline.
+
+        Two rates are returned, and the difference between them matters:
+
+        * `cooccurrenceRate` is the specified figure — co-occurrences over
+          `min(timesTriggeredA, timesTriggeredB)`, i.e. "when the rarer pattern
+          fires, how often does the other fire too". Near 1.0 suggests two rules
+          are genuinely redundant.
+        * `observedCooccurrenceRate` uses the same division over trigger counts
+          *within this sample* instead. It exists because `stats.timesTriggered`
+          is maintained independently of the claims currently in the collection,
+          so the specified rate reads as near-zero whenever the stats describe
+          far more history than the collection holds — which is exactly the case
+          on the seeded demo data. Prefer the specified rate in production and
+          the observed one when reading the demo.
+        """
+        pattern_sets = self.claims.matched_pattern_sets()
+
+        pair_counts: dict[tuple[str, str], int] = {}
+        observed_triggers: dict[str, int] = {}
+        for pattern_ids in pattern_sets:
+            for pattern_id in pattern_ids:
+                observed_triggers[pattern_id] = observed_triggers.get(pattern_id, 0) + 1
+            # Sorted so (A, B) and (B, A) are the same key regardless of the
+            # order the patterns happen to sit in on the claim.
+            for pair in combinations(sorted(pattern_ids), 2):
+                pair_counts[pair] = pair_counts.get(pair, 0) + 1
+
+        stats = self._pattern_trigger_stats(observed_triggers.keys())
+        pairs = [
+            {
+                "patternIdA": a,
+                "patternIdB": b,
+                "patternNameA": stats.get(a, {}).get("name"),
+                "patternNameB": stats.get(b, {}).get("name"),
+                "cooccurrenceCount": count,
+                "cooccurrenceRate": self._ratio(
+                    count,
+                    min(
+                        stats.get(a, {}).get("timesTriggered") or 0,
+                        stats.get(b, {}).get("timesTriggered") or 0,
+                    ),
+                ),
+                "observedCooccurrenceRate": self._ratio(
+                    count, min(observed_triggers[a], observed_triggers[b])
+                ),
+            }
+            for (a, b), count in pair_counts.items()
+            if count >= min_cooccurrence
+        ]
+        pairs.sort(key=lambda p: (-p["cooccurrenceCount"], p["patternIdA"], p["patternIdB"]))
+
+        return {
+            "pairs": pairs,
+            "total": len(pairs),
+            "minCooccurrence": min_cooccurrence,
+            "claimsAnalyzed": len(pattern_sets),
+        }
+
+    @staticmethod
+    def _ratio(numerator: int, denominator: int) -> float | None:
+        """A rate capped at 1.0, or None when there is no denominator to divide by.
+
+        Capped because the two inputs come from different places: a pair can be
+        observed co-occurring more often than `stats.timesTriggered` claims
+        either pattern ever fired, and a rate above 1.0 would be reported as if
+        it meant something. None rather than 0.0 for a zero denominator — "not
+        computable" and "never co-occurs" are different answers.
+        """
+        if not denominator:
+            return None
+        return round(min(numerator / denominator, 1.0), RATE_PRECISION)
+
+    def _pattern_trigger_stats(self, pattern_ids) -> dict[str, dict[str, Any]]:
+        ids = list(pattern_ids)
+        if not ids:
+            return {}
+        return {
+            p["patternId"]: {
+                "name": p.get("name"),
+                "timesTriggered": (p.get("stats") or {}).get("timesTriggered"),
+            }
+            for p in self.patterns.get_many(ids)
+        }
+
+    # ---------------------------------------------------------- repeat entities
+
+    def get_repeat_entity_analysis(
+        self,
+        entity_type: str,
+        min_appearances: int = 2,
+    ) -> dict[str, Any]:
+        """Entities appearing across several open or flagged claims.
+
+        Deliberately independent of the pattern catalogue: a repair shop can
+        surface here long before there is enough evidence to justify writing a
+        dedicated pattern for it, which is the whole point of the lens.
+        """
+        rows = self.claims.repeat_entities(entity_type, min_appearances=min_appearances)
+        entities = [
+            {
+                "entityValue": row["entityValue"],
+                "claimCount": row["claimCount"],
+                "confirmedCount": row["confirmedCount"],
+                # Over the group's whole claim count, not just its decided ones:
+                # this is a concentration measure — "how much of what this shop
+                # touches has been confirmed fraud" — not a verdict accuracy rate.
+                "confirmedRate": round(
+                    row["confirmedCount"] / row["claimCount"], RATE_PRECISION
+                ) if row["claimCount"] else 0.0,
+                "claimIds": row["claimIds"],
+                "totalClaimAmount": round(row.get("totalClaimAmount") or 0, MONEY_PRECISION),
+            }
+            for row in rows
+        ]
+        entities.sort(key=lambda e: (-e["claimCount"], -e["confirmedRate"], e["entityValue"]))
+
+        return {
+            "entityType": entity_type,
+            "entities": entities,
+            "total": len(entities),
+            "minAppearances": min_appearances,
+        }
+
+    # -------------------------------------------------------- financial impact
+
+    def get_financial_impact(self) -> dict[str, Any]:
+        """The money view, over decided claims only.
+
+        `potentialImpactWithoutTool` is returned even though it is exactly the
+        sum of the two figures above it. That redundancy is intentional: the
+        definition of "what this would have cost" lives here, so the frontend
+        never re-derives it and cannot drift out of step with a change to it.
+        """
+        row = self.claims.financial_impact()
+        current = round(row.get("currentFinancialImpact") or 0, MONEY_PRECISION)
+        avoided = round(row.get("fraudCostAvoided") or 0, MONEY_PRECISION)
+
+        return {
+            "currentFinancialImpact": current,
+            "fraudCostAvoided": avoided,
+            "potentialImpactWithoutTool": round(current + avoided, MONEY_PRECISION),
+            "avgClaimAmountFraud": round(row.get("avgClaimAmountFraud") or 0, MONEY_PRECISION),
+            "avgClaimAmountLegitimate": round(
+                row.get("avgClaimAmountLegitimate") or 0, MONEY_PRECISION
+            ),
+            "fraudClaimCount": row.get("fraudClaimCount", 0),
+            "legitimateClaimCount": row.get("legitimateClaimCount", 0),
+        }
+
+    # ------------------------------------------------------------ review queue
+
+    def get_review_queue_metrics(self) -> dict[str, Any]:
+        """Turnaround, backlog and the longest-waiting claim.
+
+        `timeToDecisionCoverage` is part of the answer, not diagnostics:
+        `fraud.processedAt` postdates the seed fixtures, so the average is over
+        whichever claims have it. A coverage of 0.14 says "this average describes
+        two of fourteen decisions" — without it the figure would read as though
+        it described all of them.
+        """
+        durations = self.claims.decision_durations()
+        decided = durations.get("decidedCount", 0)
+        covered = durations.get("coveredCount", 0)
+
+        backlog = self.claims.backlog_by_complexity()
+        oldest = self.claims.oldest_pending_claim()
+
+        return {
+            "avgHoursToDecision": round(durations.get("avgHoursToDecision") or 0, MONEY_PRECISION),
+            "maxHoursToDecision": durations.get("maxHoursToDecision"),
+            "decidedCount": decided,
+            "timeToDecisionSampleSize": covered,
+            "timeToDecisionCoverage": round(covered / decided, RATE_PRECISION) if decided else 0.0,
+            "backlogByComplexity": backlog,
+            "totalBacklog": sum(row["backlog"] for row in backlog),
+            "oldestPendingClaim": to_jsonable(oldest) if oldest else None,
+        }
+
+    def get_reviewer_activity_stats(self) -> dict[str, Any]:
+        """Confirm/dismiss split per reviewer.
+
+        `confirmRate` is not a quality score and should not be read as one: a
+        reviewer handed only high-scoring claims will confirm most of them. It
+        measures the mix of work someone was given as much as what they did
+        with it.
+        """
+        reviewers = [
+            {
+                "reviewer": row["reviewer"],
+                "totalDecided": row["totalDecided"],
+                "confirmedCount": row["confirmedCount"],
+                "dismissedCount": row["dismissedCount"],
+                "confirmRate": round(
+                    row["confirmedCount"] / row["totalDecided"], RATE_PRECISION
+                ) if row["totalDecided"] else 0.0,
+                "lastDecisionAt": row.get("lastDecisionAt"),
+            }
+            for row in self.claims.reviewer_activity()
+        ]
+        return {
+            "reviewers": to_jsonable(reviewers),
+            "total": len(reviewers),
+            "totalDecisions": sum(r["totalDecided"] for r in reviewers),
         }

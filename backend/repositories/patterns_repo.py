@@ -93,6 +93,19 @@ class PatternsRepository:
             return_document=True,
         )
 
+    def set_why_effective(self, pattern_id: str, text: str, generated_at: datetime) -> int:
+        """Store a generated reliability blurb and when it was generated.
+
+        `updatedAt` is deliberately NOT touched: regenerating this text is not an
+        edit to the pattern, and bumping the timestamp would make a periodic
+        regeneration job look like someone changed every rule in the catalogue.
+        """
+        result = self.collection.update_one(
+            {"patternId": pattern_id},
+            {"$set": {"whyEffective": text, "whyEffectiveGeneratedAt": generated_at}},
+        )
+        return result.matched_count
+
     def set_confirmed_rate(self, pattern_id: str, rate: float) -> int:
         """Write the recomputed confirmedFraudRate."""
         result = self.collection.update_one(

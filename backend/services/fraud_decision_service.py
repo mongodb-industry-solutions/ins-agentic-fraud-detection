@@ -60,6 +60,16 @@ class FraudDecisionService:
         }
         if dismiss_reason is not None:
             claim_fields["fraud.dismissReason"] = dismiss_reason
+
+        # When the claim entered the review queue. Written only if absent, so a
+        # claim scored by the agent an hour ago keeps that timestamp and the
+        # turnaround metric measures the wait rather than overwriting it with the
+        # moment the wait ended. A claim decided without ever being scored has no
+        # earlier moment to point at, so it starts and finishes now — which
+        # correctly reads as a zero-hour turnaround.
+        if not (claim.get("fraud") or {}).get("processedAt"):
+            claim_fields["fraud.processedAt"] = reviewed_at
+
         self.claims.update_fields(claim_id, claim_fields)
 
         # Write 2 — pattern reliability stats.
