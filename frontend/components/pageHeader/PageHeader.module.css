@@ -11,7 +11,7 @@
   font-family: var(--font-serif);
   font-weight: var(--weight-normal);
   font-size: 22px;
-  line-height: 1.2;
+  /* line-height: 1.2; */
 }
 
 .subtitle {
