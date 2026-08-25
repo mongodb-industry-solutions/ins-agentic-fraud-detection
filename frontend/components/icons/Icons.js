@@ -23,6 +23,11 @@ const PATHS = {
   lock: "M4.5 8h9v7h-9zM6.5 8V5.8a2.5 2.5 0 015 0V8",
   chevronDown: "M4.5 7l4 4 4-4",
   sortDesc: "M4 5h10M4 9h7M4 13h4",
+  bolt: "M10.2 2L4.5 10.2h3.4L7.3 16l5.7-8.2H9.6z",
+  checkCircle: "M9 16a7 7 0 100-14 7 7 0 000 14zM5.9 9.1l2.2 2.2 4-4.2",
+  info: "M9 16a7 7 0 100-14 7 7 0 000 14zM9 8.3v4.2M9 5.5v.7",
+  plus: "M9 4v10M4 9h10",
+  close: "M4.8 4.8l8.4 8.4M13.2 4.8l-8.4 8.4",
 };
 
 export default function Icon({ name, size = 16, className }) {

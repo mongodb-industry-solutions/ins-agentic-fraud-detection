@@ -16,9 +16,16 @@
   --mist: #e3fcf7;
   --lavender: #f9ebff;
 
-  /* --- chart-only reserved colors (sparklines only, never general UI) --- */
+  /* --- chart-only reserved colors (data series only, never general UI) ---
+     Legitimate wherever a series has no status pill it must visually match.
+     The status donut and the pills deliberately do NOT use these; the fraud
+     intelligence trend chart does, because none of its four lines corresponds
+     to a pill anywhere. Lime and Clear Blue were added for that chart's third
+     and fourth series. */
   --chart-sky: #00d2ff;
   --chart-chartreuse: #b1ff05;
+  --chart-lime: #e9ff99;
+  --chart-clear-blue: #006eff;
 
   /* --- Slate derivatives: dark theme (default) -------------------------- */
   --bg: var(--slate);

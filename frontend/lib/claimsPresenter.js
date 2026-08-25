@@ -18,11 +18,21 @@ export const STATUS_LABEL = {
   [STATUS.CLEARED]: "Cleared — no fraud",
 };
 
+/**
+ * The claim's *fraud review* state — not its lifecycle. `claimStatus` is the
+ * lifecycle field (OPEN / CLOSED / CLOSED_DENIED) and is deliberately not
+ * consulted here: a closed claim can hold any fraud state, and vice versa.
+ *
+ * Branch order mirrors the backend's stats facet and STATUS_MATCHES exactly, so
+ * a row can never disagree with the stat card counting it.
+ */
 function toStatusKey(claim) {
   if (claim.fraudFlag === true) return STATUS.FLAGGED;
-  if (claim.processed === false || claim.claimStatus === "UNPROCESSED") return STATUS.UNPROCESSED;
-  if (claim.claimStatus === "CLEARED") return STATUS.CLEARED;
-  if (claim.claimStatus === "FLAGGED") return STATUS.FLAGGED;
+  if (claim.processed !== true) return STATUS.UNPROCESSED;
+  // Previously this tested `claimStatus === "CLEARED"`, a value the API never
+  // returns, so every cleared claim fell through to PENDING — closed claims
+  // with a decision on record were all mislabelled "Pending review".
+  if (claim.fraudFlag === false) return STATUS.CLEARED;
   return STATUS.PENDING;
 }
 
@@ -86,6 +96,35 @@ export function toMoney(amount) {
 /** The agent's raw score is capped at this many points. */
 export const MAX_SCORE = 12;
 
+/**
+ * Where the severe band starts on the 0..12 capped scale, matching the top arm
+ * of the backend's score histogram (SCORE_BOUNDARIES, 9..12).
+ *
+ * This is the dashboard's own banding, not the agent's: the agent reports a
+ * `bandLabel` of its own from cutoffs held in its instructions, outside this
+ * repo. If those two ever need to agree, this constant is the thing to move
+ * server-side — do not read it as authoritative for a claim's review band.
+ */
+export const SEVERE_SCORE_MIN = 9;
+
+/**
+ * Which dashboard segment a claim belongs to, or null for neither.
+ *
+ * Derived from the fraud score, NOT from the stored `complexity` field.
+ * `complexity` is operational triage metadata written when the claim is
+ * created — how hard the claim is to handle — so it says nothing about fraud
+ * severity and is set on claims the agent has never looked at.
+ *
+ * An unscored claim is in neither band: it is not a low-scoring claim, it is a
+ * claim with no score, and it stays visible under "All claims".
+ */
+function toSegment(claim) {
+  if (claim.processed !== true || claim.computedScore === null || claim.computedScore === undefined) {
+    return null;
+  }
+  return claim.computedScore >= SEVERE_SCORE_MIN ? "severe" : "simple";
+}
+
 /** computedScore is capped points, not a ratio — shown bare in a Lavender chip. */
 export function toScoreLabel(score) {
   if (score === null || score === undefined) return null;
@@ -126,8 +165,9 @@ export function toClaimRow(claim) {
     // them — the *Label fields above are what gets rendered.
     openedAt: claim.claimDate ? Date.parse(claim.claimDate) : null,
     scoreValue: claim.computedScore ?? null,
-    // Drives which segment filter the row survives; "all" always matches.
-    segment: (claim.complexity || "SIMPLE").toLowerCase() === "complex" ? "complex" : "simple",
+    // Drives which segment filter the row survives; "all" always matches, and
+    // null survives only "all".
+    segment: toSegment(claim),
     isUnprocessed: statusKey === STATUS.UNPROCESSED,
   };
 }
@@ -154,7 +194,6 @@ export function toStatStrip(response, trends = {}) {
       value: stats.pendingReview ?? 0,
       statusKey: STATUS.PENDING,
       icon: "inbox",
-      delta: "+3",
     },
     {
       id: "flagged",
@@ -166,11 +205,11 @@ export function toStatStrip(response, trends = {}) {
     },
     {
       id: "cleared",
-      label: "Cleared this week",
+      // Not "this week": the count the API returns is the whole portfolio.
+      label: "Cleared",
       value: stats.cleared ?? 0,
       statusKey: STATUS.CLEARED,
       icon: "check",
-      delta: "+5",
     },
   ];
 }
@@ -195,33 +234,77 @@ export function toPortfolioSummary(response) {
   return `${total} claims in portfolio — ${stats.pendingReview ?? 0} awaiting your decision`;
 }
 
-/** One pending-queue row. */
+/**
+ * One pending-queue row.
+ *
+ * The queue holds two kinds of work and they must not look alike. A scored
+ * claim shows its score and the patterns that fired, and the action is a
+ * decision. An unanalysed claim has neither — so it says so, and its action is
+ * to run the assessment. Rendering an em-dash score next to "0 pattern matches"
+ * would read as "the agent found nothing", which is the opposite of the truth.
+ */
 export function toPendingRow(item) {
-  const patterns = item.matchedPatterns || [];
+  // Pattern entries arrive as documents from the API but as plain strings in
+  // older fixtures; both render as a name.
+  const patterns = (item.matchedPatterns || []).map((pattern) =>
+    typeof pattern === "string" ? pattern : pattern.patternName || pattern.patternId
+  );
+  // Absent `processed` means the fixture predates the field; those rows are all
+  // scored ones, so the queue keeps its old behaviour rather than relabelling
+  // everything as unanalysed.
+  const isUnprocessed = item.processed === false || item.processed === null;
+
   return {
     id: item.claimId,
     claimId: item.claimId,
     customerName: item.customerName || "Unknown customer",
-    scoreLabel: toScoreLabel(item.computedScore),
-    detail: [
-      item.coverageType,
-      `scored ${toRelativeTime(item.scoredAt)}`,
-      `${patterns.length} pattern ${patterns.length === 1 ? "match" : "matches"}`,
-    ]
-      .filter(Boolean)
-      .join(" · "),
-    tags: patterns.slice(0, 2),
-    overflowTag: patterns.length > 2 ? `+${patterns.length - 2} more` : null,
+    scoreLabel: isUnprocessed ? null : toScoreLabel(item.computedScore),
+    isUnprocessed,
+    actionLabel: isUnprocessed ? "Analyze" : "Review",
+    detail: isUnprocessed
+      ? [item.coverageType, "not yet analyzed", item.claimDate ? `opened ${toRelativeTime(item.claimDate)}` : null]
+          .filter(Boolean)
+          .join(" · ")
+      : [
+          item.coverageType,
+          // Omitted rather than rendered as "scored " with nothing after it: not
+          // every scored claim carries a timestamp in the data model yet.
+          item.scoredAt ? `scored ${toRelativeTime(item.scoredAt)}` : null,
+          `${patterns.length} pattern ${patterns.length === 1 ? "match" : "matches"}`,
+        ]
+          .filter(Boolean)
+          .join(" · "),
+    tags: isUnprocessed ? [] : patterns.slice(0, 2),
+    overflowTag: !isUnprocessed && patterns.length > 2 ? `+${patterns.length - 2} more` : null,
   };
 }
 
 export function toPendingQueue(response) {
   const items = (response?.items || []).map(toPendingRow);
   const total = response?.total ?? items.length;
+  const awaitingAnalysis = items.filter((item) => item.isUnprocessed).length;
+  const awaitingDecision = items.length - awaitingAnalysis;
+
+  // The caption names both kinds of work when both are present, because "12
+  // claims awaiting confirm/dismiss" would misdescribe a queue that is mostly
+  // claims nobody has analysed yet.
+  const parts = [
+    awaitingDecision > 0 ? `${awaitingDecision} awaiting confirm/dismiss` : null,
+    awaitingAnalysis > 0 ? `${awaitingAnalysis} not yet analyzed` : null,
+  ].filter(Boolean);
+
+  // The breakdown is counted from the page, so it is only shown when the page
+  // *is* the whole queue. Otherwise "14 claims — 3 awaiting, 7 not analyzed"
+  // would invite the reader to add 3 and 7 and get 14.
+  const isWholeQueue = items.length >= total;
+
   return {
     total,
     items,
-    caption: `${total} claims — agent scored, awaiting confirm/dismiss`,
+    caption:
+      isWholeQueue && parts.length
+        ? `${total} claims — ${parts.join(", ")}`
+        : `${total} claims waiting on you — showing the top ${items.length}`,
   };
 }
 
@@ -249,6 +332,37 @@ export function toMonoTimestamp(value) {
  * patternId/patternName/weight, which cannot render rationale text or
  * similarity evidence — that richer content has to come off the review doc.
  */
+/**
+ * "How the agent got here" as {id, label} rows.
+ *
+ * Two shapes reach this. A decision trace records `steps` as objects — one per
+ * pattern that fired, carrying the comparison that fired it — while the offline
+ * fixture uses plain narration strings. Both are normalised here rather than in
+ * the drawer, which renders view models and never raw API JSON.
+ *
+ * The id matters: the drawer used the step itself as its React key, which was
+ * fine for unique strings and produced duplicate `[object Object]` keys the
+ * moment real traces arrived.
+ */
+function toReportSteps(steps) {
+  return (steps || [])
+    .map((step, index) => {
+      if (typeof step === "string") {
+        return step.trim() ? { id: `step-${index}`, label: step } : null;
+      }
+      if (!step || typeof step !== "object") return null;
+
+      const name = step.patternName || step.patternId || "Pattern evaluated";
+      return {
+        id: step.patternId || `step-${index}`,
+        // The detail IS the evidence ("claimAmount=35000 > 25000"), so it is
+        // kept verbatim next to the pattern it justifies.
+        label: step.detail ? `${name} — ${step.detail}` : name,
+      };
+    })
+    .filter(Boolean);
+}
+
 export function toFraudReportViewModel(claim, review) {
   if (!claim) return null;
 
@@ -304,7 +418,7 @@ export function toFraudReportViewModel(claim, review) {
       review?.patternsEvaluatedCount != null
         ? `${matchedPatterns.length} patterns matched out of ${review.patternsEvaluatedCount} active patterns evaluated`
         : `${matchedPatterns.length} patterns matched`,
-    steps: review?.steps || [],
+    steps: toReportSteps(review?.steps),
     matchedPatterns,
     similarClaims,
     decision: toDecision(fraud),

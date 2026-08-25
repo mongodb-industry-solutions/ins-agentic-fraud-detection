@@ -18,10 +18,7 @@ export default function Topbar() {
           onClick={toggleTheme}
           aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
         >
-          <Icon name={theme === "dark" ? "sun" : "moon"} size={15} />
-        </button>
-        <button type="button" className={styles.plainButton} aria-label="Notifications">
-          <Icon name="bell" size={15} />
+          <Icon name={theme === "dark" ? "sun" : "moon"} size={20} />
         </button>
         <button type="button" className={styles.profile}>
           <span className={styles.avatar}>{PROFILE.initials}</span>

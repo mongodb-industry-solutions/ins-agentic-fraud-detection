@@ -180,6 +180,26 @@
   opacity: 0.88;
 }
 
+/* The agent action. Solid Spring Green is the app's one "start an agent run"
+   fill, matching the chat launcher, so the two agent entry points read as the
+   same kind of action. */
+.analyzeButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 13px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--spring-green);
+  color: var(--on-spring-green);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.analyzeButton:hover {
+  opacity: 0.88;
+}
+
 /* Applied only when the person was sent here specifically to analyze this
    claim. Never applies once a score exists. */
 .pulse {
@@ -202,34 +222,8 @@
   }
 }
 
-/* --- tabs ----------------------------------------------------------------- */
-
-.tabs {
-  display: flex;
-  gap: 4px;
-  border-bottom: 1px solid var(--border);
-}
-
-.tab {
-  padding: 9px 13px;
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  color: var(--text-muted);
-  font-size: 12.5px;
-  font-weight: var(--weight-light);
-  margin-bottom: -1px;
-}
-
-.tab:hover {
-  color: var(--text);
-}
-
-.activeTab {
-  border-bottom-color: var(--accent);
-  color: var(--text);
-  font-weight: var(--weight-normal);
-}
+/* The tab strip moved to components/tabBar/TabBar.module.css so this view and
+   Fraud Intelligence share one implementation. */
 
 /* --- loading -------------------------------------------------------------- */
 

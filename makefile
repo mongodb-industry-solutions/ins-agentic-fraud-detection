@@ -48,3 +48,46 @@ run-frontend:
 # Phase 2 acceptance checks. Mutates data — reseed afterwards.
 verify-phase2:
 	cd backend && uv run python scripts/verify_phase2.py
+
+# Phase 1 fraud-intelligence tool checks. Read-only; no reseed needed.
+verify-phase1-tools:
+	cd backend && uv run python scripts/verify_phase1_tools.py
+
+# Same, printing every response payload.
+verify-phase1-tools-verbose:
+	cd backend && uv run python scripts/verify_phase1_tools.py --verbose
+
+# Relationship-graph layout checks: determinism, bounds, no overlapping nodes.
+# Needs the backend running on :8000.
+verify-graph-layout:
+	cd frontend && node scripts/check-force-layout.mjs
+
+# Correlations checks: sort order, absolute colour scale, backend-owned labels.
+# Needs the backend running on :8000.
+verify-correlations:
+	cd frontend && node scripts/with-aliases.mjs scripts/check-correlations.mjs
+
+# Patterns checks: server-owned ranking, heatmap symmetry, text-contrast flip.
+# Needs the backend running on :8000.
+verify-patterns:
+	cd frontend && node scripts/with-aliases.mjs scripts/check-patterns.mjs
+
+# Every Fraud Intelligence check. Needs the backend running on :8000.
+verify-fraud-intelligence: verify-phase1-tools verify-graph-layout verify-correlations verify-patterns
+
+# Give already-decided claims a fraud.processedAt so turnaround can be measured.
+backfill-processed-at:
+	cd backend && uv run python scripts/backfill_processed_at.py
+
+# Regenerate every pattern's whyEffective blurb from its current stats.
+regen-why-effective:
+	cd backend && uv run python -c "\
+from dotenv import load_dotenv; load_dotenv(); \
+from core.db import create_connector; \
+from repositories.patterns_repo import PatternsRepository; \
+from repositories.claims_repo import ClaimsRepository; \
+from services.patterns_service import PatternsService; \
+c = create_connector(); \
+s = PatternsService(PatternsRepository(c), ClaimsRepository(c)); \
+print(s.regenerate_why_effective()['message']); \
+c.client.close()"

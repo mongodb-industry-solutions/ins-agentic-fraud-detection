@@ -142,7 +142,7 @@ export function toDemoClaimDetail(claimId) {
       computedScore: row?.computedScore ?? null,
       rawScore: row?.computedScore ?? null,
       fraudFlag: row?.fraudFlag ?? null,
-      reviewedBy: row?.fraudFlag === true ? "Alex Tran" : null,
+      reviewedBy: row?.fraudFlag === true ? "Patricia Renart" : null,
       reviewedAt: row?.fraudFlag === true ? "2026-08-14T08:05:00Z" : null,
     },
     ...detail,

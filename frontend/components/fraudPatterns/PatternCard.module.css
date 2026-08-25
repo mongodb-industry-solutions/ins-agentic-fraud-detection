@@ -1,0 +1,121 @@
+.card {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-align: left;
+  cursor: pointer;
+}
+
+.card:hover {
+  border-color: var(--border-strong);
+}
+
+.card.inactive {
+  opacity: 0.6;
+}
+
+.cardTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.cardName {
+  font-size: 13.5px;
+  font-weight: var(--weight-normal);
+}
+
+/* Deliberately NOT the solid-Lavender score chip: that chip means "the agent
+   computed this". A pattern's weight is static configuration, so it gets the
+   uncolored outline treatment instead. */
+.weightChip {
+  flex: none;
+  padding: 2px 7px;
+  border: 1px solid var(--border-strong);
+  border-radius: 2px;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 11.5px;
+  text-transform: uppercase;
+}
+
+.cardMeta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 10px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.metaItem svg {
+  color: var(--text-dim);
+}
+
+.metaValue {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  color: var(--text);
+  text-transform: uppercase;
+}
+
+.cardBottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* Same dashed, uncolored grammar as the "not yet analyzed" claim pill, because
+   the meaning is identical: a value that does not exist yet. */
+.pendingTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-pill);
+  color: var(--text-dim);
+  font-size: 10.5px;
+}
+
+.pdot {
+  width: 4px;
+  height: 4px;
+  flex: none;
+  border-radius: var(--radius-pill);
+  background: var(--text-dim);
+}
+
+/* Placeholder for a pattern that has not been created yet — dashed for the same
+   reason the pending tag is. */
+.addCard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 16px;
+  background: transparent;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.addCard:hover {
+  color: var(--text);
+  border-color: var(--text-muted);
+}

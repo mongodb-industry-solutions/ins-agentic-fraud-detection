@@ -1,0 +1,338 @@
+/* Relationships sub-tab. Zone shell, skeleton, error and empty styles are
+   shared from FraudIntelligenceView.module.css — only what is specific to the
+   graph, the leaderboard and the entity list lives here.
+
+   No new colours: node fills are the StatusPill palette, edges are
+   --border-strong at varying stroke patterns. */
+
+/* --- shared legend row ---------------------------------------------------- */
+
+.legendRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+.statusDot {
+  width: 9px;
+  height: 9px;
+  flex: none;
+  border-radius: var(--radius-pill);
+}
+
+.legendLine {
+  width: 18px;
+  height: 2px;
+  flex: none;
+  overflow: visible;
+}
+
+.legendLine line {
+  stroke: var(--border-strong);
+  stroke-width: 1.4;
+}
+
+/* --- graph ---------------------------------------------------------------- */
+
+.graphSvg {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* Labels sit just outside a node circle and must not be clipped at the
+     viewBox edge. */
+  overflow: visible;
+}
+
+.edge {
+  stroke: var(--border-strong);
+  stroke-width: 1.3;
+  transition: stroke 120ms ease-out, stroke-width 120ms ease-out;
+}
+
+/* Hovering an edge is how its reasons are read, so it needs to be visibly the
+   thing under the cursor. */
+.edgeActive {
+  stroke: var(--accent);
+  stroke-width: 2.2;
+}
+
+.nodeGroup {
+  cursor: pointer;
+}
+
+.nodeGroup:focus-visible {
+  outline: none;
+}
+
+.nodeGroup:focus-visible .node {
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.node {
+  transition: r 120ms ease-out;
+}
+
+.nodeGroup:hover .node {
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+/* Node fills are exactly the status pill colours — the graph is a second
+   reading of the same status data, so it must not invent a third scheme. */
+.nodeFlagged {
+  fill: var(--evergreen);
+}
+
+.nodePending {
+  fill: var(--lavender);
+}
+
+/* Mist is nearly invisible against the dark surface, so a cleared node keeps a
+   border where the others do not need one. */
+.nodeCleared {
+  fill: var(--mist);
+  stroke: var(--border-strong);
+  stroke-width: 1;
+}
+
+/* A never-analysed claim reads as absent rather than as an outcome: muted fill,
+   dashed outline, matching the unprocessed pill's treatment elsewhere. */
+.nodeUnprocessed {
+  fill: var(--surface-2);
+  stroke: var(--border-strong);
+  stroke-width: 1;
+  stroke-dasharray: 3 2;
+}
+
+.nodeScore {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 10px;
+  text-anchor: middle;
+  dominant-baseline: central;
+  fill: var(--on-evergreen);
+  pointer-events: none;
+}
+
+/* The score sits on a light fill in these two cases, so it flips to dark. */
+.nodePendingText,
+.nodeClearedText {
+  fill: var(--slate);
+}
+
+.nodeLabel {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 9.5px;
+  text-anchor: middle;
+  fill: var(--text-dim);
+  pointer-events: none;
+}
+
+.graphFoot {
+  margin: 0;
+  font-size: 11.5px;
+  font-weight: var(--weight-light);
+  color: var(--text-dim);
+}
+
+/* --- similarity leaderboard ---------------------------------------------- */
+
+.clusterList,
+.entityList {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--border);
+}
+
+.clusterRow {
+  display: grid;
+  grid-template-columns: 26px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.rankBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.clusterMain {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+
+.chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* Every claim in a cluster is a one-click destination — nobody should have to
+   open the worst claim and find the rest under its Linked tab. */
+.claimChip {
+  padding: 3px 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.claimChip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.clusterReason {
+  font-size: 11.5px;
+  font-weight: var(--weight-light);
+  color: var(--text-muted);
+}
+
+.clusterScores {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.scoreStat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.scoreStatLabel {
+  font-size: 10.5px;
+  font-weight: var(--weight-light);
+  color: var(--text-dim);
+}
+
+.scoreStatValue {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 14px;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+/* --- repeat entities ----------------------------------------------------- */
+
+.entityRow {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 0 2px;
+  border-bottom: 1px solid var(--border);
+}
+
+.entityHead {
+  display: grid;
+  grid-template-columns: 16px 1fr auto auto;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  background: none;
+  border: none;
+  text-align: left;
+}
+
+.entityHead:hover .entityName {
+  color: var(--accent);
+}
+
+.caret {
+  display: flex;
+  color: var(--text-dim);
+  /* Collapsed points right; open points down. */
+  transform: rotate(-90deg);
+  transition: transform 140ms ease-out;
+}
+
+.caretOpen {
+  transform: rotate(0deg);
+}
+
+.entityName {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  font-size: 12.5px;
+  transition: color 120ms ease-out;
+}
+
+/* The underlying id, shown only where it differs from the display name — a
+   repair shop's id is its name, so it would be a duplicate there. */
+.entitySubLabel {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 10.5px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.entityStat {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.entityStatValue {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.entityStatLabel {
+  font-size: 11px;
+  font-weight: var(--weight-light);
+  color: var(--text-dim);
+}
+
+.entityRow .chipRow {
+  padding: 0 0 12px 30px;
+}
+
+@media (max-width: 900px) {
+  .clusterRow {
+    grid-template-columns: 26px 1fr;
+  }
+
+  .clusterScores {
+    grid-column: 2;
+    justify-content: flex-start;
+  }
+
+  .entityHead {
+    grid-template-columns: 16px 1fr;
+    row-gap: 8px;
+  }
+
+  .entityStat {
+    grid-column: 2;
+  }
+}

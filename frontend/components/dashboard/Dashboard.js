@@ -12,48 +12,70 @@ import StatStrip from "@/components/statStrip/StatStrip";
 import styles from "./Dashboard.module.css";
 import useDashboard from "./useDashboard";
 
-export default function Dashboard({ onOpenClaim }) {
+export default function Dashboard({ onOpenClaim, onAnalyze }) {
   const dashboard = useDashboard();
 
   return (
     <main className={styles.content}>
       <PageHeader title="Claims portfolio" subtitle={dashboard.summary} />
 
-      <StatStrip stats={dashboard.stats} />
+      {/* Stated, never quietly substituted with fixture data: an empty
+          dashboard is honest, a plausible-looking fake one is not. */}
+      {dashboard.error && (
+        <div className={styles.errorNote}>Couldn&apos;t load the portfolio: {dashboard.error}</div>
+      )}
 
-      <PendingQueue queue={dashboard.pendingQueue} onReview={onOpenClaim} />
+      {dashboard.isLoading ? (
+        <>
+          <div className={styles.skeleton} />
+          <div className={styles.skeleton} />
+        </>
+      ) : (
+        <>
+          <StatStrip stats={dashboard.stats} />
 
-      <InsightsZone breakdown={dashboard.breakdown} events={dashboard.activityFeed} />
+          {/* Two actions, because the queue holds two kinds of work: a scored
+              claim opens for a decision, an unanalysed one runs the agent. */}
+          <PendingQueue
+            queue={dashboard.pendingQueue}
+            onReview={onOpenClaim}
+            onAnalyze={onAnalyze}
+          />
 
-      <FilterRow
-        controls={dashboard.filterControls}
-        sortControl={dashboard.sortControl}
-        showClear={dashboard.hasFilters}
-        onFilterChange={dashboard.changeFilter}
-        onSortChange={dashboard.changeSort}
-        onClear={dashboard.clearFilters}
-      />
+          <InsightsZone breakdown={dashboard.breakdown} events={dashboard.activityFeed} />
 
-      {/* Sits directly above the table it filters. */}
-      <SegmentedControl
-        segments={dashboard.segments}
-        activeId={dashboard.activeSegment}
-        onChange={dashboard.changeSegment}
-      />
+          <FilterRow
+            controls={dashboard.filterControls}
+            sortControl={dashboard.sortControl}
+            showClear={dashboard.hasFilters}
+            onFilterChange={dashboard.changeFilter}
+            onSortChange={dashboard.changeSort}
+            onClear={dashboard.clearFilters}
+          />
 
-      <BulkActionBar selectedCount={dashboard.selectedIds.length} />
+          {/* Sits directly above the table it filters. */}
+          <SegmentedControl
+            segments={dashboard.segments}
+            activeId={dashboard.activeSegment}
+            onChange={dashboard.changeSegment}
+          />
 
-      <ClaimsTable
-        rows={dashboard.rows}
-        showCheckboxes={dashboard.showCheckboxes}
-        selectedIds={dashboard.selectedIds}
-        onToggleRow={dashboard.toggleRow}
-        onViewReport={dashboard.openReport}
-        onViewDetails={onOpenClaim}
-        // Sends the person to the claim with its fraud action emphasized,
-        // since triggering analysis is why they were sent there.
-        onAnalyze={(claimId) => onOpenClaim(claimId, { analyze: true })}
-      />
+          <BulkActionBar selectedCount={dashboard.selectedIds.length} />
+
+          <ClaimsTable
+            rows={dashboard.rows}
+            showCheckboxes={dashboard.showCheckboxes}
+            selectedIds={dashboard.selectedIds}
+            onToggleRow={dashboard.toggleRow}
+            onViewReport={dashboard.openReport}
+            onViewDetails={onOpenClaim}
+            // Runs the assessment right here. Navigating to the claim first
+            // made the person hunt for a second button to do what they had
+            // already asked for.
+            onAnalyze={onAnalyze}
+          />
+        </>
+      )}
 
       {dashboard.reportClaimId && (
         <ReportDrawer

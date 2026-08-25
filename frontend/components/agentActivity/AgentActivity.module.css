@@ -86,3 +86,13 @@
   background: var(--mist);
   color: var(--on-mist);
 }
+
+/* Same centred, muted treatment as the claim audit trail's empty state, so an
+   empty zone reads as a deliberate "nothing here" rather than a failed load. */
+.empty {
+  margin: 0;
+  padding: 28px 0;
+  color: var(--text-muted);
+  font-size: 12.5px;
+  text-align: center;
+}

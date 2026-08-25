@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import Icon from "@/components/icons/Icons";
+import Overlay from "@/components/shared/Overlay";
 import StatusPill from "@/components/statusPill/StatusPill";
 import styles from "./ReportDrawer.module.css";
 import useReportDrawer from "./useReportDrawer";
@@ -124,29 +125,16 @@ function DecisionSection({ decision, isSubmitting, onDecide }) {
 export default function ReportDrawer({ claimId, row, onClose, onViewClaim }) {
   const { report, isLoading, error, isSubmitting, decide } = useReportDrawer(claimId, row);
 
-  useEffect(() => {
-    const onKeyDown = (event) => {
-      if (event.key === "Escape") onClose();
-    };
-    document.addEventListener("keydown", onKeyDown);
-    // The dashboard behind the blur must not scroll under the drawer.
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKeyDown);
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [onClose]);
-
+  // Escape-to-close, click-outside-to-close and the body-scroll lock all live
+  // in Overlay — the drawer and the fraud-pattern modals share one backdrop.
   const openSimilarClaim = (similarClaimId) => {
     onClose();
     onViewClaim?.(similarClaimId);
   };
 
   return (
-    <>
-      <div className={styles.backdrop} onClick={onClose} />
-      <aside className={styles.drawer} role="dialog" aria-modal="true" aria-label="Fraud report">
+    <Overlay open onClose={onClose} variant="drawer" label="Fraud report">
+      <aside className={styles.drawer}>
         <div className={styles.header}>
           <div className={styles.headerMain}>
             <div className={styles.headerTop}>
@@ -201,11 +189,11 @@ export default function ReportDrawer({ claimId, row, onClose, onViewClaim }) {
                 <div className={styles.section}>
                   <span className={styles.sectionTitle}>How the agent got here</span>
                   {report.steps.map((step) => (
-                    <div key={step} className={styles.step}>
+                    <div key={step.id} className={styles.step}>
                       <span className={styles.stepDot}>
                         <Icon name="check" size={9} />
                       </span>
-                      {step}
+                      {step.label}
                     </div>
                   ))}
                 </div>
@@ -271,6 +259,6 @@ export default function ReportDrawer({ claimId, row, onClose, onViewClaim }) {
           </button>
         </div>
       </aside>
-    </>
+    </Overlay>
   );
 }

@@ -1,0 +1,347 @@
+/* Patterns sub-tab. Zone shell and states come from
+   FraudIntelligenceView.module.css; the rate colour ramp is imported from
+   Correlations.module.css, not redefined here. The weight chip is imported from
+   the catalogue's PatternCard.module.css.
+
+   No new colours. */
+
+.skeletonRows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* --- leaderboard ---------------------------------------------------------- */
+
+.lbList {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--border);
+}
+
+.lbRow {
+  display: grid;
+  grid-template-columns: 26px 1fr;
+  align-items: start;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+/* One consistent treatment for all five rows: solid Forest Green, white mono
+   numeral. There is no rest-of-list on screen for a second style to contrast
+   against. */
+.lbRank {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex: none;
+  border-radius: var(--radius-pill);
+  background: var(--forest-green);
+  color: var(--white);
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 12px;
+  line-height: 1;
+}
+
+.lbBody {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.lbTopRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.lbName {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  font-size: 13px;
+}
+
+.lbId {
+  flex: none;
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 11.5px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.lbStats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 18px;
+}
+
+.lbStat {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.lbStatLabel {
+  font-size: 11px;
+  font-weight: var(--weight-light);
+  color: var(--text-dim);
+}
+
+.lbStatValue {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 12.5px;
+  text-transform: uppercase;
+}
+
+/* The generated reliability sentence. Set apart by a rule rather than a fill so
+   it reads as commentary on the row above it. */
+.lbWhy {
+  margin: 0;
+  padding-left: 10px;
+  border-left: 2px solid var(--border);
+  color: var(--text-muted);
+  font-size: 11.5px;
+  font-weight: var(--weight-light);
+  line-height: 1.5;
+}
+
+.showingNote {
+  margin: 0;
+  font-size: 11.5px;
+  font-weight: var(--weight-light);
+  color: var(--text-dim);
+}
+
+/* --- co-occurrence heatmap ----------------------------------------------- */
+
+.axisNote {
+  margin: 0;
+  font-size: 11.5px;
+  font-weight: var(--weight-light);
+  color: var(--text-dim);
+}
+
+/* Scrolls rather than shrinking cells below a readable size. */
+.heatmapWrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.heatmap {
+  border-collapse: separate;
+  border-spacing: 3px;
+}
+
+.heatmapCaption {
+  padding: 0 0 10px;
+  color: var(--text-dim);
+  font-size: 11.5px;
+  font-weight: var(--weight-light);
+  text-align: left;
+  caption-side: top;
+}
+
+.corner {
+  width: 62px;
+}
+
+.colHead,
+.rowHead {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 10.5px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.colHead {
+  padding: 0 0 4px;
+  text-align: center;
+}
+
+.rowHead {
+  padding: 0 8px 0 0;
+  text-align: right;
+}
+
+.cell {
+  width: 58px;
+  height: 34px;
+  border-radius: 2px;
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 11.5px;
+  text-align: center;
+  cursor: default;
+}
+
+/* Text colour flips once the fill is dark enough to swallow dark text. Which
+   cells those are is decided by needsLightText, checked against the ramp. */
+.cellDark {
+  color: var(--slate);
+}
+
+.cellLight {
+  color: var(--white);
+}
+
+/* A pattern cannot co-occur with itself. */
+.diagonal {
+  width: 58px;
+  height: 34px;
+  border-radius: 2px;
+  background: var(--surface-2);
+  color: var(--text-dim);
+  font-size: 11.5px;
+  text-align: center;
+}
+
+/* --- notable pairs ------------------------------------------------------- */
+
+.pairsBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.pairsTitle {
+  font-size: 12px;
+  font-weight: var(--weight-normal);
+}
+
+.pairsList {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pairRow {
+  display: grid;
+  grid-template-columns: 9px auto 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.pairSwatch {
+  width: 9px;
+  height: 9px;
+  flex: none;
+  border-radius: 2px;
+}
+
+.pairNames {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.pairId {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 11.5px;
+  text-transform: uppercase;
+}
+
+.pairPlus {
+  color: var(--text-dim);
+  font-size: 11px;
+}
+
+/* The pattern names behind the ids, truncated rather than wrapped so each pair
+   stays on one line. */
+.pairMeta {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: var(--weight-light);
+  color: var(--text-dim);
+}
+
+.pairCount {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.pairRate {
+  min-width: 42px;
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 12.5px;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+/* --- "not available yet" ------------------------------------------------- */
+
+/* The same dashed, muted treatment used for pending-embedding patterns. */
+.pending {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 16px 18px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text-dim);
+  font-size: 12px;
+  font-weight: var(--weight-light);
+  line-height: 1.55;
+}
+
+.pendingHead {
+  color: var(--text-muted);
+  font-weight: var(--weight-normal);
+}
+
+.code {
+  padding: 1px 5px;
+  border-radius: 2px;
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .pairRow {
+    grid-template-columns: 9px auto 1fr auto;
+  }
+
+  .pairMeta {
+    display: none;
+  }
+}

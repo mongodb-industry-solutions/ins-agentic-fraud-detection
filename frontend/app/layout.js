@@ -29,7 +29,7 @@ const sourceCodePro = Source_Code_Pro({
 });
 
 export const metadata = {
-  title: "Leafy Claim Manager",
+  title: "Fraud Intelligence Manager",
   description: "Claims management & Agentic fraud detection",
 };
 

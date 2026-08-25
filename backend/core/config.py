@@ -23,7 +23,36 @@ class Settings(BaseSettings):
     CUSTOMERS_COLLECTION: str = "customers"
     POLICIES_COLLECTION: str = "policies"
     PATTERNS_COLLECTION: str = "fraud_patterns"
-    REVIEWS_COLLECTION: str = "claim_fraud_reviews"
+    # The fraud-review audit trail: one document per agent run. Named
+    # `decision_traces` because that is what the agent side writes — the earlier
+    # `claim_fraud_reviews` was never created, so every audit read came back
+    # empty against a collection that did not exist.
+    REVIEWS_COLLECTION: str = "decision_traces"
+
+    # --- fraud assessment agent (MongoDB Agentic Platform) --------------------
+    # Optional so the API still boots without them: every other route works
+    # without an agent, and /api/chat answers 503 instead of crashing at import.
+    FRAUD_AGENT_API_KEY: str | None = None
+    FRAUD_AGENT_PROJECT_ID: str | None = None
+    FRAUD_AGENT_WORKSPACE_ID: str | None = None
+    # Read from the environment with no default: the platform host is not
+    # hardcoded anywhere, so pointing the demo at staging is an .env change.
+    # Expected to already include the platform's version prefix.
+    AGENT_BASE_URL: str | None = None
+
+    # --- Voyage embeddings ----------------------------------------------------
+    # Optional, like the agent credentials: without a key the embedding routes
+    # answer 503 and every other route is unaffected.
+    VOYAGE_API_KEY: str | None = None
+    VOYAGE_MODEL: str = "voyage-3.5"
+    # Must equal numDimensions on the Atlas vector indexes below. A model change
+    # that alters this silently breaks vector search at *query* time, not write
+    # time, so the backfill checks what it actually stored against this number.
+    VOYAGE_VECTOR_DIMS: int = 1024
+    # Not used to write embeddings — only to report whether the index a vector
+    # will eventually be searched through actually exists.
+    CLAIM_VECTOR_INDEX: str = "claim_vector_index"
+    PATTERN_VECTOR_INDEX: str = "fraud_pattern_vector_index"
 
 
 @lru_cache

@@ -23,7 +23,9 @@ export default function ClaimsTable({
             <th className={styles.headerCell}>Customer</th>
             <th className={styles.headerCell}>Coverage</th>
             <th className={styles.headerCell}>Opened</th>
-            <th className={styles.headerCell}>Status</th>
+            {/* Named explicitly: this column is the fraud review state, not
+                the claim's open/closed lifecycle. */}
+            <th className={styles.headerCell}>Fraud status</th>
             <th className={styles.headerCell}>Score</th>
             <th className={styles.headerCell} />
           </tr>

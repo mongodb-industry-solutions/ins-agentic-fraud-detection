@@ -9,15 +9,23 @@ function Fragment({ part }) {
   return <>{part.value}</>;
 }
 
+/** The agent's five most recent actions from the past week. */
 export default function AgentActivity({ events }) {
+  const hasEvents = events.length > 0;
+
   return (
     <div className={styles.panel}>
       <div className={styles.header}>
         <span className={styles.title}>Recent agent activity</span>
-        <button type="button" className={styles.viewAll}>
-          View all
-        </button>
+        {/* Nothing to view when there is nothing in the window. */}
+        {hasEvents && (
+          <button type="button" className={styles.viewAll}>
+            View all
+          </button>
+        )}
       </div>
+
+      {!hasEvents && <p className={styles.empty}>No recent agentic activity</p>}
 
       {events.map((event) => (
         <div key={event.id} className={styles.row}>

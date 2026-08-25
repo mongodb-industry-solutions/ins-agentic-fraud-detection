@@ -28,14 +28,22 @@ class TrendPoint(BaseModel):
 
 
 class ScoreBucket(BaseModel):
-    range: str
+    """One exact score, not a range: the histogram draws a bar per score."""
+
+    score: int
     count: int = 0
+    # LOW / REVIEW / HIGH, assigned by SCORE_BANDS server-side. Clients colour
+    # bars from this rather than re-deriving thresholds of their own.
+    band: str
 
 
 class PortfolioStatsResponse(BaseModel):
     trend: list[TrendPoint]
     scoreDistribution: list[ScoreBucket]
     overallConfirmedFraudRate: float
+    # None when no claim has been scored yet — distinct from 0.0, which would
+    # mean every scored claim scored zero.
+    avgComputedScore: float | None = None
     dateFrom: datetime
     dateTo: datetime
     bucket: str
@@ -56,6 +64,30 @@ class RecentActivityResponse(BaseModel):
     total: int
 
 
+# ------------------------------------------------------------- pending queue
+
+class PendingQueueItem(BaseModel):
+    claimId: str
+    customerName: str | None = None
+    coverageType: str | None = None
+    computedScore: float | None = None
+    scoredAt: datetime | None = None
+    # Pattern documents as stored on the claim; the client renders their names.
+    matchedPatterns: list[dict] = Field(default_factory=list)
+    # The queue holds two kinds of work — never analysed, and scored but
+    # undecided — and the client labels the row's action from this. Declared
+    # explicitly because an undeclared field is dropped from the response, which
+    # would make every row look like it was already scored.
+    processed: bool | None = None
+    # Ranks the unanalysed rows, which have no score to rank them by.
+    claimDate: datetime | None = None
+
+
+class PendingQueueResponse(BaseModel):
+    items: list[PendingQueueItem]
+    total: int
+
+
 # --------------------------------------------------------- relationship graph
 
 class GraphNode(BaseModel):
@@ -63,17 +95,251 @@ class GraphNode(BaseModel):
     customerId: str | None = None
     computedScore: float | None = None
     fraudFlag: bool | None = None
+    processed: bool = False
+    # flagged / cleared / pending / unprocessed, resolved server-side in the same
+    # precedence every other status read uses. Clients colour the node from this
+    # rather than re-deriving it from fraudFlag + processed.
+    status: str
+
+
+class EdgeReason(BaseModel):
+    """One explanation for an edge. An edge can carry several."""
+
+    type: str
+    patternId: str | None = None
+    patternName: str | None = None
+    patternType: str | None = None
+    # Ready-to-render sentence fragment, e.g. "Shared pattern FP-012 — Repair
+    # shop on internal watchlist".
+    label: str
 
 
 class GraphEdge(BaseModel):
     source: str
     target: str
+    # The strongest reason, by EDGE_PRECEDENCE. This is the one the line style
+    # encodes; `reasons` holds every reason including this one.
     type: str
     patternId: str | None = None
     patternType: str | None = None
+    reasons: list[EdgeReason] = Field(default_factory=list)
+    reasonCount: int = 0
 
 
 class RelationshipGraphResponse(BaseModel):
     nodes: list[GraphNode] = Field(default_factory=list)
     edges: list[GraphEdge] = Field(default_factory=list)
     scope: str
+    # Candidate count per scope (ALL / FLAGGED / PENDING), so a scope filter can
+    # label the options it is not currently showing.
+    scopeCounts: dict[str, int] = Field(default_factory=dict)
+
+
+# ------------------------------------------------------ similarity leaderboard
+
+class SimilarityCluster(BaseModel):
+    clusterId: str
+    claimIds: list[str] = Field(default_factory=list)
+    sharedReason: str
+    # The graph edge type this cluster corresponds to, or MULTIPLE where several
+    # kinds of link cover exactly the same claims.
+    linkType: str
+    avgScore: float = 0.0
+    maxScore: float = 0.0
+    claimCount: int = 0
+    scoredCount: int = 0
+    confirmedCount: int = 0
+    priority: float = 0.0
+
+
+class SimilarityLeaderboardResponse(BaseModel):
+    clusters: list[SimilarityCluster] = Field(default_factory=list)
+    # Clusters found in total, before `limit` truncated the list.
+    total: int
+    scope: str
+    candidatesConsidered: int
+
+
+# --------------------------------------------------------- fraud-rate breakdown
+
+class BreakdownDimension(str, Enum):
+    complexity = "complexity"
+    coverageType = "coverageType"
+    claimType = "claimType"
+    claimAmountBucket = "claimAmountBucket"
+    customerTenureBucket = "customerTenureBucket"
+
+
+class BreakdownRow(BaseModel):
+    # Stable machine key for the group ("COLLISION", "2500-4999").
+    value: str
+    # Display text. Formatted range for a bucketed dimension, where the
+    # boundaries are server-side knowledge; the raw enum for a category
+    # dimension, which the client humanises as it does elsewhere.
+    label: str
+    total: int = 0
+    flagged: int = 0
+    cleared: int = 0
+    pending: int = 0
+    unprocessed: int = 0
+    # flagged / (flagged + cleared): undecided claims are excluded from the
+    # denominator rather than counted as legitimate.
+    confirmedFraudRate: float = 0.0
+    decidedCount: int = 0
+
+
+class FraudRateBreakdownResponse(BaseModel):
+    dimension: str
+    breakdown: list[BreakdownRow] = Field(default_factory=list)
+    total: int = 0
+
+
+# ------------------------------------------------------- pattern co-occurrence
+
+class CooccurrencePair(BaseModel):
+    patternIdA: str
+    patternIdB: str
+    patternNameA: str | None = None
+    patternNameB: str | None = None
+    cooccurrenceCount: int
+    # None when neither pattern has a recorded trigger count to divide by —
+    # distinct from 0.0, which would claim they never fire together.
+    cooccurrenceRate: float | None = None
+    # The same ratio over trigger counts observed in the analysed claims only.
+    # Meaningful on datasets where stats.timesTriggered describes more history
+    # than the collection currently holds.
+    observedCooccurrenceRate: float | None = None
+
+
+class MatrixAxisPattern(BaseModel):
+    """One pattern forming a row and a column of the heatmap."""
+
+    patternId: str
+    patternName: str | None = None
+    # Times this pattern fired within the analysed claims. The axis is ordered
+    # by this rather than by `timesTriggered`, so that the grid is drawn from
+    # the same population the rates are computed over.
+    observedTriggerCount: int = 0
+    # Catalogue-wide trigger count, which can describe far more history than the
+    # claims collection currently holds.
+    timesTriggered: int | None = None
+
+
+class CooccurrenceCell(BaseModel):
+    count: int
+    # What the heatmap colours by: co-occurrences over the rarer pattern's
+    # trigger count *within the analysed claims*.
+    rate: float | None = None
+    # The same ratio against catalogue-wide trigger counts. Reads far lower
+    # wherever `stats.timesTriggered` covers history the collection has dropped.
+    catalogueRate: float | None = None
+
+
+class PatternCooccurrenceResponse(BaseModel):
+    pairs: list[CooccurrencePair] = Field(default_factory=list)
+    total: int
+    minCooccurrence: int
+    claimsAnalyzed: int
+    # Both axes of the heatmap, capped at 8 and ordered by observed volume.
+    topPatterns: list[MatrixAxisPattern] = Field(default_factory=list)
+    # matrix[rowPatternId][colPatternId] -> cell. Symmetric; the diagonal is
+    # absent because a pattern cannot co-occur with itself.
+    matrix: dict[str, dict[str, CooccurrenceCell]] = Field(default_factory=dict)
+    # The most notable pairs, pre-ranked server-side.
+    topPairs: list[CooccurrencePair] = Field(default_factory=list)
+
+
+# ------------------------------------------------------------ repeat entities
+
+class RepeatEntityType(str, Enum):
+    customer = "customer"
+    repairShop = "repairShop"
+    adjuster = "adjuster"
+
+
+class RepeatEntity(BaseModel):
+    entityValue: str
+    # Display name. Equals `entityValue` for repair shops and adjusters, which
+    # are already stored as names; a customer id resolves to the customer's name.
+    entityLabel: str | None = None
+    claimCount: int
+    confirmedCount: int
+    # Confirmed over the group's whole claim count — a concentration measure,
+    # not a verdict accuracy rate.
+    confirmedRate: float = 0.0
+    claimIds: list[str] = Field(default_factory=list)
+    totalClaimAmount: float = 0.0
+
+
+class RepeatEntityResponse(BaseModel):
+    entityType: str
+    entities: list[RepeatEntity] = Field(default_factory=list)
+    total: int
+    minAppearances: int
+
+
+# ----------------------------------------------------------- financial impact
+
+class FinancialImpactResponse(BaseModel):
+    currentFinancialImpact: float
+    fraudCostAvoided: float
+    # Intentionally the sum of the two fields above, computed server-side so the
+    # definition lives in exactly one place.
+    potentialImpactWithoutTool: float
+    avgClaimAmountFraud: float
+    avgClaimAmountLegitimate: float
+    fraudClaimCount: int = 0
+    legitimateClaimCount: int = 0
+
+
+# --------------------------------------------------------------- review queue
+
+class BacklogSegment(BaseModel):
+    complexity: str
+    backlog: int
+    awaitingDecision: int
+    awaitingAssessment: int
+
+
+class OldestPendingClaim(BaseModel):
+    claimId: str
+    complexity: str | None = None
+    computedScore: float | None = None
+    processedAt: datetime | None = None
+    waitingSince: datetime | None = None
+    # "processedAt" or "claimDate" — a never-assessed claim has been waiting
+    # since it was filed, so the response names which clock was used.
+    waitingSinceBasis: str | None = None
+    daysWaiting: int | None = None
+
+
+class ReviewQueueMetricsResponse(BaseModel):
+    avgHoursToDecision: float = 0.0
+    maxHoursToDecision: int | None = None
+    decidedCount: int = 0
+    # How many decided claims actually had both timestamps. The average above
+    # describes these claims only.
+    timeToDecisionSampleSize: int = 0
+    timeToDecisionCoverage: float = 0.0
+    backlogByComplexity: list[BacklogSegment] = Field(default_factory=list)
+    totalBacklog: int = 0
+    oldestPendingClaim: OldestPendingClaim | None = None
+
+
+# ------------------------------------------------------------ reviewer activity
+
+class ReviewerStats(BaseModel):
+    reviewer: str
+    totalDecided: int
+    confirmedCount: int
+    dismissedCount: int
+    # Reflects the mix of claims a reviewer was handed as much as their calls on
+    # them; not a quality score.
+    confirmRate: float = 0.0
+    lastDecisionAt: datetime | None = None
+
+
+class ReviewerActivityResponse(BaseModel):
+    reviewers: list[ReviewerStats] = Field(default_factory=list)
+    total: int
+    totalDecisions: int

@@ -1,0 +1,671 @@
+/* Same overlay grammar as the report drawer and the chat modal: translucent
+   blurred scrim, and the one permitted box-shadow for content floating above it. */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(0, 10, 15, 0.55);
+  backdrop-filter: blur(6px);
+  animation: fadeIn 0.18s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 61;
+  display: flex;
+  flex-direction: column;
+  /* Wide enough for the conversation to keep a readable measure with the tool
+     log alongside it, rather than the log squeezing the report. */
+  width: 1180px;
+  max-width: 94vw;
+  height: 740px;
+  max-height: 90vh;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 24px 60px rgba(0, 10, 15, 0.5);
+  animation: riseIn 0.2s ease;
+}
+
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -46%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop,
+  .modal {
+    animation-duration: 0.01s;
+  }
+}
+
+/* --- header --------------------------------------------------------------- */
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex: none;
+  padding: 17px 20px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--font-serif);
+  font-size: 15px;
+}
+
+.claimId {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+.sub {
+  margin-top: 4px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.closeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex: none;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1;
+}
+
+.closeBtn:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+/* --- two columns ---------------------------------------------------------- */
+
+/* Left: the conversation — report, transcript, composer, decision. Right: the
+   agent's tool log. The split exists because they are read at different times.
+   The log is watched while the run happens and consulted afterwards; the
+   conversation is the thing you work in. Stacking them meant the report pushed
+   the log out of view exactly when it became evidence. */
+.body {
+  display: flex;
+  flex: 1;
+  /* Without this, a long report makes the flex children grow instead of
+     scrolling, and both columns lose their own scrollbars. */
+  min-height: 0;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+.aside {
+  display: flex;
+  flex-direction: column;
+  flex: none;
+  width: 340px;
+  min-height: 0;
+  border-left: 1px solid var(--border);
+  background: var(--surface-2);
+}
+
+.asideTitle {
+  flex: none;
+  padding: 13px 18px 10px;
+  color: var(--text-dim);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.asideScroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 18px 16px;
+}
+
+.asideEmpty {
+  color: var(--text-dim);
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+/* Below this the two columns stop fitting side by side, so the log moves under
+   the conversation rather than being crushed. */
+@media (max-width: 1080px) {
+  .body {
+    flex-direction: column;
+  }
+
+  .aside {
+    width: auto;
+    max-height: 190px;
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
+}
+
+.scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+}
+
+/* --- agent steps ---------------------------------------------------------- */
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: 6px;
+}
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 4px 0;
+}
+
+/* Completed steps get the same Mist dot as the report drawer's step list. */
+.stepDot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex: none;
+  margin-top: 1px;
+  border-radius: var(--radius-pill);
+  background: var(--mist);
+  color: var(--on-mist);
+}
+
+.stepSpinner {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  margin: 3px 2px 0;
+  border: 1.5px solid var(--border-strong);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stepSpinner {
+    animation: none;
+  }
+}
+
+.stepText {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.stepTextActive {
+  font-size: 12px;
+  font-style: italic;
+  color: var(--text);
+}
+
+.errorNote {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* --- report --------------------------------------------------------------- */
+
+/* No top rule any more: the step list used to sit directly above the report and
+   needed separating from it. The steps now live in the right column, so a border
+   here would be a hairline with nothing above it. */
+.report {
+  font-size: 12.5px;
+}
+
+.streamingText {
+  white-space: pre-wrap;
+}
+
+/* --- footer / decision ---------------------------------------------------- */
+
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+  padding: 13px 20px;
+  border-top: 1px solid var(--border);
+}
+
+.footerSpacer {
+  flex: 1;
+}
+
+.runningNote {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.decisionArea {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.decisionButtons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btnConfirm {
+  padding: 7px 16px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--evergreen);
+  color: var(--on-evergreen);
+  font-size: 12.5px;
+}
+
+.btnOutline {
+  padding: 7px 16px;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 12.5px;
+}
+
+.btnConfirm:hover:not(:disabled),
+.btnOutline:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+.btnConfirm:disabled,
+.btnOutline:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.siuRow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.siuRow input {
+  accent-color: var(--accent);
+}
+
+.dismissForm {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.textarea {
+  flex: 1;
+  min-height: 40px;
+  padding: 8px 10px;
+  background: var(--bg);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-weight: var(--weight-light);
+  font-size: 12.5px;
+  resize: vertical;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.decisionMade {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+}
+
+.decisionError {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+/* --- rendered markdown ---------------------------------------------------- */
+
+.mdParagraph {
+  margin: 0 0 9px;
+  line-height: 1.55;
+}
+
+.mdParagraph:last-child {
+  margin-bottom: 0;
+}
+
+.mdHeading {
+  margin: 16px 0 8px;
+  font-family: var(--font-serif);
+  font-size: 14px;
+  font-weight: var(--weight-normal);
+}
+
+.mdSubheading {
+  margin: 13px 0 6px;
+  font-size: 12.5px;
+  font-weight: var(--weight-normal);
+}
+
+.mdHeading:first-child,
+.mdSubheading:first-child {
+  margin-top: 0;
+}
+
+/* Restated explicitly — the CSS reset strips list markers and indentation. */
+.mdList {
+  margin: 0 0 9px;
+  padding-left: 20px;
+  list-style: revert;
+}
+
+.mdListItem {
+  margin-bottom: 3px;
+  line-height: 1.5;
+}
+
+.mdStrong {
+  font-weight: var(--weight-normal);
+  color: var(--text);
+}
+
+.mdCode {
+  padding: 1px 5px;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 11.5px;
+  text-transform: uppercase;
+}
+
+.mdPre {
+  margin: 0 0 9px;
+  padding: 10px 12px;
+  overflow-x: auto;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.mdPre .mdCode {
+  padding: 0;
+  background: none;
+  text-transform: none;
+}
+
+.mdQuote {
+  margin: 0 0 9px;
+  padding-left: 11px;
+  border-left: 2px solid var(--border-strong);
+  color: var(--text-muted);
+}
+
+.mdRule {
+  margin: 14px 0;
+  border: none;
+  border-top: 1px solid var(--border);
+}
+
+/* The agent's reports lean on tables heavily, and they can be wider than the
+   modal — they scroll rather than forcing the whole report sideways. */
+.mdTableWrap {
+  margin-bottom: 10px;
+  overflow-x: auto;
+}
+
+.mdTable {
+  width: 100%;
+  font-size: 11.5px;
+}
+
+.mdTh,
+.mdTd {
+  padding: 6px 9px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+.mdTh {
+  color: var(--text-muted);
+  font-weight: var(--weight-normal);
+  white-space: nowrap;
+}
+
+/* --- conversation after the assessment ------------------------------------ */
+
+/* The report is the opening turn of a conversation, not a dead end, so the
+   transcript is separated from it by a labelled rule rather than a new panel —
+   it is the same thread continuing. */
+.conversationDivider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 18px 0 14px;
+  color: var(--text-dim);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.conversationDivider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.conversationHint {
+  margin-bottom: 12px;
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+
+/* --- composer ------------------------------------------------------------- */
+
+/* Mirrors the fraud chat's composer: same textarea grammar, same Enter-to-send
+   hint, so the two places you talk to this agent do not feel like two products.
+   The message bubbles themselves are the shared ChatMessage component. */
+.composer {
+  flex: none;
+  padding: 12px 22px;
+  border-top: 1px solid var(--border);
+}
+
+.input {
+  width: 100%;
+  padding: 9px 11px;
+  background: var(--bg);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-weight: var(--weight-light);
+  font-size: 12.5px;
+  resize: none;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--text-muted);
+}
+
+.composerFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.hint {
+  color: var(--text-dim);
+  font-size: 11px;
+}
+
+.sendButton {
+  padding: 6px 14px;
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  color: var(--on-spring-green);
+  font-size: 12px;
+}
+
+[data-theme="light"] .sendButton {
+  color: var(--white);
+}
+
+.sendButton:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.stopButton {
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 12px;
+}
+
+/* --- closing the case ----------------------------------------------------- */
+
+.closeCaseTrigger {
+  padding: 7px 16px;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 12.5px;
+}
+
+.verdictRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.verdictLabel {
+  margin-right: 4px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* Selected state uses the same 8% accent tint as the sidebar's active nav item
+   and the add-form's checked chips: all three mean "this is the one chosen". */
+.verdictOption {
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.verdictOptionActive {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+/* What the agent is about to be asked to do, stated before it is asked — the
+   reviewer is handing a write to something that may not perform it. */
+.commitNote {
+  margin-top: 8px;
+  color: var(--text-dim);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* Read back from the claim document, not from what the agent said about it. */
+.persistenceOk,
+.persistenceWarn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 4px 10px;
+  border-radius: var(--radius);
+  font-size: 11.5px;
+}
+
+.persistenceOk {
+  background: var(--mist);
+  color: var(--on-mist);
+}
+
+.persistenceWarn {
+  border: 1px dashed var(--border-strong);
+  color: var(--text-muted);
+}

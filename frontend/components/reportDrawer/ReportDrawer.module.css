@@ -1,24 +1,8 @@
-/* Translucent, not an opaque scrim: the dashboard stays faintly visible
-   through the blur so the drawer reads as layered over context. */
-.backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 40;
-  background: rgba(0, 10, 15, 0.45);
-  backdrop-filter: blur(5px);
-  animation: fadeIn 0.2s ease;
-}
+/* The darkened, blurred backdrop is not here: it lives in components/shared/
+   Overlay, which this drawer mounts inside with variant="drawer". The
+   fraud-pattern modals use the same component with variant="centered". */
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* THE one permitted box-shadow in this application. Everything sitting flat
+/* One of the few permitted box-shadows in this application. Everything sitting flat
    within the page uses border-only depth; an overlay floating above blurred
    content has to read as elevated, which a border cannot do. Do not treat
    this as license to add shadows elsewhere. */
