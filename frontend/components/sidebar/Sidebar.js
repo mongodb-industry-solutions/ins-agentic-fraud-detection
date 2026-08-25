@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Icon from "@/components/icons/Icons";
 import { SYSTEM_NAV, WORKSPACE_NAV } from "@/lib/const/nav";
 import styles from "./Sidebar.module.css";
@@ -29,7 +30,14 @@ export default function Sidebar({ activeSection, onNavigate }) {
   return (
     <nav className={styles.sidebar} aria-label="Primary">
       <div className={styles.brand}>
-        <span className={styles.mark}>L</span>
+        <span className={styles.mark}>
+          <Image
+            src="/logo.png"
+            alt="Fraud Intelligence Manager"
+            width={32}
+            height={32}
+          />
+        </span>
         <span className={styles.brandText}>
           <span className={styles.brandName}>Fraud Intelligence Manager</span>
           <span className={styles.brandSub}>Claims management & Agentic fraud detection</span>
