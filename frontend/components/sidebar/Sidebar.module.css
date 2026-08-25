@@ -66,6 +66,10 @@
   gap: 2px;
 }
 
+.groupSpacing {
+  margin-top: 10px;
+}
+
 .spacer {
   flex: 1;
   min-height: 24px;

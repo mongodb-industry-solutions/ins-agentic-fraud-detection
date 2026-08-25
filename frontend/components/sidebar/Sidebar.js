@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Icon from "@/components/icons/Icons";
-import { SYSTEM_NAV, WORKSPACE_NAV } from "@/lib/const/nav";
+import { SYSTEM_NAV, WORKSPACE_NAV, FRAUD_INTELLIGENCE_NAV } from "@/lib/const/nav";
 import styles from "./Sidebar.module.css";
 
 /**
@@ -47,6 +47,18 @@ export default function Sidebar({ activeSection, onNavigate }) {
       <p className={styles.groupLabel}>Workspace</p>
       <div className={styles.group}>
         {WORKSPACE_NAV.map((item) => (
+          <NavItem
+            key={item.id}
+            item={item}
+            isActive={item.id === activeSection}
+            onNavigate={onNavigate}
+          />
+        ))}
+      </div>
+
+      <p className={`${styles.groupLabel} ${styles.groupSpacing}`}>Fraud Intelligence</p>
+      <div className={styles.group}>
+        {FRAUD_INTELLIGENCE_NAV.map((item) => (
           <NavItem
             key={item.id}
             item={item}

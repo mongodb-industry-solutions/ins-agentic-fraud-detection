@@ -5,9 +5,12 @@
    subject, not platform configuration, and the pattern a claim matched is read
    in one and explained in the other. */
 export const WORKSPACE_NAV = [
-  { id: "dashboard", label: "Dashboard", icon: "grid" },
+  { id: "dashboard", label: "Claims Portfolio", icon: "grid" },
   { id: "customers", label: "Customers", icon: "users" },
   { id: "policies", label: "Policies", icon: "file" },
+];
+
+export const FRAUD_INTELLIGENCE_NAV = [
   { id: "fraudPatterns", label: "Fraud Patterns", icon: "activity" },
   { id: "fraudIntelligence", label: "Fraud Intelligence", icon: "shield" },
 ];
@@ -36,7 +39,7 @@ export const SECTION_TITLE = Object.fromEntries(
 );
 
 export const PROFILE = {
-  initials: "AT",
-  name: "Alex Tran",
+  initials: "PR",
+  name: "Patricia Renart",
   team: "Claims operations",
 };
