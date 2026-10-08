@@ -115,8 +115,11 @@ class AgentChatService:
         # or an `execution_id` from a response body, opens a new conversation.
         if session_id:
             payload["session_id"] = session_id
-        if user_id:
-            payload["user_id"] = user_id
+        # `user_id` is deliberately not forwarded. The gateway rejects (403) any
+        # `user_id` that differs from the API key's owner unless the project has
+        # end-user delegation enabled, and the browser's anonymous id never
+        # matches. Without it the agent runs as the key's owner. Re-add
+        # `payload["user_id"] = user_id` once delegation is enabled.
 
         headers = self._headers(api_key)
         if session_id:
