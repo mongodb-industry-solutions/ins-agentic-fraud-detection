@@ -23,9 +23,9 @@ Design notes (from the approved data-model proposal):
 import logging
 import os
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from bson import json_util
 from pydantic import BaseModel, Field
@@ -39,7 +39,8 @@ logger = logging.getLogger(__name__)
 # Shared helpers
 # =============================================================================
 
-def _strip_id(doc: Optional[dict]) -> Optional[dict]:
+
+def _strip_id(doc: dict | None) -> dict | None:
     if doc is None:
         return None
     return {k: v for k, v in doc.items() if k != "_id"}
@@ -49,14 +50,14 @@ def _strip_id(doc: Optional[dict]) -> Optional[dict]:
 # Collection name constants
 # =============================================================================
 
-CUSTOMERS_COLLECTION       = "customers"
-POLICIES_COLLECTION        = "policies"
-CLAIMS_COLLECTION          = "claims"
-FRAUD_PATTERNS_COLLECTION  = "fraud_patterns"
+CUSTOMERS_COLLECTION = "customers"
+POLICIES_COLLECTION = "policies"
+CLAIMS_COLLECTION = "claims"
+FRAUD_PATTERNS_COLLECTION = "fraud_patterns"
 DECISION_TRACES_COLLECTION = "decision_traces"
 # Holds the atomic sequence used to mint sequential traceIds (TRC-0001, TRC-0002, ...).
-COUNTERS_COLLECTION        = "counters"
-TRACE_COUNTER_ID           = "traceId"
+COUNTERS_COLLECTION = "counters"
+TRACE_COUNTER_ID = "traceId"
 
 # Name of the Atlas Vector Search index over fraud_patterns.embedding.
 VECTOR_INDEX_NAME = os.environ.get("FRAUD_PATTERN_VECTOR_INDEX", "fraud_pattern_vector_index")
@@ -70,12 +71,12 @@ VECTOR_DIMENSIONS = int(os.environ.get("FRAUD_PATTERN_VECTOR_DIMS", "1024"))
 # data/ lives two levels above src/agent_insurance_fraud_agent/
 _DATA_DIR = Path(__file__).parent.parent.parent / "data"
 
-_SEED_MAP: Dict[str, tuple] = {
+_SEED_MAP: dict[str, tuple] = {
     #  collection name              file name                 business key field
-    CUSTOMERS_COLLECTION:       ("customers.json",       "customerId"),
-    POLICIES_COLLECTION:        ("policies.json",        "policyId"),
-    CLAIMS_COLLECTION:          ("claims.json",          "claimId"),
-    FRAUD_PATTERNS_COLLECTION:  ("fraud_patterns.json",  "patternId"),
+    CUSTOMERS_COLLECTION: ("customers.json", "customerId"),
+    POLICIES_COLLECTION: ("policies.json", "policyId"),
+    CLAIMS_COLLECTION: ("claims.json", "claimId"),
+    FRAUD_PATTERNS_COLLECTION: ("fraud_patterns.json", "patternId"),
     DECISION_TRACES_COLLECTION: ("decision_traces.json", "traceId"),
 }
 
@@ -84,19 +85,20 @@ _SEED_MAP: Dict[str, tuple] = {
 # Pydantic models — used when creating new documents programmatically
 # =============================================================================
 
+
 class Customer(BaseModel):
     customer_id: str = Field(..., alias="customerId")
-    first_name: Optional[str] = Field(default=None, alias="firstName")
-    last_name: Optional[str] = Field(default=None, alias="lastName")
-    date_of_birth: Optional[str] = Field(default=None, alias="dateOfBirth")
-    gender: Optional[str] = Field(default=None)
-    license_years: Optional[int] = Field(default=None, alias="licenseYears")
-    address: Optional[Dict[str, Any]] = Field(default=None)
+    first_name: str | None = Field(default=None, alias="firstName")
+    last_name: str | None = Field(default=None, alias="lastName")
+    date_of_birth: str | None = Field(default=None, alias="dateOfBirth")
+    gender: str | None = Field(default=None)
+    license_years: int | None = Field(default=None, alias="licenseYears")
+    address: dict[str, Any] | None = Field(default=None)
     num_policies: int = Field(default=0, alias="numPolicies")
     num_previous_claims: int = Field(default=0, alias="numPreviousClaims")
-    customer_since: Optional[str] = Field(default=None, alias="customerSince")
-    created_at: Optional[datetime] = Field(default=None, alias="createdAt")
-    updated_at: Optional[datetime] = Field(default=None, alias="updatedAt")
+    customer_since: str | None = Field(default=None, alias="customerSince")
+    created_at: datetime | None = Field(default=None, alias="createdAt")
+    updated_at: datetime | None = Field(default=None, alias="updatedAt")
 
     model_config = {"populate_by_name": True}
 
@@ -105,21 +107,21 @@ class Policy(BaseModel):
     policy_id: str = Field(..., alias="policyId")
     customer_id: str = Field(..., alias="customerId")
     policy_type: str = Field(..., alias="policyType")
-    product_code: Optional[str] = Field(default=None, alias="productCode")
+    product_code: str | None = Field(default=None, alias="productCode")
     status: str = Field(default="ACTIVE")
-    jurisdiction: Optional[Dict[str, Any]] = Field(default=None)
-    effective_period: Dict[str, Any] = Field(default_factory=dict, alias="effectivePeriod")
-    parties: List[Dict[str, Any]] = Field(default_factory=list)
-    vehicle: Optional[Dict[str, Any]] = Field(default=None)
-    coverages: List[Dict[str, Any]] = Field(default_factory=list)
-    premium: Optional[Dict[str, Any]] = Field(default=None)
-    billing: Optional[Dict[str, Any]] = Field(default=None)
-    agent_id: Optional[str] = Field(default=None, alias="agentId")
-    agency_id: Optional[str] = Field(default=None, alias="agencyId")
-    channel: Optional[str] = Field(default=None)
-    trace_anchor: Optional[Dict[str, Any]] = Field(default=None, alias="traceAnchor")
-    created_at: Optional[datetime] = Field(default=None, alias="createdAt")
-    updated_at: Optional[datetime] = Field(default=None, alias="updatedAt")
+    jurisdiction: dict[str, Any] | None = Field(default=None)
+    effective_period: dict[str, Any] = Field(default_factory=dict, alias="effectivePeriod")
+    parties: list[dict[str, Any]] = Field(default_factory=list)
+    vehicle: dict[str, Any] | None = Field(default=None)
+    coverages: list[dict[str, Any]] = Field(default_factory=list)
+    premium: dict[str, Any] | None = Field(default=None)
+    billing: dict[str, Any] | None = Field(default=None)
+    agent_id: str | None = Field(default=None, alias="agentId")
+    agency_id: str | None = Field(default=None, alias="agencyId")
+    channel: str | None = Field(default=None)
+    trace_anchor: dict[str, Any] | None = Field(default=None, alias="traceAnchor")
+    created_at: datetime | None = Field(default=None, alias="createdAt")
+    updated_at: datetime | None = Field(default=None, alias="updatedAt")
 
     model_config = {"populate_by_name": True}
 
@@ -128,32 +130,32 @@ class Claim(BaseModel):
     claim_id: str = Field(..., alias="claimId")
     policy_id: str = Field(..., alias="policyId")
     customer_id: str = Field(..., alias="customerId")
-    claim_date: Optional[datetime] = Field(default=None, alias="claimDate")
-    report_date: Optional[datetime] = Field(default=None, alias="reportDate")
-    delay_days: Optional[int] = Field(default=None, alias="delayDays")
-    accident_time: Optional[str] = Field(default=None, alias="accidentTime")
-    accident_location: Optional[Dict[str, Any]] = Field(default=None, alias="accidentLocation")
+    claim_date: datetime | None = Field(default=None, alias="claimDate")
+    report_date: datetime | None = Field(default=None, alias="reportDate")
+    delay_days: int | None = Field(default=None, alias="delayDays")
+    accident_time: str | None = Field(default=None, alias="accidentTime")
+    accident_location: dict[str, Any] | None = Field(default=None, alias="accidentLocation")
     claim_type: str = Field(..., alias="claimType")
-    coverage_type: Optional[str] = Field(default=None, alias="coverageType")
+    coverage_type: str | None = Field(default=None, alias="coverageType")
     claim_amount: float = Field(default=0.0, alias="claimAmount")
     paid_amount: float = Field(default=0.0, alias="paidAmount")
     claim_status: str = Field(default="OPEN", alias="claimStatus")
-    police_report: Optional[bool] = Field(default=None, alias="policeReport")
-    witness_count: Optional[int] = Field(default=None, alias="witnessCount")
-    repair_shop: Optional[str] = Field(default=None, alias="repairShop")
-    adjuster_id: Optional[str] = Field(default=None, alias="adjusterId")
-    payment_method: Optional[str] = Field(default=None, alias="paymentMethod")
-    channel: Optional[str] = Field(default=None)
-    policy_snapshot: Optional[Dict[str, Any]] = Field(default=None, alias="policySnapshot")
-    driver_snapshot: Optional[Dict[str, Any]] = Field(default=None, alias="driverSnapshot")
-    vehicle_snapshot: Optional[Dict[str, Any]] = Field(default=None, alias="vehicleSnapshot")
-    customer_snapshot: Optional[Dict[str, Any]] = Field(default=None, alias="customerSnapshot")
-    fraud: Dict[str, Any] = Field(
+    police_report: bool | None = Field(default=None, alias="policeReport")
+    witness_count: int | None = Field(default=None, alias="witnessCount")
+    repair_shop: str | None = Field(default=None, alias="repairShop")
+    adjuster_id: str | None = Field(default=None, alias="adjusterId")
+    payment_method: str | None = Field(default=None, alias="paymentMethod")
+    channel: str | None = Field(default=None)
+    policy_snapshot: dict[str, Any] | None = Field(default=None, alias="policySnapshot")
+    driver_snapshot: dict[str, Any] | None = Field(default=None, alias="driverSnapshot")
+    vehicle_snapshot: dict[str, Any] | None = Field(default=None, alias="vehicleSnapshot")
+    customer_snapshot: dict[str, Any] | None = Field(default=None, alias="customerSnapshot")
+    fraud: dict[str, Any] = Field(
         default_factory=lambda: {
-            "computedScore": None,      # min(rawScore, 12) — agent-computed
-            "rawScore": None,           # uncapped sum of matched pattern weights
-            "matchedPatterns": [],      # [{patternId, patternName, weight}]
-            "fraudFlag": None,          # human confirm/dismiss label
+            "computedScore": None,  # min(rawScore, 12) — agent-computed
+            "rawScore": None,  # uncapped sum of matched pattern weights
+            "matchedPatterns": [],  # [{patternId, patternName, weight}]
+            "fraudFlag": None,  # human confirm/dismiss label
             "flagSource": None,
             "reviewedBy": None,
             "reviewedAt": None,
@@ -161,11 +163,11 @@ class Claim(BaseModel):
             "dismissReason": None,
         }
     )
-    complexity: Optional[str] = Field(default=None)
-    description: Optional[str] = Field(default=None)  # free-text loss narrative (embedded)
-    embedding: Optional[List[float]] = Field(default=None)  # voyage-3.5 vector of description
-    created_at: Optional[datetime] = Field(default=None, alias="createdAt")
-    updated_at: Optional[datetime] = Field(default=None, alias="updatedAt")
+    complexity: str | None = Field(default=None)
+    description: str | None = Field(default=None)  # free-text loss narrative (embedded)
+    embedding: list[float] | None = Field(default=None)  # voyage-3.5 vector of description
+    created_at: datetime | None = Field(default=None, alias="createdAt")
+    updated_at: datetime | None = Field(default=None, alias="updatedAt")
 
     model_config = {"populate_by_name": True}
 
@@ -174,20 +176,20 @@ class FraudPattern(BaseModel):
     pattern_id: str = Field(..., alias="patternId")
     pattern_type: str = Field(..., alias="patternType")  # RULE | HISTORICAL_SIMILARITY
     name: str = Field(...)
-    description: Optional[str] = Field(default=None)
-    applies_to: Optional[Dict[str, Any]] = Field(default=None, alias="appliesTo")
-    rule_logic: Optional[Dict[str, Any]] = Field(default=None, alias="ruleLogic")
-    embedding_text: Optional[str] = Field(default=None, alias="embeddingText")
-    embedding: Optional[List[float]] = Field(default=None)
-    example_claim_ids: List[str] = Field(default_factory=list, alias="exampleClaimIds")
-    severity: Optional[str] = Field(default=None)
+    description: str | None = Field(default=None)
+    applies_to: dict[str, Any] | None = Field(default=None, alias="appliesTo")
+    rule_logic: dict[str, Any] | None = Field(default=None, alias="ruleLogic")
+    embedding_text: str | None = Field(default=None, alias="embeddingText")
+    embedding: list[float] | None = Field(default=None)
+    example_claim_ids: list[str] = Field(default_factory=list, alias="exampleClaimIds")
+    severity: str | None = Field(default=None)
     weight: float = Field(default=0.0)
     active: bool = Field(default=True)
-    stats: Dict[str, Any] = Field(
+    stats: dict[str, Any] = Field(
         default_factory=lambda: {"timesTriggered": 0, "confirmedFraudRate": 0.0}
     )
-    created_at: Optional[datetime] = Field(default=None, alias="createdAt")
-    updated_at: Optional[datetime] = Field(default=None, alias="updatedAt")
+    created_at: datetime | None = Field(default=None, alias="createdAt")
+    updated_at: datetime | None = Field(default=None, alias="updatedAt")
 
     model_config = {"populate_by_name": True}
 
@@ -196,9 +198,9 @@ class HumanDecision(BaseModel):
     """The analyst's verdict, merged into the assessment trace when they decide."""
 
     decision: str  # CONFIRMED_FRAUD | DISMISSED
-    decided_by: Optional[str] = Field(default=None, alias="decidedBy")
-    decided_at: Optional[datetime] = Field(default=None, alias="decidedAt")
-    reasoning: Optional[str] = Field(default=None)
+    decided_by: str | None = Field(default=None, alias="decidedBy")
+    decided_at: datetime | None = Field(default=None, alias="decidedAt")
+    reasoning: str | None = Field(default=None)
     siu_referred: bool = Field(default=False, alias="siuReferred")
 
     model_config = {"populate_by_name": True}
@@ -218,23 +220,23 @@ class DecisionTrace(BaseModel):
 
     trace_id: str = Field(..., alias="traceId")
     claim_id: str = Field(..., alias="claimId")
-    customer_id: Optional[str] = Field(default=None, alias="customerId")
-    policy_id: Optional[str] = Field(default=None, alias="policyId")
+    customer_id: str | None = Field(default=None, alias="customerId")
+    policy_id: str | None = Field(default=None, alias="policyId")
     trigger_type: str = Field(default="SINGLE_CLAIM", alias="triggerType")
-    batch_id: Optional[str] = Field(default=None, alias="batchId")
-    triggered_by: Optional[str] = Field(default=None, alias="triggeredBy")
-    triggered_at: Optional[datetime] = Field(default=None, alias="triggeredAt")
-    matched_patterns: List[Dict[str, Any]] = Field(
+    batch_id: str | None = Field(default=None, alias="batchId")
+    triggered_by: str | None = Field(default=None, alias="triggeredBy")
+    triggered_at: datetime | None = Field(default=None, alias="triggeredAt")
+    matched_patterns: list[dict[str, Any]] = Field(
         default_factory=list, alias="matchedPatterns"
     )  # [{patternId, patternName, weight}]
     raw_score: int = Field(default=0, alias="rawScore")
     computed_score: int = Field(default=0, alias="computedScore")
-    agent_summary: Optional[str] = Field(default=None, alias="agentSummary")
-    human_decision: Optional[HumanDecision] = Field(default=None, alias="humanDecision")
-    context_snapshot: Optional[Dict[str, Any]] = Field(default=None, alias="contextSnapshot")
-    steps: List[Dict[str, Any]] = Field(default_factory=list)
-    outcome: Optional[Dict[str, Any]] = Field(default=None)
-    created_at: Optional[datetime] = Field(default=None, alias="createdAt")
+    agent_summary: str | None = Field(default=None, alias="agentSummary")
+    human_decision: HumanDecision | None = Field(default=None, alias="humanDecision")
+    context_snapshot: dict[str, Any] | None = Field(default=None, alias="contextSnapshot")
+    steps: list[dict[str, Any]] = Field(default_factory=list)
+    outcome: dict[str, Any] | None = Field(default=None)
+    created_at: datetime | None = Field(default=None, alias="createdAt")
 
     model_config = {"populate_by_name": True}
 
@@ -242,6 +244,7 @@ class DecisionTrace(BaseModel):
 # =============================================================================
 # Store classes
 # =============================================================================
+
 
 class CustomerStore:
     """MongoDB-backed store for customer (policyholder) documents."""
@@ -254,29 +257,33 @@ class CustomerStore:
         self._col.create_index("address.region")
         self._col.create_index("address.state")
 
-    def read(self, customer_id: str) -> Optional[dict]:
+    def read(self, customer_id: str) -> dict | None:
         return _strip_id(self._col.find_one({"customerId": customer_id}, {"_id": 0}))
 
-    def list_all(self) -> List[dict]:
+    def list_all(self) -> list[dict]:
         return [_strip_id(d) for d in self._col.find({}, {"_id": 0}).sort("customerId", ASCENDING)]
 
-    def list_by_name(self, first_name: str = "", last_name: str = "") -> List[dict]:
-        query: Dict[str, Any] = {}
+    def list_by_name(self, first_name: str = "", last_name: str = "") -> list[dict]:
+        query: dict[str, Any] = {}
         if first_name:
             query["firstName"] = {"$regex": f"^{re.escape(first_name)}$", "$options": "i"}
         if last_name:
             query["lastName"] = {"$regex": f"^{re.escape(last_name)}$", "$options": "i"}
         if not query:
             return []
-        return [_strip_id(d) for d in self._col.find(query, {"_id": 0}).sort("customerId", ASCENDING)]
+        return [
+            _strip_id(d) for d in self._col.find(query, {"_id": 0}).sort("customerId", ASCENDING)
+        ]
 
-    def list_filtered(self, region: str = "", state: str = "") -> List[dict]:
-        query: Dict[str, Any] = {}
+    def list_filtered(self, region: str = "", state: str = "") -> list[dict]:
+        query: dict[str, Any] = {}
         if region:
             query["address.region"] = region
         if state:
             query["address.state"] = state
-        return [_strip_id(d) for d in self._col.find(query, {"_id": 0}).sort("customerId", ASCENDING)]
+        return [
+            _strip_id(d) for d in self._col.find(query, {"_id": 0}).sort("customerId", ASCENDING)
+        ]
 
 
 class PolicyStore:
@@ -289,16 +296,16 @@ class PolicyStore:
         self._col.create_index("status")
         self._col.create_index("policyType")
 
-    def read(self, policy_id: str) -> Optional[dict]:
+    def read(self, policy_id: str) -> dict | None:
         return _strip_id(self._col.find_one({"policyId": policy_id}, {"_id": 0}))
 
-    def list_all(self) -> List[dict]:
+    def list_all(self) -> list[dict]:
         return [_strip_id(d) for d in self._col.find({}, {"_id": 0}).sort("policyId", ASCENDING)]
 
-    def list_by_customer(self, customer_id: str) -> List[dict]:
+    def list_by_customer(self, customer_id: str) -> list[dict]:
         return [_strip_id(d) for d in self._col.find({"customerId": customer_id}, {"_id": 0})]
 
-    def list_by_status(self, status: str) -> List[dict]:
+    def list_by_status(self, status: str) -> list[dict]:
         return [_strip_id(d) for d in self._col.find({"status": status}, {"_id": 0})]
 
 
@@ -350,33 +357,34 @@ class ClaimStore:
             logger.warning(
                 "Could not auto-create vector index '%s' (%s). "
                 "Create it manually in Atlas if claim similarity is needed.",
-                CLAIM_VECTOR_INDEX_NAME, exc,
+                CLAIM_VECTOR_INDEX_NAME,
+                exc,
             )
 
     # ── Read ────────────────────────────────────────────────────────────────
 
-    def read(self, claim_id: str) -> Optional[dict]:
+    def read(self, claim_id: str) -> dict | None:
         return _strip_id(self._col.find_one({"claimId": claim_id}, {"_id": 0}))
 
-    def list_all(self) -> List[dict]:
+    def list_all(self) -> list[dict]:
         return [_strip_id(d) for d in self._col.find({}, {"_id": 0}).sort("claimId", ASCENDING)]
 
-    def list_by_policy(self, policy_id: str) -> List[dict]:
+    def list_by_policy(self, policy_id: str) -> list[dict]:
         return [_strip_id(d) for d in self._col.find({"policyId": policy_id}, {"_id": 0})]
 
-    def list_by_customer(self, customer_id: str) -> List[dict]:
+    def list_by_customer(self, customer_id: str) -> list[dict]:
         return [_strip_id(d) for d in self._col.find({"customerId": customer_id}, {"_id": 0})]
 
-    def list_filtered(self, status: str = "", complexity: str = "") -> List[dict]:
-        query: Dict[str, Any] = {}
+    def list_filtered(self, status: str = "", complexity: str = "") -> list[dict]:
+        query: dict[str, Any] = {}
         if status:
             query["claimStatus"] = status
         if complexity:
             query["complexity"] = complexity
         return [_strip_id(d) for d in self._col.find(query, {"_id": 0}).sort("claimId", ASCENDING)]
 
-    def list_review_queue(self, min_score: int = 4, unreviewed_only: bool = True) -> List[dict]:
-        query: Dict[str, Any] = {"fraud.computedScore": {"$gte": min_score}}
+    def list_review_queue(self, min_score: int = 4, unreviewed_only: bool = True) -> list[dict]:
+        query: dict[str, Any] = {"fraud.computedScore": {"$gte": min_score}}
         if unreviewed_only:
             query["fraud.fraudFlag"] = None
         return [
@@ -384,7 +392,7 @@ class ClaimStore:
             for d in self._col.find(query, {"_id": 0}).sort("fraud.computedScore", DESCENDING)
         ]
 
-    def list_needing_embedding(self) -> List[dict]:
+    def list_needing_embedding(self) -> list[dict]:
         """Claims that have a description but no usable embedding yet (for backfill)."""
         query = {
             "description": {"$exists": True, "$ne": ""},
@@ -398,12 +406,12 @@ class ClaimStore:
 
     def vector_search(
         self,
-        embedding: List[float],
+        embedding: list[float],
         k: int = 5,
-        exclude_claim_id: Optional[str] = None,
-        claim_type: Optional[str] = None,
+        exclude_claim_id: str | None = None,
+        claim_type: str | None = None,
         adjudicated_only: bool = True,
-    ) -> List[dict]:
+    ) -> list[dict]:
         """Atlas $vectorSearch for claims similar to `embedding` (claim-to-claim similarity).
 
         Post-filters the ANN candidates: excludes the subject claim, optionally restricts to
@@ -411,7 +419,7 @@ class ClaimStore:
         DENIED, or carrying a human fraud decision). Returns up to `k` claims (without their raw
         embedding) plus a `similarity` score in [0, 1]. Empty list if search is unavailable.
         """
-        match: Dict[str, Any] = {}
+        match: dict[str, Any] = {}
         if exclude_claim_id:
             match["claimId"] = {"$ne": exclude_claim_id}
         if claim_type:
@@ -427,7 +435,7 @@ class ClaimStore:
 
         # Pull a generous candidate pool, then post-filter and trim to k (a single $project
         # cannot mix exclusion with the added similarity field, so use $addFields first).
-        pipeline: List[Dict[str, Any]] = [
+        pipeline: list[dict[str, Any]] = [
             {
                 "$vectorSearch": {
                     "index": CLAIM_VECTOR_INDEX_NAME,
@@ -453,25 +461,25 @@ class ClaimStore:
 
     # ── Write ───────────────────────────────────────────────────────────────
 
-    def set_embedding(self, claim_id: str, embedding: List[float]) -> Optional[dict]:
+    def set_embedding(self, claim_id: str, embedding: list[float]) -> dict | None:
         """Store the description embedding on a claim (used at write time and by backfill)."""
         result = self._col.find_one_and_update(
             {"claimId": claim_id},
-            {"$set": {"embedding": embedding, "updatedAt": datetime.now(timezone.utc)}},
+            {"$set": {"embedding": embedding, "updatedAt": datetime.now(UTC)}},
             return_document=True,
         )
         return _strip_id(result)
 
     def write(self, claim: Claim) -> dict:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         doc = claim.model_dump(by_alias=True, exclude_none=True)
         doc.setdefault("createdAt", now)
         doc["updatedAt"] = now
         self._col.insert_one(doc)
         return _strip_id(doc)  # type: ignore[return-value]
 
-    def update(self, claim_id: str, updates: dict) -> Optional[dict]:
-        updates["updatedAt"] = datetime.now(timezone.utc)
+    def update(self, claim_id: str, updates: dict) -> dict | None:
+        updates["updatedAt"] = datetime.now(UTC)
         result = self._col.find_one_and_update(
             {"claimId": claim_id},
             {"$set": updates},
@@ -484,8 +492,8 @@ class ClaimStore:
         claim_id: str,
         computed_score: int,
         raw_score: int,
-        matched_patterns: List[Dict[str, Any]],
-    ) -> Optional[dict]:
+        matched_patterns: list[dict[str, Any]],
+    ) -> dict | None:
         """Write the agent-computed fraud score and matched patterns onto the claim.
 
         Persists `fraud.computedScore` (= min(rawScore, 12)), `fraud.rawScore`
@@ -499,7 +507,7 @@ class ClaimStore:
                     "fraud.computedScore": computed_score,
                     "fraud.rawScore": raw_score,
                     "fraud.matchedPatterns": matched_patterns,
-                    "updatedAt": datetime.now(timezone.utc),
+                    "updatedAt": datetime.now(UTC),
                 }
             },
             return_document=True,
@@ -512,10 +520,10 @@ class ClaimStore:
         fraud_flag: bool,
         flag_source: str,
         reviewed_by: str,
-        reviewed_at: Optional[datetime] = None,
+        reviewed_at: datetime | None = None,
         siu_referred: bool = False,
-        dismiss_reason: Optional[str] = None,
-    ) -> Optional[dict]:
+        dismiss_reason: str | None = None,
+    ) -> dict | None:
         """Write the human confirm/dismiss decision onto the claim's fraud block."""
         result = self._col.find_one_and_update(
             {"claimId": claim_id},
@@ -524,10 +532,10 @@ class ClaimStore:
                     "fraud.fraudFlag": fraud_flag,
                     "fraud.flagSource": flag_source,
                     "fraud.reviewedBy": reviewed_by,
-                    "fraud.reviewedAt": reviewed_at or datetime.now(timezone.utc),
+                    "fraud.reviewedAt": reviewed_at or datetime.now(UTC),
                     "fraud.siuReferred": siu_referred,
                     "fraud.dismissReason": dismiss_reason,
-                    "updatedAt": datetime.now(timezone.utc),
+                    "updatedAt": datetime.now(UTC),
                 }
             },
             return_document=True,
@@ -578,25 +586,26 @@ class FraudPatternStore:
             logger.warning(
                 "Could not auto-create vector index '%s' (%s). "
                 "Create it manually in Atlas if vector search is needed.",
-                VECTOR_INDEX_NAME, exc,
+                VECTOR_INDEX_NAME,
+                exc,
             )
 
     # ── Read ────────────────────────────────────────────────────────────────
 
-    def read(self, pattern_id: str) -> Optional[dict]:
+    def read(self, pattern_id: str) -> dict | None:
         return _strip_id(self._col.find_one({"patternId": pattern_id}, {"_id": 0}))
 
-    def list_all(self) -> List[dict]:
+    def list_all(self) -> list[dict]:
         return [_strip_id(d) for d in self._col.find({}, {"_id": 0}).sort("patternId", ASCENDING)]
 
-    def list_by_type(self, pattern_type: str) -> List[dict]:
+    def list_by_type(self, pattern_type: str) -> list[dict]:
         return [_strip_id(d) for d in self._col.find({"patternType": pattern_type}, {"_id": 0})]
 
-    def list_active(self) -> List[dict]:
+    def list_active(self) -> list[dict]:
         """All active patterns (both RULE and HISTORICAL_SIMILARITY)."""
         return [_strip_id(d) for d in self._col.find({"active": True}, {"_id": 0})]
 
-    def list_active_rules(self) -> List[dict]:
+    def list_active_rules(self) -> list[dict]:
         return [
             _strip_id(d)
             for d in self._col.find({"patternType": "RULE", "active": True}, {"_id": 0})
@@ -608,17 +617,17 @@ class FraudPatternStore:
             {"patternId": pattern_id},
             {
                 "$inc": {"stats.timesTriggered": 1},
-                "$set": {"updatedAt": datetime.now(timezone.utc)},
+                "$set": {"updatedAt": datetime.now(UTC)},
             },
         )
 
-    def vector_search(self, embedding: List[float], k: int = 5) -> List[dict]:
+    def vector_search(self, embedding: list[float], k: int = 5) -> list[dict]:
         """Atlas $vectorSearch over active HISTORICAL_SIMILARITY patterns.
 
         Returns matched patterns (without the raw embedding) plus a `similarity`
         score in [0, 1]. Returns an empty list if vector search is unavailable.
         """
-        pipeline: List[Dict[str, Any]] = [
+        pipeline: list[dict[str, Any]] = [
             {
                 "$vectorSearch": {
                     "index": VECTOR_INDEX_NAME,
@@ -642,8 +651,8 @@ class FraudPatternStore:
 
     # ── Write ───────────────────────────────────────────────────────────────
 
-    def update(self, pattern_id: str, updates: dict) -> Optional[dict]:
-        updates["updatedAt"] = datetime.now(timezone.utc)
+    def update(self, pattern_id: str, updates: dict) -> dict | None:
+        updates["updatedAt"] = datetime.now(UTC)
         result = self._col.find_one_and_update(
             {"patternId": pattern_id},
             {"$set": updates},
@@ -651,7 +660,7 @@ class FraudPatternStore:
         )
         return _strip_id(result)
 
-    def bump_stats(self, pattern_id: str, confirmed: bool) -> Optional[dict]:
+    def bump_stats(self, pattern_id: str, confirmed: bool) -> dict | None:
         """Recompute `confirmedFraudRate` after a human confirm/dismiss.
 
         Does NOT touch `timesTriggered` — that is incremented at assessment time
@@ -674,7 +683,7 @@ class FraudPatternStore:
             {
                 "$set": {
                     "stats.confirmedFraudRate": new_rate,
-                    "updatedAt": datetime.now(timezone.utc),
+                    "updatedAt": datetime.now(UTC),
                 }
             },
             return_document=True,
@@ -738,15 +747,15 @@ class DecisionTraceStore:
 
     # ── Read ────────────────────────────────────────────────────────────────
 
-    def read(self, trace_id: str) -> Optional[dict]:
+    def read(self, trace_id: str) -> dict | None:
         return _strip_id(self._col.find_one({"traceId": trace_id}, {"_id": 0}))
 
-    def list_all(self) -> List[dict]:
+    def list_all(self) -> list[dict]:
         return [
             _strip_id(d) for d in self._col.find({}, {"_id": 0}).sort("triggeredAt", DESCENDING)
         ]
 
-    def list_by_claim(self, claim_id: str) -> List[dict]:
+    def list_by_claim(self, claim_id: str) -> list[dict]:
         """All traces for a claim, oldest first (chronological, as reported to the human)."""
         return [
             _strip_id(d)
@@ -755,14 +764,12 @@ class DecisionTraceStore:
             )
         ]
 
-    def latest_by_claim(self, claim_id: str, undecided_only: bool = False) -> Optional[dict]:
+    def latest_by_claim(self, claim_id: str, undecided_only: bool = False) -> dict | None:
         """The most recent trace for a claim; optionally only one still awaiting a verdict."""
-        query: Dict[str, Any] = {"claimId": claim_id}
+        query: dict[str, Any] = {"claimId": claim_id}
         if undecided_only:
             query["humanDecision"] = None
-        return _strip_id(
-            self._col.find_one(query, {"_id": 0}, sort=[("triggeredAt", DESCENDING)])
-        )
+        return _strip_id(self._col.find_one(query, {"_id": 0}, sort=[("triggeredAt", DESCENDING)]))
 
     # ── Write ───────────────────────────────────────────────────────────────
 
@@ -772,7 +779,7 @@ class DecisionTraceStore:
         Dumps without `exclude_none` so unset fields persist as explicit nulls — an audit
         record should say "no batch" and "not yet decided" rather than omit the keys.
         """
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         doc = trace.model_dump(by_alias=True)
         if doc.get("triggeredAt") is None:
             doc["triggeredAt"] = now
@@ -786,15 +793,15 @@ class DecisionTraceStore:
         trace_id: str,
         decision: str,
         decided_by: str,
-        decided_at: Optional[datetime] = None,
-        reasoning: Optional[str] = None,
+        decided_at: datetime | None = None,
+        reasoning: str | None = None,
         siu_referred: bool = False,
-    ) -> Optional[dict]:
+    ) -> dict | None:
         """Merge the analyst's verdict into an existing assessment trace.
 
         `decision` is the canonical vocabulary: CONFIRMED_FRAUD or DISMISSED.
         """
-        now = decided_at or datetime.now(timezone.utc)
+        now = decided_at or datetime.now(UTC)
         human = HumanDecision(
             decision=decision,
             decidedBy=decided_by,
@@ -821,7 +828,8 @@ class DecisionTraceStore:
 # Seed helper — loads JSON fixtures into MongoDB on startup (idempotent)
 # =============================================================================
 
-def _seed_collection(col, docs: List[dict], key_field: str) -> None:
+
+def _seed_collection(col, docs: list[dict], key_field: str) -> None:
     if not docs:
         return
     ops = [
@@ -835,7 +843,9 @@ def _seed_collection(col, docs: List[dict], key_field: str) -> None:
         result = col.bulk_write(ops, ordered=False)
         logger.info(
             "Seeded %s — upserted: %d, matched: %d",
-            col.name, result.upserted_count, result.matched_count,
+            col.name,
+            result.upserted_count,
+            result.matched_count,
         )
     except BulkWriteError as bwe:
         logger.warning("Seed bulk write partial error for %s: %s", col.name, bwe.details)
@@ -844,6 +854,7 @@ def _seed_collection(col, docs: List[dict], key_field: str) -> None:
 # =============================================================================
 # Store registry — single MongoClient shared across all stores
 # =============================================================================
+
 
 class FraudStoreRegistry:
     """Holds one MongoClient and exposes all collection stores."""
@@ -854,20 +865,20 @@ class FraudStoreRegistry:
         database: str = "insurance_fraud_agent",
         seed: bool = True,
     ) -> None:
-        self._client   = MongoClient(mongodb_uri, serverSelectionTimeoutMS=5000)
+        self._client = MongoClient(mongodb_uri, serverSelectionTimeoutMS=5000)
         self._database = database
-        self._db       = self._client[database]
+        self._db = self._client[database]
 
-        self.customers       = CustomerStore(self._client, database)
-        self.policies        = PolicyStore(self._client, database)
-        self.claims          = ClaimStore(self._client, database)
-        self.fraud_patterns  = FraudPatternStore(self._client, database)
+        self.customers = CustomerStore(self._client, database)
+        self.policies = PolicyStore(self._client, database)
+        self.claims = ClaimStore(self._client, database)
+        self.fraud_patterns = FraudPatternStore(self._client, database)
         self.decision_traces = DecisionTraceStore(self._client, database)
 
         if seed:
             self.seed_from_json()
 
-    def seed_from_json(self, data_dir: Optional[Path] = None) -> None:
+    def seed_from_json(self, data_dir: Path | None = None) -> None:
         """Load all JSON seed files into MongoDB using idempotent upserts."""
         base = Path(data_dir) if data_dir else _DATA_DIR
         for collection_name, (filename, key_field) in _SEED_MAP.items():
@@ -889,11 +900,12 @@ class FraudStoreRegistry:
 # Factory — called from main.py at startup
 # =============================================================================
 
+
 def create_store_registry(
     mongodb_uri: str,
     database: str = "insurance_fraud_agent",
     seed: bool = True,
-) -> Optional[FraudStoreRegistry]:
+) -> FraudStoreRegistry | None:
     """Create FraudStoreRegistry if MongoDB is configured; return None otherwise."""
     logger.info("Creating FraudStoreRegistry: database=%s", database)
     if not mongodb_uri:

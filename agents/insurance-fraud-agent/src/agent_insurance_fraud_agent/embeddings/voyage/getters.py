@@ -15,11 +15,10 @@ except ImportError:
 import logging
 import os
 
-from dotenv import load_dotenv
 import voyageai
+from dotenv import load_dotenv
 
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 load_dotenv()
 
 # Default model; overridable via env so it stays in sync with the Atlas index dims
@@ -39,8 +38,9 @@ def get_embedding_model(model_id: str) -> voyageai.Client:
     return voyage_client
 
 
-def get_embedding(text: str, model_id: str = DEFAULT_MODEL_ID,
-                  input_type: str = "document") -> list:
+def get_embedding(
+    text: str, model_id: str = DEFAULT_MODEL_ID, input_type: str = "document"
+) -> list:
     """Generate an embedding for the given text using Voyage Embeddings.
 
     Args:
@@ -71,7 +71,7 @@ def get_embedding(text: str, model_id: str = DEFAULT_MODEL_ID,
         return None
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     text = "Embed this text."
     embedding = get_embedding(text=text, model_id="voyage-3.5")
     print(len(embedding), embedding[:5])

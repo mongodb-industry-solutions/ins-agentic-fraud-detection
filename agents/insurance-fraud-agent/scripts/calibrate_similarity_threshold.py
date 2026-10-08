@@ -27,10 +27,15 @@ VECTOR_INDEX_NAME = os.environ.get("FRAUD_PATTERN_VECTOR_INDEX", "fraud_pattern_
 def _vector_scores(col, query_vec):
     """Return {patternId: similarity} for all HISTORICAL_SIMILARITY patterns vs query_vec."""
     pipeline = [
-        {"$vectorSearch": {
-            "index": VECTOR_INDEX_NAME, "path": "embedding",
-            "queryVector": query_vec, "numCandidates": 200, "limit": 50,
-        }},
+        {
+            "$vectorSearch": {
+                "index": VECTOR_INDEX_NAME,
+                "path": "embedding",
+                "queryVector": query_vec,
+                "numCandidates": 200,
+                "limit": 50,
+            }
+        },
         {"$match": {"patternType": "HISTORICAL_SIMILARITY", "active": True}},
         {"$addFields": {"similarity": {"$meta": "vectorSearchScore"}}},
         {"$project": {"_id": 0, "patternId": 1, "similarity": 1}},
@@ -55,7 +60,9 @@ def main() -> int:
         for cid in p.get("exampleClaimIds") or []:
             labels.setdefault(cid, set()).add(p["patternId"])
     if not labels:
-        print("No exampleClaimIds found on any HISTORICAL_SIMILARITY pattern — nothing to calibrate.")
+        print(
+            "No exampleClaimIds found on any HISTORICAL_SIMILARITY pattern — nothing to calibrate."
+        )
         return 1
 
     positives: list[tuple] = []  # (claimId, patternId, similarity)
@@ -93,8 +100,12 @@ def main() -> int:
     if missing:
         print(f"Skipped {len(missing)} referenced claim(s) not in DB: {', '.join(missing)}")
     print()
-    print(f"  positives  min={pos_sims[0]:.4f}  median={pos_sims[len(pos_sims)//2]:.4f}  max={pos_sims[-1]:.4f}")
-    print(f"  negatives  max={neg_sims[0]:.4f}  median={neg_sims[len(neg_sims)//2]:.4f}  min={neg_sims[-1]:.4f}")
+    print(
+        f"  positives  min={pos_sims[0]:.4f}  median={pos_sims[len(pos_sims) // 2]:.4f}  max={pos_sims[-1]:.4f}"
+    )
+    print(
+        f"  negatives  max={neg_sims[0]:.4f}  median={neg_sims[len(neg_sims) // 2]:.4f}  min={neg_sims[-1]:.4f}"
+    )
     print()
 
     # Sweep candidate thresholds and report precision / recall / F1 over the labelled pairs.
@@ -114,7 +125,9 @@ def main() -> int:
         t += 0.05
 
     print()
-    print(f"Suggested FRAUD_SIMILARITY_THRESHOLD ~= {best[0]:.2f}  (best F1={best[1]:.2f} on labelled pairs)")
+    print(
+        f"Suggested FRAUD_SIMILARITY_THRESHOLD ~= {best[0]:.2f}  (best F1={best[1]:.2f} on labelled pairs)"
+    )
     print("Current setting:", os.environ.get("FRAUD_SIMILARITY_THRESHOLD", "0.65"))
     client.close()
     return 0

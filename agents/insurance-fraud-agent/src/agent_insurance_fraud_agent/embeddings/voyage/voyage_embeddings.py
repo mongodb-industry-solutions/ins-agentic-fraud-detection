@@ -7,11 +7,10 @@ this repo's env var names (``MONGODB_URI`` / ``MONGODB_DATABASE``).
 
 import logging
 import os
-from typing import Optional
 
+import voyageai
 from dotenv import load_dotenv
 from pymongo import MongoClient
-import voyageai
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
@@ -23,11 +22,13 @@ class VoyageEmbeddings:
 
     log = logging.getLogger("VoyageEmbeddings")
 
-    def __init__(self,
-                 api_key: Optional[str] = None,
-                 model_id: Optional[str] = None,
-                 mongodb_uri: Optional[str] = None,
-                 database_name: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        api_key: str | None = None,
+        model_id: str | None = None,
+        mongodb_uri: str | None = None,
+        database_name: str | None = None,
+    ) -> None:
         # Voyage client
         self.api_key = api_key or os.getenv("VOYAGE_API_KEY")
         self.model_id = model_id or os.getenv("VOYAGE_MODEL", "voyage-3.5")
@@ -47,8 +48,7 @@ class VoyageEmbeddings:
                 logger.error(f"Failed to connect to MongoDB: {e}")
 
     def generate_text_embeddings(self, text: str) -> list:
-        result = self.voyage_client.embed([text], model=self.model_id,
-                                          input_type="document")
+        result = self.voyage_client.embed([text], model=self.model_id, input_type="document")
         return result.embeddings[0]
 
     def predict(self, text: str):
@@ -58,12 +58,14 @@ class VoyageEmbeddings:
             self.log.error("Error generating embedding: %s", str(err))
             return None
 
-    def embed_mongodb_collection(self,
-                                 collection_name: str,
-                                 field_to_embed: str,
-                                 embedding_field: str = 'embedding',
-                                 batch_size: int = 100,
-                                 query: Optional[dict] = None):
+    def embed_mongodb_collection(
+        self,
+        collection_name: str,
+        field_to_embed: str,
+        embedding_field: str = "embedding",
+        batch_size: int = 100,
+        query: dict | None = None,
+    ):
         """Embed `field_to_embed` for every doc lacking a usable `embedding_field`.
 
         A pattern seeded with ``embedding: []`` counts as lacking an embedding, so the
@@ -76,12 +78,12 @@ class VoyageEmbeddings:
 
         # Search for the embedding field being missing, empty, or None, and the field to embed being present and non-empty.
         base_query = {
-            '$or': [
-                {embedding_field: {'$exists': False}},
-                {embedding_field: {'$eq': []}},
+            "$or": [
+                {embedding_field: {"$exists": False}},
+                {embedding_field: {"$eq": []}},
                 {embedding_field: None},
             ],
-            field_to_embed: {'$exists': True, '$ne': ''},
+            field_to_embed: {"$exists": True, "$ne": ""},
         }
         if query:
             base_query.update(query)
@@ -104,8 +106,7 @@ class VoyageEmbeddings:
                 # Update the document with the new embedding if it was successfully generated
                 if embedding:
                     collection.update_one(
-                        {'_id': doc['_id']},
-                        {'$set': {embedding_field: embedding}}
+                        {"_id": doc["_id"]}, {"$set": {embedding_field: embedding}}
                     )
                     processed += 1
 

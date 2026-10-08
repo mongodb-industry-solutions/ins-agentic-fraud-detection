@@ -22,18 +22,18 @@ import logging
 import os
 import sys
 import uuid
-from datetime import datetime, timezone
-from typing import Any, Annotated, Literal, Optional, TypedDict, cast
+from datetime import UTC, datetime
+from typing import Annotated, Any, Literal, TypedDict, cast
 
+from agent_engine_runner_shared.models import SuspendPayload
+from agent_engine_sdk_langgraph import App
 from dotenv import load_dotenv
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import BaseMessage, SystemMessage
 from langgraph.graph import END, START, StateGraph
-from langgraph.graph.state import CompiledStateGraph
 from langgraph.graph.message import add_messages
+from langgraph.graph.state import CompiledStateGraph
 from langgraph.prebuilt import ToolNode
-from agent_engine_sdk_langgraph import App
-from agent_engine_runner_shared.models import SuspendPayload
 
 from agent_insurance_fraud_agent.embeddings.voyage import get_embedding
 from agent_insurance_fraud_agent.store import (
@@ -57,7 +57,7 @@ load_dotenv()
 # =============================================================================
 # Configuration
 # =============================================================================
-MONGODB_URI      = os.environ.get("MONGODB_URI", "")
+MONGODB_URI = os.environ.get("MONGODB_URI", "")
 MONGODB_DATABASE = os.environ.get("MONGODB_DATABASE", "insurance_fraud_agent")
 
 MODEL = os.environ.get("MODEL", "claude-opus-4-6")
@@ -66,10 +66,10 @@ PROVIDER = os.environ.get("PROVIDER", "anthropic")
 # Fraud scoring is agent-computed: the score is the sum of the integer `weight` of
 # every active fraud_pattern that matches a claim, capped at 12. `complexity` is an
 # independent triage dimension loaded with the claim — it is NOT derived from the score.
-SCORE_CAP    = 12   # computedScore = min(rawScore, SCORE_CAP)
+SCORE_CAP = 12  # computedScore = min(rawScore, SCORE_CAP)
 FAST_TRACK_MAX = 3  # 0-3  -> low-risk / fast-track
-REVIEW_MIN     = 4  # 4-8  -> elevated / needs review (review-queue default cutoff)
-PRIORITY_MIN   = 9  # 9-12 -> priority review
+REVIEW_MIN = 4  # 4-8  -> elevated / needs review (review-queue default cutoff)
+PRIORITY_MIN = 9  # 9-12 -> priority review
 
 # Similarity track: a HISTORICAL_SIMILARITY pattern counts as "identified" in a claim only
 # when its cosine similarity to the claim text is at least this threshold (0-1). Tunable via
@@ -91,6 +91,7 @@ store_registry = create_store_registry(MONGODB_URI, MONGODB_DATABASE, seed=True)
 # Internal helpers (not tools)
 # =============================================================================
 
+
 def _require_store():
     """Return the store registry or raise a clear error for tool wrappers."""
     if store_registry is None:
@@ -100,7 +101,7 @@ def _require_store():
     return store_registry
 
 
-def _embed_text(text: str) -> Optional[list[float]]:
+def _embed_text(text: str) -> list[float] | None:
     """Embed claim text as a search *query* via the Voyage package (embeddings/voyage).
 
     Uses input_type="query" so the vector lands in the same space as the stored patterns,
@@ -113,7 +114,7 @@ def _embed_text(text: str) -> Optional[list[float]]:
     return get_embedding(text, input_type="query")
 
 
-def _embed_document(text: str) -> Optional[list[float]]:
+def _embed_document(text: str) -> list[float] | None:
     """Embed claim text as a stored *document* via the Voyage package (embeddings/voyage).
 
     Used when a claim is created/updated so it joins the searchable historical corpus. Uses
@@ -136,7 +137,7 @@ def _get_path(doc: dict, path: str) -> Any:
     return cur
 
 
-def _to_date(value: Any) -> Optional[datetime]:
+def _to_date(value: Any) -> datetime | None:
     """Coerce a datetime or ISO string into a datetime (UTC-naive tolerant)."""
     if value is None:
         return None
@@ -153,22 +154,24 @@ def _to_date(value: Any) -> Optional[datetime]:
     return None
 
 
-def _days_between(a: Any, b: Any) -> Optional[int]:
+def _days_between(a: Any, b: Any) -> int | None:
     da, db = _to_date(a), _to_date(b)
     if da is None or db is None:
         return None
     if da.tzinfo and not db.tzinfo:
-        db = db.replace(tzinfo=timezone.utc)
+        db = db.replace(tzinfo=UTC)
     if db.tzinfo and not da.tzinfo:
-        da = da.replace(tzinfo=timezone.utc)
+        da = da.replace(tzinfo=UTC)
     return (da - db).days
 
 
 def _time_in_overnight_window(t: str, start: str, end: str) -> bool:
     """True if HH:MM time `t` falls inside a window that may wrap midnight."""
+
     def mins(s: str) -> int:
         h, m = s.split(":")
         return int(h) * 60 + int(m)
+
     try:
         tm, sm, em = mins(t), mins(start), mins(end)
     except (ValueError, AttributeError):
@@ -180,10 +183,10 @@ def _time_in_overnight_window(t: str, start: str, end: str) -> bool:
 
 def _eval_single(
     claim: dict,
-    field: Optional[str],
-    operator: Optional[str],
+    field: str | None,
+    operator: str | None,
     value: Any,
-    comparison_field: Optional[str] = None,
+    comparison_field: str | None = None,
 ) -> tuple[bool, str]:
     """Evaluate one comparison operator against claim fields. Returns (fired, detail).
 
@@ -206,8 +209,11 @@ def _eval_single(
         if not isinstance(left, (int, float)):
             return False, f"{field} not numeric"
         is_round = left > 0 and left % 1000 == 0
-        return is_round, (f"{field}={left} is a round multiple of 1000"
-                          if is_round else f"{field}={left} is not round")
+        return is_round, (
+            f"{field}={left} is a round multiple of 1000"
+            if is_round
+            else f"{field}={left} is not round"
+        )
 
     if operator in ("RATIO_ABOVE", "RATIO_ABOVE_VALUE"):
         den_field = comparison_field if operator == "RATIO_ABOVE" else "vehicleSnapshot.value"
@@ -222,8 +228,11 @@ def _eval_single(
             return False, f"{field} missing"
         window = value if isinstance(value, list) and len(value) == 2 else ["22:00", "05:00"]
         inside = _time_in_overnight_window(left, window[0], window[1])
-        return inside, (f"{field}={left} within overnight {window[0]}-{window[1]}"
-                        if inside else f"{field}={left} outside overnight window")
+        return inside, (
+            f"{field}={left} within overnight {window[0]}-{window[1]}"
+            if inside
+            else f"{field}={left} outside overnight window"
+        )
 
     if left is None:
         return False, f"field '{field}' missing"
@@ -260,15 +269,21 @@ def _rule_fires(claim: dict, pattern: dict) -> tuple[bool, str]:
         return False, "out of scope for this claim/coverage type"
     logic = pattern.get("ruleLogic") or {}
     ok, detail = _eval_single(
-        claim, logic.get("field"), logic.get("operator"),
-        logic.get("value"), logic.get("comparisonField"),
+        claim,
+        logic.get("field"),
+        logic.get("operator"),
+        logic.get("value"),
+        logic.get("comparisonField"),
     )
     if not ok:
         return False, detail
     secondary_op = logic.get("secondaryOperator")
     if secondary_op:
         ok2, detail2 = _eval_single(
-            claim, logic.get("comparisonField"), secondary_op, logic.get("value2"),
+            claim,
+            logic.get("comparisonField"),
+            secondary_op,
+            logic.get("value2"),
         )
         if not ok2:
             return False, f"{detail}; secondary not met ({detail2})"
@@ -343,7 +358,7 @@ def _similar_by_examples(claim: dict) -> list[dict]:
     return matches
 
 
-def _similar_by_vector(claim: dict, k: int = 5) -> Optional[list[dict]]:
+def _similar_by_vector(claim: dict, k: int = 5) -> list[dict] | None:
     """Production similarity track: Atlas-vector-search the HISTORICAL_SIMILARITY patterns
     using the claim's embedding. A pattern is treated as "identified" in the claim only when
     it passes the same `appliesTo` gate as the other tracks AND its cosine similarity is at
@@ -400,7 +415,7 @@ def _score_band(score: int) -> str:
     return "PRIORITY"
 
 
-def _decision_label(decision: str) -> Optional[str]:
+def _decision_label(decision: str) -> str | None:
     """Normalise a human verdict onto the canonical trace vocabulary.
 
     Accepts the shorthand the analyst/LLM tends to use (CONFIRMED, FRAUD, NOT_FRAUD, ...)
@@ -417,6 +432,7 @@ def _decision_label(decision: str) -> Optional[str]:
 # =============================================================================
 # Tools — Customers (read-only source of truth)
 # =============================================================================
+
 
 @app.tool()
 def lookup_customer(customer_id: str) -> str:
@@ -510,6 +526,7 @@ def get_customer_profile(customer_id: str) -> str:
 # Tools — Policies (read-only source of truth)
 # =============================================================================
 
+
 @app.tool()
 def lookup_policy(policy_id: str) -> str:
     """Look up an insurance policy by its policy ID.
@@ -567,6 +584,7 @@ def list_policies_by_status(status: str) -> str:
 # =============================================================================
 # Tools — Claims (the agent's unit of work)
 # =============================================================================
+
 
 @app.tool()
 def lookup_claim(claim_id: str) -> str:
@@ -671,11 +689,9 @@ def open_claim(
                        corpus for claim-to-claim similarity (find_similar_claims).
     """
     try:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         cdate = datetime.fromisoformat(claim_date.replace("Z", "+00:00"))
-        rdate = (
-            datetime.fromisoformat(report_date.replace("Z", "+00:00")) if report_date else now
-        )
+        rdate = datetime.fromisoformat(report_date.replace("Z", "+00:00")) if report_date else now
         desc = description.strip() or None
         claim = Claim(
             claimId=claim_id,
@@ -759,43 +775,54 @@ def find_similar_claims(claim_id: str, k: int = 5, all_claim_types: bool = False
             embedding = _embed_text(_claim_narrative(claim))
             embedding_source = "computed"
         if not embedding:
-            return json.dumps({
-                "claimId": claim_id,
-                "error": (
-                    "Similarity search unavailable: claim has no stored embedding and "
-                    "an embedding could not be computed (check VOYAGE_API_KEY / VOYAGE_MODEL "
-                    "in the tool runtime and the logs for 'Error in get_embedding')."
-                ),
-            })
+            return json.dumps(
+                {
+                    "claimId": claim_id,
+                    "error": (
+                        "Similarity search unavailable: claim has no stored embedding and "
+                        "an embedding could not be computed (check VOYAGE_API_KEY / VOYAGE_MODEL "
+                        "in the tool runtime and the logs for 'Error in get_embedding')."
+                    ),
+                }
+            )
         claim_type = None if all_claim_types else claim.get("claimType")
         matches = store.claims.vector_search(
-            embedding, k=k, exclude_claim_id=claim_id,
-            claim_type=claim_type, adjudicated_only=True,
+            embedding,
+            k=k,
+            exclude_claim_id=claim_id,
+            claim_type=claim_type,
+            adjudicated_only=True,
         )
         results = []
         for m in matches:
             fraud = m.get("fraud") or {}
-            results.append({
-                "claimId": m.get("claimId"),
-                "similarity": round(float(m.get("similarity", 0.0)), 4),
-                "claimType": m.get("claimType"),
-                "coverageType": m.get("coverageType"),
-                "claimAmount": m.get("claimAmount"),
-                "claimStatus": m.get("claimStatus"),
-                "description": m.get("description"),
-                "fraudFlag": fraud.get("fraudFlag"),
-                "computedScore": fraud.get("computedScore"),
-                "reviewedBy": fraud.get("reviewedBy"),
-                "siuReferred": fraud.get("siuReferred"),
-            })
-        return json.dumps({
-            "claimId": claim_id,
-            "claimType": claim.get("claimType"),
-            "searchedAcrossAllTypes": all_claim_types,
-            "embeddingSource": embedding_source,  # "stored" (no Voyage call) | "computed"
-            "matchCount": len(results),
-            "similarClaims": results,
-        }, indent=2, default=str)
+            results.append(
+                {
+                    "claimId": m.get("claimId"),
+                    "similarity": round(float(m.get("similarity", 0.0)), 4),
+                    "claimType": m.get("claimType"),
+                    "coverageType": m.get("coverageType"),
+                    "claimAmount": m.get("claimAmount"),
+                    "claimStatus": m.get("claimStatus"),
+                    "description": m.get("description"),
+                    "fraudFlag": fraud.get("fraudFlag"),
+                    "computedScore": fraud.get("computedScore"),
+                    "reviewedBy": fraud.get("reviewedBy"),
+                    "siuReferred": fraud.get("siuReferred"),
+                }
+            )
+        return json.dumps(
+            {
+                "claimId": claim_id,
+                "claimType": claim.get("claimType"),
+                "searchedAcrossAllTypes": all_claim_types,
+                "embeddingSource": embedding_source,  # "stored" (no Voyage call) | "computed"
+                "matchCount": len(results),
+                "similarClaims": results,
+            },
+            indent=2,
+            default=str,
+        )
     except Exception as exc:  # noqa: BLE001
         return json.dumps({"error": str(exc)})
 
@@ -803,6 +830,7 @@ def find_similar_claims(claim_id: str, k: int = 5, all_claim_types: bool = False
 # =============================================================================
 # Tools — Fraud patterns
 # =============================================================================
+
 
 @app.tool()
 def lookup_fraud_pattern(pattern_id: str) -> str:
@@ -873,6 +901,7 @@ def update_fraud_pattern(pattern_id: str, updates_json: str) -> str:
 # Tools — Fraud detection (core)
 # =============================================================================
 
+
 @app.tool()
 def evaluate_claim_rules(claim_id: str) -> str:
     """Evaluate a claim against all active deterministic RULE patterns.
@@ -892,8 +921,12 @@ def evaluate_claim_rules(claim_id: str) -> str:
         fired = _evaluate_rules(claim)
         points = sum(p["weight"] for p in fired)
         return json.dumps(
-            {"claimId": claim_id, "firedRuleCount": len(fired), "rulePoints": points,
-             "firedRules": fired},
+            {
+                "claimId": claim_id,
+                "firedRuleCount": len(fired),
+                "rulePoints": points,
+                "firedRules": fired,
+            },
             indent=2,
             default=str,
         )
@@ -923,8 +956,12 @@ def find_similar_fraud_patterns(claim_id: str) -> str:
         similar = _similar_patterns(claim)
         points = sum(p["weight"] for p in similar)
         return json.dumps(
-            {"claimId": claim_id, "matchCount": len(similar), "similarityPoints": points,
-             "matches": similar},
+            {
+                "claimId": claim_id,
+                "matchCount": len(similar),
+                "similarityPoints": points,
+                "matches": similar,
+            },
             indent=2,
             default=str,
         )
@@ -971,15 +1008,19 @@ def assess_claim_fraud(
         if not claim:
             return json.dumps({"error": f"No claim found: {claim_id}"})
         if not agent_summary.strip():
-            return json.dumps({
-                "error": "agent_summary is required — write the prose audit summary "
-                         "before calling this tool."
-            })
+            return json.dumps(
+                {
+                    "error": "agent_summary is required — write the prose audit summary "
+                    "before calling this tool."
+                }
+            )
         if not triggered_by.strip():
-            return json.dumps({
-                "error": "triggered_by is required — pass the initiator as 'role:id', "
-                         "e.g. 'adjuster:ADJ-1004'."
-            })
+            return json.dumps(
+                {
+                    "error": "triggered_by is required — pass the initiator as 'role:id', "
+                    "e.g. 'adjuster:ADJ-1004'."
+                }
+            )
 
         matched = _evaluate_rules(claim) + _similar_patterns(claim)
         raw_score = sum(int(m.get("weight", 0) or 0) for m in matched)
@@ -995,7 +1036,7 @@ def assess_claim_fraud(
         for m in matched:
             store.fraud_patterns.increment_triggered(m["patternId"])
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         trace = DecisionTrace(
             traceId=store.decision_traces.next_trace_id(),
             claimId=claim_id,
@@ -1037,13 +1078,12 @@ def assess_claim_fraud(
                 "band": band,
                 "complexity": claim.get("complexity"),
                 "matchedPatterns": matched,
-                "scoreBreakdown": " + ".join(
-                    f"{m['patternId']}({m['weight']})" for m in matched
-                ) or "no patterns matched",
+                "scoreBreakdown": " + ".join(f"{m['patternId']}({m['weight']})" for m in matched)
+                or "no patterns matched",
                 "traceId": written.get("traceId"),
                 "agentSummary": written.get("agentSummary"),
                 "note": "Proposal only — awaiting human approval. record_fraud_decision "
-                        "will merge the verdict into this same trace.",
+                "will merge the verdict into this same trace.",
             },
             indent=2,
             default=str,
@@ -1055,6 +1095,7 @@ def assess_claim_fraud(
 # =============================================================================
 # Tools — Human decision + feedback loop
 # =============================================================================
+
 
 @app.tool()
 def request_fraud_review(
@@ -1087,7 +1128,7 @@ def request_fraud_review(
             "complexity": complexity,
             "rationale": rationale,
             "matched_patterns": matched_patterns,
-            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
             "instructions": "Approve (confirm fraud) or override (dismiss, with a reason) this proposal.",
         },
     ).to_json()
@@ -1139,10 +1180,14 @@ def record_fraud_decision(
         # humanDecision.reasoning takes the explicit dismissal reason when present,
         # otherwise the reviewer's notes — a verdict should never be reasonless.
         reasoning = (dismiss_reason or notes or "").strip()
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         store.claims.set_fraud_decision(
-            claim_id, fraud_flag, "HUMAN", reviewer, now,
+            claim_id,
+            fraud_flag,
+            "HUMAN",
+            reviewer,
+            now,
             siu_referred=siu_referred,
             dismiss_reason=(dismiss_reason.strip() or None) if not fraud_flag else None,
         )
@@ -1155,10 +1200,9 @@ def record_fraud_decision(
 
         # Prefer the newest trace still awaiting a verdict, so re-assessing a claim and
         # then deciding lands on the right document instead of overwriting an old verdict.
-        assessment = (
-            store.decision_traces.latest_by_claim(claim_id, undecided_only=True)
-            or store.decision_traces.latest_by_claim(claim_id)
-        )
+        assessment = store.decision_traces.latest_by_claim(
+            claim_id, undecided_only=True
+        ) or store.decision_traces.latest_by_claim(claim_id)
         if not matched_ids and assessment:
             matched_ids = [
                 m.get("patternId")
@@ -1173,10 +1217,17 @@ def record_fraud_decision(
                 bumped.append({"patternId": pid, "stats": updated.get("stats")})
 
         if assessment:
-            written = store.decision_traces.set_human_decision(
-                assessment["traceId"], label, reviewer, now,
-                reasoning=reasoning or None, siu_referred=siu_referred,
-            ) or {}
+            written = (
+                store.decision_traces.set_human_decision(
+                    assessment["traceId"],
+                    label,
+                    reviewer,
+                    now,
+                    reasoning=reasoning or None,
+                    siu_referred=siu_referred,
+                )
+                or {}
+            )
             trace_action = "merged into existing assessment trace"
         else:
             # No assessment on record — open a trace carrying the verdict alone so the
@@ -1190,9 +1241,11 @@ def record_fraud_decision(
                 triggeredBy=reviewer,
                 triggeredAt=now,
                 matchedPatterns=[
-                    {"patternId": m.get("patternId"),
-                     "patternName": m.get("patternName"),
-                     "weight": m.get("weight")}
+                    {
+                        "patternId": m.get("patternId"),
+                        "patternName": m.get("patternName"),
+                        "weight": m.get("weight"),
+                    }
                     for m in matched
                 ],
                 rawScore=int(fraud_block.get("rawScore") or 0),
@@ -1233,6 +1286,7 @@ def record_fraud_decision(
 # =============================================================================
 # Tools — Decision traces (audit trail)
 # =============================================================================
+
 
 @app.tool()
 def lookup_decision_trace(trace_id: str) -> str:
@@ -1281,6 +1335,7 @@ def list_decision_traces(claim_id: str) -> str:
 # Tools — Notification
 # =============================================================================
 
+
 @app.tool(redact_fields=["recipient_email"])
 def send_notification(
     recipient_email: str,
@@ -1304,7 +1359,7 @@ def send_notification(
             "recipient": recipient_email,
             "type": notification_type,
             "subject": subject,
-            "sent_at": datetime.now(timezone.utc).isoformat(),
+            "sent_at": datetime.now(UTC).isoformat(),
         },
         indent=2,
     )
@@ -1313,6 +1368,7 @@ def send_notification(
 # =============================================================================
 # Tools — Memory & terminology
 # =============================================================================
+
 
 @app.tool()
 def save_user_info(info_key: str, info_value: str) -> str:
@@ -1393,7 +1449,9 @@ def recall_past_conversations(query: str = "") -> str:
         }
         for ep in episodes
     ]
-    return json.dumps({"found": True, "count": len(formatted), "conversations": formatted}, indent=2)
+    return json.dumps(
+        {"found": True, "count": len(formatted), "conversations": formatted}, indent=2
+    )
 
 
 @app.tool()
@@ -1425,6 +1483,7 @@ def explain_term(term: str) -> str:
 # =============================================================================
 # LLM provider selection (from agent.yaml hints + environment secrets)
 # =============================================================================
+
 
 def _build_runtime_llm() -> BaseChatModel:
     """Create the default chat model from agent.yaml hints + environment secrets."""
@@ -1503,13 +1562,14 @@ def _build_runtime_llm() -> BaseChatModel:
 # Agent state
 # =============================================================================
 
+
 class _AgentStateOptional(TypedDict, total=False):
-    user_id: Optional[str]
-    session_id: Optional[str]
-    memory_context: Optional[str]
-    active_claim_id: Optional[str]
-    active_policy_id: Optional[str]
-    active_customer_id: Optional[str]
+    user_id: str | None
+    session_id: str | None
+    memory_context: str | None
+    active_claim_id: str | None
+    active_policy_id: str | None
+    active_customer_id: str | None
 
 
 class AgentState(_AgentStateOptional):
@@ -1868,8 +1928,9 @@ Today's date is {today}.
 # LangGraph agent
 # =============================================================================
 
+
 @app.entrypoint
-def build_agent(llm: Optional[BaseChatModel] = None) -> CompiledStateGraph:
+def build_agent(llm: BaseChatModel | None = None) -> CompiledStateGraph:
     """Build the LangGraph agent graph.
 
     Args:
@@ -1886,8 +1947,8 @@ def build_agent(llm: Optional[BaseChatModel] = None) -> CompiledStateGraph:
     def agent_node(state: AgentState) -> AgentState:
         from langchain_core.messages import HumanMessage
 
-        messages   = state["messages"]
-        user_id    = state.get("user_id", "")
+        messages = state["messages"]
+        user_id = state.get("user_id", "")
         session_id = state.get("session_id", "")
         logger.info("User ID: %s  Session ID: %s", user_id, session_id)
 
@@ -1905,7 +1966,7 @@ def build_agent(llm: Optional[BaseChatModel] = None) -> CompiledStateGraph:
             else:
                 logger.info("No memory context available")
 
-        today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        today_str = datetime.now(UTC).strftime("%Y-%m-%d")
         system_prompt = SYSTEM_PROMPT.replace("{today}", today_str)
         if user_id:
             system_prompt += (
@@ -1949,6 +2010,7 @@ def build_agent(llm: Optional[BaseChatModel] = None) -> CompiledStateGraph:
 # =============================================================================
 # Entrypoint
 # =============================================================================
+
 
 def main() -> None:
     logger.info("=" * 60)

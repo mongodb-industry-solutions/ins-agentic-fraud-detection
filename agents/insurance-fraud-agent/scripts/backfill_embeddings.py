@@ -45,14 +45,24 @@ PRESETS = {
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Backfill embeddings with Voyage.")
-    parser.add_argument("--collection", default="fraud_patterns",
-                        help="Collection to embed (default: fraud_patterns).")
-    parser.add_argument("--field", default=None,
-                        help="Text field to embed (default: per-collection preset).")
-    parser.add_argument("--scope-json", default=None,
-                        help="JSON query to scope which docs to embed (default: preset).")
-    parser.add_argument("--force", action="store_true",
-                        help="Clear existing embeddings in scope first, forcing a re-embed.")
+    parser.add_argument(
+        "--collection",
+        default="fraud_patterns",
+        help="Collection to embed (default: fraud_patterns).",
+    )
+    parser.add_argument(
+        "--field", default=None, help="Text field to embed (default: per-collection preset)."
+    )
+    parser.add_argument(
+        "--scope-json",
+        default=None,
+        help="JSON query to scope which docs to embed (default: preset).",
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Clear existing embeddings in scope first, forcing a re-embed.",
+    )
     args = parser.parse_args()
 
     if not os.environ.get("VOYAGE_API_KEY"):
@@ -76,7 +86,11 @@ def main() -> int:
 
     logger.info(
         "Backfilling %s.embedding from '%s' (model=%s, scope=%s, force=%s)",
-        args.collection, field, emb.model_id, scope or "{}", args.force,
+        args.collection,
+        field,
+        emb.model_id,
+        scope or "{}",
+        args.force,
     )
 
     try:
@@ -93,14 +107,17 @@ def main() -> int:
 
         # Verify dimensions on a freshly embedded doc so a model/index mismatch surfaces now.
         sample = emb.db[args.collection].find_one(
-            {**scope, "embedding.0": {"$exists": True}}, {"embedding": 1},
+            {**scope, "embedding.0": {"$exists": True}},
+            {"embedding": 1},
         )
         if sample:
             dims = len(sample.get("embedding", []))
             if dims != EXPECTED_DIMS:
                 logger.warning(
                     "Embedding has %d dims but the index expects %d — the Atlas index and "
-                    "VOYAGE_MODEL must agree, or vector search will error.", dims, EXPECTED_DIMS,
+                    "VOYAGE_MODEL must agree, or vector search will error.",
+                    dims,
+                    EXPECTED_DIMS,
                 )
             else:
                 logger.info("Verified embedding dimensions = %d (matches index).", dims)

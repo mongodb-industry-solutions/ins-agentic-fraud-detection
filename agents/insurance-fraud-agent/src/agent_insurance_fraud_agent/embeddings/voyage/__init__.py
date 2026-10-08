@@ -12,7 +12,7 @@ from .voyage_embeddings import VoyageEmbeddings
 
 __all__ = [
     "VoyageClient",
+    "VoyageEmbeddings",
     "get_embedding",
     "get_embedding_model",
-    "VoyageEmbeddings",
 ]
