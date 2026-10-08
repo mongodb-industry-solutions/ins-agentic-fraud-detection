@@ -24,8 +24,8 @@ agentengine dev up
 
 Before you start the app, edit `.env` and:
 
-- Leave `MONGODB_URI` empty for `agentengine dev`; set it only when running against
-  your own MongoDB deployment
+- Set `MONGODB_URI` to the MongoDB connection string used by the local stack; without it,
+  all datastore-backed fraud tools are unavailable.
 - Set one LLM provider key in `.env`
 - If you use Grove Foundry, set `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` plus
   the provider-specific base URL, such as `OPENAI_BASE_URL` or
