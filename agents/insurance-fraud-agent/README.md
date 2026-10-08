@@ -19,12 +19,12 @@ claim needs manual approval.
 
 ```bash
 cp env.example .env
-agentic dev up
+agentengine dev up
 ```
 
 Before you start the app, edit `.env` and:
 
-- Leave `MONGODB_URI` empty for `agentic dev`; set it only when running against
+- Leave `MONGODB_URI` empty for `agentengine dev`; set it only when running against
   your own MongoDB deployment
 - Set one LLM provider key in `.env`
 - If you use Grove Foundry, set `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` plus
@@ -43,7 +43,7 @@ Once the local stack is running:
 Stop the local stack with:
 
 ```bash
-agentic dev down
+agentengine dev down
 ```
 
 ## Register It On The Platform
@@ -51,12 +51,12 @@ agentic dev down
 When you are happy with the local app and want to connect it to the platform:
 
 ```bash
-agentic init
-agentic build
-agentic deploy
+agentengine init
+agentengine build
+agentengine deploy
 ```
 
-`agentic init` is the point where org/project selection and workspace
+`agentengine init` is the point where org/project selection and workspace
 registration should happen. This template keeps secrets in `.env`, while
 runtime feature flags and optional model hints live in `agent.yaml`.
 
