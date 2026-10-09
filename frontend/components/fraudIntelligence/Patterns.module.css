@@ -297,36 +297,6 @@
   text-transform: uppercase;
 }
 
-/* --- "not available yet" ------------------------------------------------- */
-
-/* The same dashed, muted treatment used for pending-embedding patterns. */
-.pending {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  padding: 16px 18px;
-  border: 1px dashed var(--border-strong);
-  border-radius: var(--radius);
-  color: var(--text-dim);
-  font-size: 12px;
-  font-weight: var(--weight-light);
-  line-height: 1.55;
-}
-
-.pendingHead {
-  color: var(--text-muted);
-  font-weight: var(--weight-normal);
-}
-
-.code {
-  padding: 1px 5px;
-  border-radius: 2px;
-  background: var(--surface-2);
-  color: var(--text-muted);
-  font-family: var(--font-mono);
-  font-size: 11px;
-}
-
 .srOnly {
   position: absolute;
   width: 1px;

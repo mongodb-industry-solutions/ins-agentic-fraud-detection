@@ -19,7 +19,7 @@ export const STATUS_LABEL = {
   [STATUS.ASSESSED]: "Assessed",
   [STATUS.PENDING]: "Pending review",
   [STATUS.FLAGGED]: "Confirmed fraud",
-  [STATUS.CLEARED]: "Cleared — no fraud",
+  [STATUS.CLEARED]: "No fraud",
 };
 
 /**
@@ -298,17 +298,22 @@ export function toStatStrip(counts, trends = {}, { financial = null, dateSpan = 
   ];
 }
 
-/** Donut segments + legend rows. Colors match the status pills exactly. */
+/**
+ * Donut segments + legend rows. Colors match the status pills exactly.
+ *
+ * Three outcomes only: not yet analyzed, fraud, no fraud. A claim the agent has
+ * assessed but nobody has decided yet is none of them, so it is left out of the
+ * ring rather than being given a fourth colour — and counted in `undecided`, so
+ * the chart can say so and its total still adds up to the three segments shown.
+ */
 export function toStatusBreakdown(counts) {
   const segments = [
     { statusKey: STATUS.UNPROCESSED, count: counts.unprocessed },
-    { statusKey: STATUS.ASSESSED, count: counts.assessed },
-    { statusKey: STATUS.PENDING, count: counts.pending },
     { statusKey: STATUS.FLAGGED, count: counts.flagged },
     { statusKey: STATUS.CLEARED, count: counts.cleared },
   ].map((segment) => ({ ...segment, label: STATUS_LABEL[segment.statusKey] }));
   const total = segments.reduce((sum, segment) => sum + segment.count, 0);
-  return { total, segments };
+  return { total, segments, undecided: counts.assessed + counts.pending };
 }
 
 /** Header copy for the page title block. */

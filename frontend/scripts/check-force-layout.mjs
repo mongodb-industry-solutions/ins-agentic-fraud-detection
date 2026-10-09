@@ -105,10 +105,10 @@ for (const scope of ["ALL", "FLAGGED", "PENDING"]) {
 
   if (data.nodes.length > 1) {
     const separation = minSeparation(layout);
-    // Node radius is 13, so anything under 26 means two circles overlap.
+    // The largest node radius is 17, so anything under 34 means two circles overlap.
     check(
-      `${scope}: no two nodes overlap (closest pair ${separation.toFixed(1)}px apart, need >26)`,
-      separation > 26,
+      `${scope}: no two nodes overlap (closest pair ${separation.toFixed(1)}px apart, need >34)`,
+      separation > 34,
       `closest pair is ${separation.toFixed(1)}px apart`
     );
   }

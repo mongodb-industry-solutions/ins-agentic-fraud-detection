@@ -24,24 +24,24 @@ import { useMemo } from "react";
 
 const ITERATIONS = 320;
 // Repulsion between every pair, so disconnected nodes still spread out.
-const REPULSION = 5200;
+const REPULSION = 14000;
 // How hard an edge pulls its two claims together.
-const ATTRACTION = 0.012;
+const ATTRACTION = 0.01;
 // The resting length of an edge, in the same units as the layout box.
-const IDEAL_EDGE_LENGTH = 90;
+const IDEAL_EDGE_LENGTH = 110;
 // A weak pull toward the middle, which is what stops disconnected components
 // from drifting apart indefinitely under pure repulsion.
-const CENTERING = 0.014;
+const CENTERING = 0.02;
 // Displacement is scaled by this each step so the layout converges instead of
 // oscillating around its solution.
 const COOLING = 0.985;
 // Guards the division when two nodes land on top of each other.
 const MIN_DISTANCE = 0.01;
 
-const WIDTH = 700;
-const HEIGHT = 320;
+const WIDTH = 1000;
+const HEIGHT = 520;
 // Keeps whole node circles and their labels inside the viewBox after scaling.
-const PADDING = 34;
+const PADDING = 44;
 
 export default function useForceLayout(nodes, edges) {
   return useMemo(() => computeLayout(nodes, edges), [nodes, edges]);

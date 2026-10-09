@@ -6,8 +6,6 @@
  * plausible-looking number.
  */
 
-import { STATUS } from "./claimsPresenter";
-
 /**
  * The sub-tabs. Overview, Relationships and Correlations are built; Patterns is
  * a separate pass.
@@ -113,135 +111,47 @@ export function toFinancialBars(data) {
 }
 
 /**
- * The four KPI cells, in the shape StatStrip already consumes.
+ * The four KPI cells, in the shape StatStrip consumes.
  *
- * `statusKey` picks the icon chip's colour from the status system rather than
- * introducing a second icon language for metrics that already appear on the
- * Dashboard. "Flagged this period" keeps the Dashboard's own chip and `alert`
- * icon for exactly that reason — it is the same number in a second place, so it
- * should not look like a different metric.
+ * `tone` walks the brand green ramp (see StatStrip.module.css), the same as the
+ * dashboard's strip. "Flagged as fraud" keeps the dashboard's wording because it
+ * is the same figure read from the same aggregation.
  */
 export function toKpiStats({ confirmedRate, activePatternCount, avgScore, flaggedCount }) {
   return [
     {
       id: "confirmedRate",
       label: "Confirmed fraud rate",
+      hint: "Of claims with a decision",
       value: formatRate(confirmedRate) || NO_VALUE,
-      statusKey: STATUS.FLAGGED,
+      tone: "forest",
       icon: "alert",
     },
     {
       id: "activePatterns",
       label: "Active patterns",
+      hint: "Checked against every claim",
       value: formatCount(activePatternCount) || NO_VALUE,
-      statusKey: STATUS.UNPROCESSED,
+      tone: "leaf",
       icon: "activity",
     },
     {
       id: "avgScore",
       label: "Avg. computed score",
+      hint: "Out of 12 across scored claims",
       value: formatScore(avgScore) || NO_VALUE,
-      statusKey: STATUS.UNPROCESSED,
+      tone: "spring",
       icon: "bolt",
     },
     {
       id: "flagged",
-      // Same wording as the Dashboard's stat card, because it is the same
-      // figure read from the same aggregation.
       label: "Flagged as fraud",
+      hint: "Confirmed by a reviewer",
       value: formatCount(flaggedCount) || NO_VALUE,
-      statusKey: STATUS.CLEARED,
-      icon: "check",
+      tone: "chartreuse",
+      icon: "shield",
     },
   ];
-}
-
-/** The four trend series, and which reserved chart colour each one draws in. */
-export const TREND_SERIES = [
-  { id: "flagged", label: "Flagged", tone: "flagged" },
-  { id: "cleared", label: "Cleared", tone: "cleared" },
-  { id: "pending", label: "Pending review", tone: "pending" },
-  { id: "unprocessed", label: "Not yet analyzed", tone: "unprocessed" },
-];
-
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-/**
- * Turns the trend array into one polyline per series, in a 0..100 x 0..100
- * viewBox that the SVG scales to whatever box it is given.
- *
- * Two things are computed from the data rather than fixed:
- *
- * * The Y scale is 0..max-across-all-series, so the tallest point touches the
- *   top of the plot whatever the portfolio's size. It is NOT min..max — a count
- *   series has a meaningful zero, and starting the axis at the smallest observed
- *   count would exaggerate a difference of one claim into a full-height climb.
- * * X positions come from each bucket's own timestamp, not from its index. The
- *   buckets are sparse — a week with no claims is absent from the response
- *   entirely — so spacing them evenly would silently close the gaps and draw a
- *   quiet month as though it were continuous activity.
- *
- * Returns null when there is nothing to draw, including the single-bucket case:
- * one point is not a trend, and a polyline of one point renders as nothing at
- * all, so the caller shows its empty state instead.
- */
-export function toTrendChart(trend) {
-  const buckets = (trend || [])
-    .map((bucket) => ({ ...bucket, time: Date.parse(bucket.bucket) }))
-    .filter((bucket) => !Number.isNaN(bucket.time))
-    .sort((a, b) => a.time - b.time);
-
-  if (buckets.length < 2) return null;
-
-  const firstTime = buckets[0].time;
-  const lastTime = buckets[buckets.length - 1].time;
-  const timeSpan = lastTime - firstTime || 1;
-
-  const maxCount = Math.max(
-    1,
-    ...buckets.flatMap((bucket) => TREND_SERIES.map((series) => bucket[series.id] ?? 0))
-  );
-
-  const xFor = (time) => ((time - firstTime) / timeSpan) * 100;
-  const yFor = (count) => 100 - (count / maxCount) * 100;
-
-  const series = TREND_SERIES.map((definition) => ({
-    ...definition,
-    points: buckets
-      .map((bucket) => `${xFor(bucket.time).toFixed(2)},${yFor(bucket[definition.id] ?? 0).toFixed(2)}`)
-      .join(" "),
-    // The series total over the window, so the legend says how much of each
-    // outcome the line actually represents instead of only naming a colour.
-    total: buckets.reduce((sum, bucket) => sum + (bucket[definition.id] ?? 0), 0),
-  }));
-
-  return {
-    series,
-    maxCount,
-    bucketCount: buckets.length,
-    ticks: buckets.map((bucket) => ({
-      id: bucket.bucket,
-      x: xFor(bucket.time),
-      label: formatBucketTick(bucket.time),
-    })),
-    spanDays: Math.round(timeSpan / DAY_MS),
-  };
-}
-
-/** "12 Jan" — short enough to sit under a bar without rotating. */
-function formatBucketTick(time) {
-  return new Date(time).toLocaleDateString("en-US", { day: "numeric", month: "short" });
-}
-
-/** "12 Jan 2025 — 12 Mar 2025", for stating the window a chart actually covers. */
-export function formatWindow(dateFrom, dateTo) {
-  const from = Date.parse(dateFrom);
-  const to = Date.parse(dateTo);
-  if (Number.isNaN(from) || Number.isNaN(to)) return null;
-
-  const format = (time) =>
-    new Date(time).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" });
-  return `${format(from)} — ${format(to)}`;
 }
 
 /**

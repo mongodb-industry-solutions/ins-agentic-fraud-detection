@@ -17,9 +17,8 @@ const IDLE = { data: null, isLoading: true, error: null };
  * therefore gets its own loading and error flags and renders its own state —
  * there is no single top-level spinner gating the screen.
  *
- * `portfolio-stats` is fetched once here and shared by the KPI strip, the
- * histogram and the trend chart rather than being called three times from three
- * child hooks.
+ * `portfolio-stats` is fetched once here and shared by the KPI strip and the
+ * histogram rather than being called twice from two child hooks.
  *
  * The flagged count is read from `list_claims`'s existing stats facet, not
  * recomputed. That is the whole reason it is fetched here at all: the Dashboard

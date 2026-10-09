@@ -49,14 +49,14 @@ export function toScopeSegments(scopeCounts) {
 }
 
 /**
- * Line style per edge type. Style, not colour: node fill is already fully
- * committed to claim status, so a second colour system on the edges would
- * compete with it and double the legend. Stroke pattern is a free channel.
+ * How each connection type is drawn: a stroke pattern and a colour class. Both
+ * channels carry the type, so the three read apart at a glance even when lines
+ * cross. Node fill stays reserved for claim status.
  */
 export const EDGE_STYLE = {
-  SHARED_PATTERN: { id: "solid", label: "Shared fraud pattern", dash: null },
-  SAME_CUSTOMER: { id: "dashed", label: "Same customer", dash: "6 4" },
-  SAME_REPAIR_SHOP: { id: "dotted", label: "Same repair shop", dash: "2 4" },
+  SHARED_PATTERN: { id: "solid", label: "Shared fraud pattern", dash: null, tone: "edgeShared" },
+  SAME_CUSTOMER: { id: "dashed", label: "Same customer", dash: "6 4", tone: "edgeCustomer" },
+  SAME_REPAIR_SHOP: { id: "dotted", label: "Same repair shop", dash: "2 4", tone: "edgeShop" },
 };
 
 export const EDGE_LEGEND = Object.entries(EDGE_STYLE).map(([type, style]) => ({
@@ -71,6 +71,18 @@ export const NODE_STATUS = {
   cleared: { label: "Cleared", tone: "nodeCleared" },
   unprocessed: { label: "Not yet analyzed", tone: "nodeUnprocessed" },
 };
+
+/** A node's radius grows with its fraud score, so severity reads before colour. */
+const NODE_RADIUS_MIN = 11;
+const NODE_RADIUS_MAX = 17;
+const NODE_RADIUS_UNSCORED = 10;
+const MAX_SCORE = 12;
+
+export function toNodeRadius(score) {
+  if (typeof score !== "number") return NODE_RADIUS_UNSCORED;
+  const share = Math.max(0, Math.min(1, score / MAX_SCORE));
+  return NODE_RADIUS_MIN + share * (NODE_RADIUS_MAX - NODE_RADIUS_MIN);
+}
 
 /**
  * Graph nodes and edges positioned for drawing.
@@ -93,6 +105,8 @@ export function toGraphModel(data, layout) {
       // Falls back to the muted treatment rather than rendering an uncoloured
       // circle if the backend ever sends a status this build does not know.
       tone: (NODE_STATUS[node.status] || NODE_STATUS.unprocessed).tone,
+      statusLabel: (NODE_STATUS[node.status] || NODE_STATUS.unprocessed).label,
+      radius: toNodeRadius(node.computedScore),
       scoreLabel:
         typeof node.computedScore === "number" ? String(Math.round(node.computedScore)) : null,
     }))
@@ -108,7 +122,10 @@ export function toGraphModel(data, layout) {
       style: EDGE_STYLE[edge.type] || EDGE_STYLE.SHARED_PATTERN,
       from: layout[edge.source],
       to: layout[edge.target],
-      // Every reason, for the tooltip — the line itself can only express one.
+      // More reasons connecting a pair draws a heavier line.
+      width: 1 + Math.min(edge.reasonCount ?? 1, 5) * 0.3,
+      // Every reason, one per line, for the details panel and the native tooltip.
+      reasonLabels: (edge.reasons || []).map((reason) => reason.label),
       tooltip: (edge.reasons || []).map((reason) => reason.label).join("\n"),
     }));
 
@@ -125,9 +142,36 @@ export function toGraphModel(data, layout) {
     statusLegend: statuses
       .filter((status) => NODE_STATUS[status])
       .map((status) => ({ status, ...NODE_STATUS[status] })),
-    // Only the edge types this graph actually drew.
-    edgeLegend: EDGE_LEGEND.filter((entry) => edges.some((edge) => edge.type === entry.type)),
-    connectedCount: new Set(edges.flatMap((edge) => [edge.source, edge.target])).size,
+    // Only the edge types this graph actually drew, each with how many it drew.
+    edgeLegend: EDGE_LEGEND.filter((entry) => edges.some((edge) => edge.type === entry.type)).map(
+      (entry) => ({ ...entry, count: edges.filter((edge) => edge.type === entry.type).length })
+    ),
+  };
+}
+
+/**
+ * Footer figures for whichever connections are currently drawn. Kept apart from
+ * the model because the reader can hide a connection type, and the counts must
+ * describe what is on screen rather than what was loaded.
+ */
+export function toGraphSummary(nodes, visibleEdges) {
+  const degree = new Map();
+  visibleEdges.forEach((edge) => {
+    degree.set(edge.source, (degree.get(edge.source) || 0) + 1);
+    degree.set(edge.target, (degree.get(edge.target) || 0) + 1);
+  });
+  const connected = degree.size;
+  let hub = null;
+  degree.forEach((count, claimId) => {
+    if (!hub || count > hub.count || (count === hub.count && claimId < hub.claimId)) {
+      hub = { claimId, count };
+    }
+  });
+  return {
+    claims: nodes.length,
+    connections: visibleEdges.length,
+    unconnected: nodes.length - connected,
+    hub,
   };
 }
 

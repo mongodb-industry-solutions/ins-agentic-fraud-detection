@@ -4,10 +4,8 @@ import styles from "./StatusBreakdown.module.css";
    representations can never drift apart. */
 const SEGMENT_STROKE = {
   unprocessed: "var(--border-strong)",
-  assessed: "var(--text-dim)",
-  pending: "var(--lavender)",
   flagged: "var(--evergreen)",
-  cleared: "var(--mist)",
+  cleared: "var(--spring-green)",
 };
 
 const SIZE = 144;
@@ -16,9 +14,9 @@ const RADIUS = (SIZE - STROKE) / 2;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 export default function StatusBreakdown({ breakdown }) {
-  const { total, segments } = breakdown;
+  const { total, segments, undecided } = breakdown;
 
-  // Five arcs drawn on one circle: each gets a dash the length of its share
+  // Three arcs drawn on one circle: each gets a dash the length of its share
   // and an offset equal to everything drawn before it.
   let consumed = 0;
   const arcs = segments.map((segment) => {
@@ -74,6 +72,15 @@ export default function StatusBreakdown({ breakdown }) {
           ))}
         </ul>
       </div>
+
+      {/* Said rather than hidden: these claims are in the portfolio but in none
+          of the three outcomes, so the ring's total would otherwise look short. */}
+      {undecided > 0 && (
+        <span className={styles.undecided}>
+          {undecided} more {undecided === 1 ? "claim is" : "claims are"} assessed and awaiting a
+          decision.
+        </span>
+      )}
     </div>
   );
 }
