@@ -15,8 +15,6 @@ export const FRAUD_INTELLIGENCE_NAV = [
   { id: "fraudIntelligence", label: "Fraud Intelligence", icon: "shield" },
 ];
 
-export const SYSTEM_NAV = [{ id: "settings", label: "Settings", icon: "settings" }];
-
 export const DEFAULT_SECTION = "dashboard";
 
 /**
@@ -30,12 +28,11 @@ export const SECTION_LABEL = {
   policies: "policies",
   fraudIntelligence: "fraud intelligence",
   fraudPatterns: "fraud patterns",
-  settings: "settings",
 };
 
 /** Display titles for sections that have no screen of their own yet. */
 export const SECTION_TITLE = Object.fromEntries(
-  [...WORKSPACE_NAV, ...SYSTEM_NAV].map((item) => [item.id, item.label])
+  WORKSPACE_NAV.map((item) => [item.id, item.label])
 );
 
 export const PROFILE = {
