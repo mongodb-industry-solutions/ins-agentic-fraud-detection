@@ -160,14 +160,14 @@ class AssessmentQueueService:
             "dismissReason": dismiss_reason.strip(),
             "siuReferred": siu_referred,
         }
+        if not self._worker:
+            raise ConflictError("The assessment worker is not running.")
         started = self._jobs.start_decision(job_id, request)
         if not started:
             raise ConflictError(
                 "A decision can only be recorded on an assessment ready for review.",
                 details={"status": job["status"]},
             )
-        if not self._worker:
-            raise ConflictError("The assessment worker is not running.")
         self._worker.record_decision(started)
         return {"jobId": job_id, "decisionStatus": DECISION_RECORDING}
 
