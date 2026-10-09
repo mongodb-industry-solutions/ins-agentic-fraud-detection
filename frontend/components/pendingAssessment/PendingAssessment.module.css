@@ -1,18 +1,18 @@
-/* The 3px Lavender left border is the only colored side-border in the entire
-   UI — it exists to make this one zone read as structurally different. */
-.zone {
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--lavender);
-  border-radius: var(--radius);
-  padding: 18px 20px;
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 20px 22px;
+  min-width: 0;
+  /* Roughly the donut panel's height; a long backlog scrolls inside. */
+  max-height: 340px;
 }
 
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding-bottom: 14px;
+  gap: 12px;
 }
 
 .headerLeft {
@@ -22,18 +22,31 @@
 }
 
 .title {
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: var(--weight-normal);
 }
 
+.count {
+  min-width: 26px;
+  padding: 2px 9px;
+  border-radius: var(--radius-pill);
+  background: var(--lavender);
+  color: var(--on-lavender);
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 12px;
+  text-align: center;
+}
+
 .caption {
-  font-size: 11.5px;
+  margin: 0 0 6px;
+  font-size: 12px;
   color: var(--text-muted);
 }
 
 .pulseDot {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   flex: none;
   border-radius: var(--radius-pill);
   background: var(--lavender);
@@ -56,14 +69,30 @@
   }
 }
 
-/* --- rows ----------------------------------------------------------------- */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0 4px 0 0;
+  list-style: none;
+  overflow-y: auto;
+  min-height: 0;
+}
 
 .row {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 12px 0;
-  border-top: 1px solid var(--border);
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.row:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-2);
 }
 
 .info {
@@ -72,20 +101,29 @@
   gap: 2px;
   flex: 1;
   min-width: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  text-align: left;
 }
 
 .infoTop {
   display: flex;
   align-items: baseline;
   gap: 8px;
+  min-width: 0;
 }
 
 .customer {
+  overflow: hidden;
   font-size: 13px;
   font-weight: var(--weight-normal);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .claimId {
+  flex: none;
   font-family: var(--font-mono);
   font-weight: var(--weight-mono);
   font-size: 11.5px;
@@ -98,23 +136,13 @@
   color: var(--text-muted);
 }
 
-.tags {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex: none;
+.mono {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  text-transform: uppercase;
 }
 
-.tag {
-  padding: 3px 8px;
-  border-radius: var(--radius);
-  background: var(--surface-2);
-  color: var(--text-muted);
-  font-size: 11px;
-  white-space: nowrap;
-}
-
-.reviewButton {
+.analyzeButton {
   flex: none;
   padding: 6px 14px;
   border: none;
@@ -122,8 +150,9 @@
   background: var(--lavender);
   color: var(--on-lavender);
   font-size: 12px;
+  white-space: nowrap;
 }
 
-.reviewButton:hover {
+.analyzeButton:hover {
   opacity: 0.88;
 }

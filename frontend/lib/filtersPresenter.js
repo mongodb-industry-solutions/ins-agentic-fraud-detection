@@ -32,7 +32,9 @@ export const SORT_OPTIONS = [
 export const DEFAULT_FILTERS = { status: ANY, coverage: ANY, date: ANY };
 export const DEFAULT_SORT = "newest";
 
-const STATUS_ORDER = [STATUS.UNPROCESSED, STATUS.PENDING, STATUS.FLAGGED, STATUS.CLEARED];
+// No UNPROCESSED: the table lists analysed claims only, so filtering by "not
+// yet analyzed" could only ever return nothing.
+const STATUS_ORDER = [STATUS.ASSESSED, STATUS.PENDING, STATUS.FLAGGED, STATUS.CLEARED];
 
 /** The three filter chips, each with its own option list and current label. */
 export function toFilterControls(rows, filters) {

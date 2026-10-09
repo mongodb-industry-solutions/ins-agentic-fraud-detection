@@ -1,6 +1,5 @@
 "use client";
 
-import AnalyzeButton from "@/components/assessmentQueue/AnalyzeButton";
 import ScoreChip from "@/components/scoreChip/ScoreChip";
 import StatusPill from "@/components/statusPill/StatusPill";
 import styles from "./ClaimsTable.module.css";
@@ -11,7 +10,6 @@ export default function ClaimsTable({
   selectedIds,
   onToggleRow,
   onViewDetails,
-  onAnalyze,
   onViewReport,
 }) {
   return (
@@ -35,7 +33,7 @@ export default function ClaimsTable({
           {rows.length === 0 && (
             <tr>
               <td className={styles.empty} colSpan={showCheckboxes ? 8 : 7}>
-                No claims match the current filters.
+                No analyzed claims match the current filters.
               </td>
             </tr>
           )}
@@ -75,21 +73,13 @@ export default function ClaimsTable({
                   >
                     View details
                   </button>
-                  {row.isUnprocessed ? (
-                    <AnalyzeButton
-                      claimId={row.claimId}
-                      className={styles.solidButton}
-                      onAnalyze={onAnalyze}
-                    />
-                  ) : (
-                    <button
-                      type="button"
-                      className={styles.outlineButton}
-                      onClick={() => onViewReport?.(row.claimId)}
-                    >
-                      View report
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    className={styles.outlineButton}
+                    onClick={() => onViewReport?.(row.claimId)}
+                  >
+                    View report
+                  </button>
                 </div>
               </td>
             </tr>

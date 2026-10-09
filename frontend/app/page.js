@@ -232,6 +232,7 @@ export default function Home() {
         return (
           <Dashboard
             key={dataVersion}
+            queueJobs={queue.jobs}
             onOpenClaim={openClaim}
             onAnalyze={analyze}
           />

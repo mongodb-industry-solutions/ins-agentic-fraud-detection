@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-
 import Icon from "@/components/icons/Icons";
 import Overlay from "@/components/shared/Overlay";
 import StatusPill from "@/components/statusPill/StatusPill";
@@ -34,96 +32,43 @@ function ReportSkeleton() {
   );
 }
 
-function DecisionSection({ decision, isSubmitting, onDecide }) {
-  const [isDismissing, setIsDismissing] = useState(false);
-  const [reason, setReason] = useState("");
-
-  // Past decisions and the action buttons are mutually exclusive: if a decision
-  // exists, the drawer must not offer to make it again.
-  if (decision.state !== "pending") {
-    const verb = decision.state === "confirmed" ? "Confirmed as fraud" : "Dismissed";
+/** What was decided, read-only. A claim still awaiting a decision shows nothing
+ *  to act on here — decisions are made from the Fraud Assessment Queue. */
+function DecisionSection({ decision }) {
+  if (decision.state === "pending") {
     return (
       <div className={styles.section}>
-        <span className={styles.sectionTitle}>Your decision</span>
+        <span className={styles.sectionTitle}>Decision</span>
         <p className={styles.decisionStatement}>
-          {verb} by {decision.reviewedBy || "a reviewer"}
-          {decision.reviewedAtLabel && (
-            <>
-              {" on "}
-              <span className={styles.mono}>{decision.reviewedAtLabel}</span>
-            </>
-          )}
-          .
+          No decision recorded yet. Decisions are made from the Fraud Assessment Queue.
         </p>
-        {decision.dismissReason && (
-          <p className={styles.decisionReason}>Reason given: {decision.dismissReason}</p>
-        )}
       </div>
     );
   }
 
+  const verb = decision.state === "confirmed" ? "Confirmed as fraud" : "Dismissed";
   return (
     <div className={styles.section}>
-      <span className={styles.sectionTitle}>Your decision</span>
-      <div className={styles.decisionActions}>
-        <button
-          type="button"
-          className={styles.confirmButton}
-          disabled={isSubmitting}
-          onClick={() => onDecide("CONFIRMED_FRAUD")}
-        >
-          Confirm fraud
-        </button>
-        <button
-          type="button"
-          className={styles.outlineButton}
-          disabled={isSubmitting}
-          onClick={() => setIsDismissing(true)}
-        >
-          Dismiss
-        </button>
-      </div>
-
-      {/* Dismissing does not submit on the first click — the reason is required,
-          so the field is gated in front of the submission. */}
-      {isDismissing && (
-        <div className={styles.dismissForm}>
-          <label className={styles.label} htmlFor="dismissReason">
-            Reason for dismissal (required)
-          </label>
-          <input
-            id="dismissReason"
-            className={styles.input}
-            value={reason}
-            onChange={(event) => setReason(event.target.value)}
-            placeholder="Why is this claim not fraudulent?"
-            autoFocus
-          />
-          <div className={styles.decisionActions}>
-            <button
-              type="button"
-              className={styles.outlineButton}
-              disabled={!reason.trim() || isSubmitting}
-              onClick={() => onDecide("DISMISSED", reason.trim())}
-            >
-              Submit dismissal
-            </button>
-            <button
-              type="button"
-              className={styles.outlineButton}
-              onClick={() => setIsDismissing(false)}
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
+      <span className={styles.sectionTitle}>Decision</span>
+      <p className={styles.decisionStatement}>
+        {verb} by {decision.reviewedBy || "a reviewer"}
+        {decision.reviewedAtLabel && (
+          <>
+            {" on "}
+            <span className={styles.mono}>{decision.reviewedAtLabel}</span>
+          </>
+        )}
+        .
+      </p>
+      {decision.dismissReason && (
+        <p className={styles.decisionReason}>Reason given: {decision.dismissReason}</p>
       )}
     </div>
   );
 }
 
-export default function ReportDrawer({ claimId, onClose, onViewClaim }) {
-  const { report, isLoading, error, decisionError, isSubmitting, decide } = useReportDrawer(claimId);
+export default function ReportDrawer({ claimId, statusKey, onClose, onViewClaim }) {
+  const { report, isLoading, error } = useReportDrawer(claimId);
 
   // Escape-to-close, click-outside-to-close and the body-scroll lock all live
   // in Overlay — the drawer and the fraud-pattern modals share one backdrop.
@@ -139,7 +84,7 @@ export default function ReportDrawer({ claimId, onClose, onViewClaim }) {
           <div className={styles.headerMain}>
             <div className={styles.headerTop}>
               <span className={styles.claimId}>{claimId}</span>
-              {report && <StatusPill statusKey={report.statusKey} />}
+              {report && <StatusPill statusKey={statusKey || report.statusKey} />}
             </div>
             <span className={styles.subline}>
               {report ? (
@@ -240,16 +185,7 @@ export default function ReportDrawer({ claimId, onClose, onViewClaim }) {
                 </div>
               )}
 
-              <DecisionSection
-                decision={report.decision}
-                isSubmitting={isSubmitting}
-                onDecide={decide}
-              />
-              {decisionError && (
-                <p className={styles.rationale} role="alert">
-                  The agent could not record the decision: {decisionError}
-                </p>
-              )}
+              <DecisionSection decision={report.decision} />
             </>
           )}
         </div>

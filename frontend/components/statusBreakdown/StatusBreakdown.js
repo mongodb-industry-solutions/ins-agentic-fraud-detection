@@ -4,20 +4,21 @@ import styles from "./StatusBreakdown.module.css";
    representations can never drift apart. */
 const SEGMENT_STROKE = {
   unprocessed: "var(--border-strong)",
+  assessed: "var(--text-dim)",
   pending: "var(--lavender)",
   flagged: "var(--evergreen)",
   cleared: "var(--mist)",
 };
 
-const SIZE = 112;
-const STROKE = 13;
+const SIZE = 144;
+const STROKE = 18;
 const RADIUS = (SIZE - STROKE) / 2;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 export default function StatusBreakdown({ breakdown }) {
   const { total, segments } = breakdown;
 
-  // Four arcs drawn on one circle: each gets a dash the length of its share
+  // Five arcs drawn on one circle: each gets a dash the length of its share
   // and an offset equal to everything drawn before it.
   let consumed = 0;
   const arcs = segments.map((segment) => {
@@ -30,9 +31,19 @@ export default function StatusBreakdown({ breakdown }) {
   return (
     <div className={styles.panel}>
       <span className={styles.title}>Fraud status breakdown</span>
+      <span className={styles.subtitle}>Every claim in the portfolio, by where it stands</span>
       <div className={styles.body}>
         <div className={styles.donutWrap}>
           <svg className={styles.donut} width={SIZE} height={SIZE} aria-hidden="true">
+            {/* A faint track keeps the dark Evergreen arc legible on Slate. */}
+            <circle
+              cx={SIZE / 2}
+              cy={SIZE / 2}
+              r={RADIUS}
+              fill="none"
+              stroke="var(--surface-2)"
+              strokeWidth={STROKE}
+            />
             {arcs.map((arc) => (
               <circle
                 key={arc.statusKey}

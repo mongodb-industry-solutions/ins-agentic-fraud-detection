@@ -6,6 +6,9 @@
 /** The four states, and the only status keys any component is allowed to see. */
 export const STATUS = {
   UNPROCESSED: "unprocessed",
+  // Scored by the agent but not in the Fraud Assessment Queue, so nobody is
+  // being asked to review it right now.
+  ASSESSED: "assessed",
   PENDING: "pending",
   FLAGGED: "flagged",
   CLEARED: "cleared",
@@ -13,6 +16,7 @@ export const STATUS = {
 
 export const STATUS_LABEL = {
   [STATUS.UNPROCESSED]: "Not yet analyzed",
+  [STATUS.ASSESSED]: "Assessed",
   [STATUS.PENDING]: "Pending review",
   [STATUS.FLAGGED]: "Confirmed fraud",
   [STATUS.CLEARED]: "Cleared — no fraud",
@@ -142,9 +146,19 @@ export function toRelativeTime(value) {
   return `${Math.round(hours / 24)}d ago`;
 }
 
-/** One claims-table row. */
-export function toClaimRow(claim) {
-  const statusKey = toStatusKey(claim);
+/**
+ * One claims-table row.
+ *
+ * "Pending review" means a human is being asked to decide: the claim is assessed
+ * AND its job is sitting in the Fraud Assessment Queue as ready for review. An
+ * assessed, undecided claim that is not in the queue is just "Assessed".
+ * `queuedClaimIds` is the set of claim ids with a READY_FOR_REVIEW job.
+ */
+export function toClaimRow(claim, queuedClaimIds = new Set()) {
+  let statusKey = toStatusKey(claim);
+  if (statusKey === STATUS.PENDING && !queuedClaimIds.has(claim.claimId)) {
+    statusKey = STATUS.ASSESSED;
+  }
   return {
     id: claim.claimId,
     claimId: claim.claimId,
@@ -168,140 +182,138 @@ export function toClaimRow(claim) {
   };
 }
 
-export function toClaimRows(response) {
-  return (response?.claims || []).map(toClaimRow);
+export function toClaimRows(response, queuedClaimIds) {
+  return (response?.claims || []).map((claim) => toClaimRow(claim, queuedClaimIds));
 }
 
-/** The four stat-strip columns, in fixed order. */
-export function toStatStrip(response, trends = {}) {
+/**
+ * The portfolio split every dashboard widget reads, so the stat cards, the donut
+ * and the header can never disagree.
+ *
+ * The API cannot see the queue, so its `pendingReview` bucket (assessed, no
+ * decision) is divided here: the claims with a ready-for-review job are
+ * "pending review", the rest are merely "assessed".
+ */
+export function toPortfolioCounts(response, readyForReviewCount = 0) {
   const stats = response?.stats || {};
+  const undecided = stats.pendingReview ?? 0;
+  const pending = Math.min(readyForReviewCount, undecided);
+  const unprocessed = stats.unprocessed ?? 0;
+  const flagged = stats.flagged ?? 0;
+  const cleared = stats.cleared ?? 0;
+  return {
+    unprocessed,
+    assessed: undecided - pending,
+    pending,
+    flagged,
+    cleared,
+    total: stats.total ?? unprocessed + undecided + flagged + cleared,
+  };
+}
+
+/** "$1.2M" — the strip's value slot is too narrow for a full-precision amount. */
+function toCompactMoney(amount) {
+  const value = Number(amount);
+  if (amount === null || amount === undefined || !Number.isFinite(value)) return "—";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(value);
+}
+
+/**
+ * The four headline cards, in fixed order. `tone` picks each card's colour from
+ * the brand green ramp (see StatStrip.module.css). They answer what the donut beside
+ * them cannot — how big the portfolio is, how much work is waiting, how much of
+ * it is fraud, and what that is worth — rather than repeating its status counts.
+ *
+ *   counts    — toPortfolioCounts, the same split the donut draws
+ *   financial — GET /fraud/financial-impact, or null if it failed to load
+ *   dateSpan  — { from, to } claim-open timestamps of the claims in view
+ *
+ * Fraud-vs-cleared is over *decided* claims only: an undecided claim is neither,
+ * and counting it would dilute the rate.
+ */
+export function toStatStrip(counts, trends = {}, { financial = null, dateSpan = null } = {}) {
+  const share = (value, whole) => (whole > 0 ? Math.round((value / whole) * 100) : 0);
+
+  const decided = counts.flagged + counts.cleared;
+  const fraudPct = share(counts.flagged, decided);
+  const unprocessedPct = share(counts.unprocessed, counts.total);
+
+  const avoided = financial?.fraudCostAvoided;
+  const exposure = financial?.potentialImpactWithoutTool;
+  const avoidedPct = share(avoided, exposure);
+
   return [
     {
-      id: "unprocessed",
-      label: "Not yet analyzed",
-      value: stats.unprocessed ?? 0,
-      statusKey: STATUS.UNPROCESSED,
+      id: "total",
+      label: "Claims in portfolio",
+      hint: "Every claim on record",
+      value: String(counts.total),
+      tone: "forest",
+      icon: "file",
+      footnote: dateSpan
+        ? `Opened ${toMonoDateFull(dateSpan.from)} – ${toMonoDateFull(dateSpan.to)}`
+        : null,
+    },
+    {
+      id: "pendingAssessment",
+      label: "Pending assessment",
+      hint: "Claims the agent has not analyzed yet",
+      value: String(counts.unprocessed),
+      tone: "leaf",
       icon: "clock",
-      sparkline: { points: trends.unprocessed || [], tone: "sky" },
+      sparkline: { points: trends.unprocessed || [], tone: "leaf" },
+      bar: [{ pct: unprocessedPct, tone: "tone" }],
+      footnote: `${unprocessedPct}% of portfolio`,
     },
     {
-      id: "pending",
-      label: "Pending your review",
-      value: stats.pendingReview ?? 0,
-      statusKey: STATUS.PENDING,
-      icon: "inbox",
+      id: "fraudRate",
+      label: "Fraud vs cleared",
+      hint: decided ? `Of ${decided} decided claims` : "No claims decided yet",
+      value: decided ? `${fraudPct}%` : "—",
+      tone: "spring",
+      icon: "activity",
+      bar: decided
+        ? [
+            { pct: fraudPct, tone: "tone" },
+            { pct: 100 - fraudPct, tone: "muted" },
+          ]
+        : null,
+      footnote: decided ? `${fraudPct}% fraud · ${100 - fraudPct}% cleared` : null,
     },
     {
-      id: "flagged",
-      label: "Flagged as fraud",
-      value: stats.flagged ?? 0,
-      statusKey: STATUS.FLAGGED,
-      icon: "alert",
-      sparkline: { points: trends.flagged || [], tone: "chartreuse" },
-    },
-    {
-      id: "cleared",
-      // Not "this week": the count the API returns is the whole portfolio.
-      label: "Cleared",
-      value: stats.cleared ?? 0,
-      statusKey: STATUS.CLEARED,
-      icon: "check",
+      id: "costAvoided",
+      label: "Fraud cost avoided",
+      hint: "Claims caught before payout",
+      value: toCompactMoney(avoided),
+      tone: "chartreuse",
+      icon: "shield",
+      bar: exposure > 0 ? [{ pct: avoidedPct, tone: "tone" }] : null,
+      footnote: exposure > 0 ? `${avoidedPct}% of ${toCompactMoney(exposure)} exposure` : null,
     },
   ];
 }
 
 /** Donut segments + legend rows. Colors match the status pills exactly. */
-export function toStatusBreakdown(response) {
-  const stats = response?.stats || {};
+export function toStatusBreakdown(counts) {
   const segments = [
-    { statusKey: STATUS.UNPROCESSED, label: STATUS_LABEL[STATUS.UNPROCESSED], count: stats.unprocessed ?? 0 },
-    { statusKey: STATUS.PENDING, label: STATUS_LABEL[STATUS.PENDING], count: stats.pendingReview ?? 0 },
-    { statusKey: STATUS.FLAGGED, label: STATUS_LABEL[STATUS.FLAGGED], count: stats.flagged ?? 0 },
-    { statusKey: STATUS.CLEARED, label: STATUS_LABEL[STATUS.CLEARED], count: stats.cleared ?? 0 },
-  ];
+    { statusKey: STATUS.UNPROCESSED, count: counts.unprocessed },
+    { statusKey: STATUS.ASSESSED, count: counts.assessed },
+    { statusKey: STATUS.PENDING, count: counts.pending },
+    { statusKey: STATUS.FLAGGED, count: counts.flagged },
+    { statusKey: STATUS.CLEARED, count: counts.cleared },
+  ].map((segment) => ({ ...segment, label: STATUS_LABEL[segment.statusKey] }));
   const total = segments.reduce((sum, segment) => sum + segment.count, 0);
   return { total, segments };
 }
 
 /** Header copy for the page title block. */
-export function toPortfolioSummary(response) {
-  const stats = response?.stats || {};
-  const total = stats.total ?? 0;
-  return `${total} claims in portfolio — ${stats.pendingReview ?? 0} awaiting your decision`;
-}
-
-/**
- * One pending-queue row.
- *
- * The queue holds two kinds of work and they must not look alike. A scored
- * claim shows its score and the patterns that fired, and the action is a
- * decision. An unanalysed claim has neither — so it says so, and its action is
- * to run the assessment. Rendering an em-dash score next to "0 pattern matches"
- * would read as "the agent found nothing", which is the opposite of the truth.
- */
-export function toPendingRow(item) {
-  // Pattern entries arrive as documents from the API but as plain strings in
-  // older fixtures; both render as a name.
-  const patterns = (item.matchedPatterns || []).map((pattern) =>
-    typeof pattern === "string" ? pattern : pattern.patternName || pattern.patternId
-  );
-  // Absent `processed` means the fixture predates the field; those rows are all
-  // scored ones, so the queue keeps its old behaviour rather than relabelling
-  // everything as unanalysed.
-  const isUnprocessed = item.processed === false || item.processed === null;
-
-  return {
-    id: item.claimId,
-    claimId: item.claimId,
-    customerName: item.customerName || "Unknown customer",
-    scoreLabel: isUnprocessed ? null : toScoreLabel(item.computedScore),
-    isUnprocessed,
-    actionLabel: isUnprocessed ? "Analyze" : "Review",
-    detail: isUnprocessed
-      ? [item.coverageType, "not yet analyzed", item.claimDate ? `opened ${toRelativeTime(item.claimDate)}` : null]
-          .filter(Boolean)
-          .join(" · ")
-      : [
-          item.coverageType,
-          // Omitted rather than rendered as "scored " with nothing after it: not
-          // every scored claim carries a timestamp in the data model yet.
-          item.scoredAt ? `scored ${toRelativeTime(item.scoredAt)}` : null,
-          `${patterns.length} pattern ${patterns.length === 1 ? "match" : "matches"}`,
-        ]
-          .filter(Boolean)
-          .join(" · "),
-    tags: isUnprocessed ? [] : patterns.slice(0, 2),
-    overflowTag: !isUnprocessed && patterns.length > 2 ? `+${patterns.length - 2} more` : null,
-  };
-}
-
-export function toPendingQueue(response) {
-  const items = (response?.items || []).map(toPendingRow);
-  const total = response?.total ?? items.length;
-  const awaitingAnalysis = items.filter((item) => item.isUnprocessed).length;
-  const awaitingDecision = items.length - awaitingAnalysis;
-
-  // The caption names both kinds of work when both are present, because "12
-  // claims awaiting confirm/dismiss" would misdescribe a queue that is mostly
-  // claims nobody has analysed yet.
-  const parts = [
-    awaitingDecision > 0 ? `${awaitingDecision} awaiting confirm/dismiss` : null,
-    awaitingAnalysis > 0 ? `${awaitingAnalysis} not yet analyzed` : null,
-  ].filter(Boolean);
-
-  // The breakdown is counted from the page, so it is only shown when the page
-  // *is* the whole queue. Otherwise "14 claims — 3 awaiting, 7 not analyzed"
-  // would invite the reader to add 3 and 7 and get 14.
-  const isWholeQueue = items.length >= total;
-
-  return {
-    total,
-    items,
-    caption:
-      isWholeQueue && parts.length
-        ? `${total} claims — ${parts.join(", ")}`
-        : `${total} claims waiting on you — showing the top ${items.length}`,
-  };
+export function toPortfolioSummary(counts) {
+  return `${counts.total} claims in portfolio — ${counts.pending} awaiting your decision`;
 }
 
 /** "AUG 9, 2:14 PM" — mono, so uppercase per the brand rule. */
