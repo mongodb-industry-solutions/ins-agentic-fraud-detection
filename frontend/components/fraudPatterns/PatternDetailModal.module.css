@@ -214,7 +214,7 @@
   font-size: 20px;
 }
 
-/* States the gap rather than inventing a number the endpoint cannot support. */
+/* The count behind each figure, so a percentage never stands alone. */
 .perfGapNote {
   margin-top: 3px;
   color: var(--text-dim);

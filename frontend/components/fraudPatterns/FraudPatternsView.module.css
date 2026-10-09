@@ -6,47 +6,102 @@
   min-width: 0;
 }
 
-/* --- info banner ---------------------------------------------------------- */
+/* --- catalogue summary ---------------------------------------------------- */
 
-.banner {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 14px 16px;
-  background: var(--surface-2);
+.summary {
+  /* On top of the page gap, so the stats and the columns read as two blocks. */
+  margin-bottom: 20px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  color: var(--text-muted);
-  font-size: 12.5px;
-  line-height: 1.5;
+  background: var(--surface);
+  overflow: hidden;
 }
 
-.bannerIcon {
-  flex: none;
-  margin-top: 1px;
-  color: var(--text-dim);
-}
-
-/* The two things the reader has to distinguish, so they carry the emphasis
-   weight and the full-contrast text color. */
-.bannerTerm {
-  color: var(--text);
-  font-weight: var(--weight-normal);
-}
-
-.bannerClose {
+/* Each cell takes a step up the brand green ramp, as the portfolio strip does. */
+.summaryCell {
+  --tone: var(--forest-green);
+  --on-tone: var(--white);
   display: flex;
   align-items: center;
-  flex: none;
-  margin-left: auto;
-  padding: 0;
-  background: none;
-  border: none;
-  color: var(--text-dim);
+  gap: 14px;
+  padding: 18px 20px;
+  border-left: 1px solid var(--border);
+  border-top: 3px solid var(--tone);
 }
 
-.bannerClose:hover {
-  color: var(--text);
+.summaryCell:first-child {
+  border-left: none;
+}
+
+.tone-mix {
+  --tone: var(--leaf-green);
+  --on-tone: var(--slate);
+}
+
+.tone-triggers {
+  --tone: var(--spring-green);
+  --on-tone: var(--slate);
+}
+
+.tone-reliable {
+  --tone: var(--chartreuse);
+  --on-tone: var(--slate);
+}
+
+.summaryChip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex: none;
+  border-radius: var(--radius-pill);
+  background: var(--tone);
+  color: var(--on-tone);
+}
+
+:global([data-theme="light"]) .summaryChip {
+  box-shadow: inset 0 0 0 1px rgba(0, 30, 43, 0.14);
+}
+
+.summaryText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.summaryLabel {
+  color: var(--text-muted);
+  font-size: 11.5px;
+}
+
+.summaryValue {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 26px;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.summaryNote {
+  overflow: hidden;
+  color: var(--text-dim);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 1100px) {
+  .summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .summaryCell:nth-child(3) {
+    border-left: none;
+  }
 }
 
 /* --- the two columns ------------------------------------------------------ */
@@ -67,30 +122,69 @@
 
 .colHeader {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
 }
 
 .colHeaderLeft {
   display: flex;
-  align-items: baseline;
-  gap: 8px;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1;
   min-width: 0;
 }
 
+.colIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  color: var(--text-muted);
+}
+
+.colHeading {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.colTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .colTitle {
-  font-weight: var(--weight-normal);
-  font-size: 13.5px;
+  font-family: var(--font-serif);
+  font-size: 16px;
 }
 
 .colCount {
-  color: var(--text-dim);
+  min-width: 22px;
+  padding: 1px 7px;
+  border-radius: var(--radius-pill);
+  background: var(--forest-green);
+  color: var(--white);
   font-family: var(--font-mono);
   font-weight: var(--weight-mono);
   font-size: 11px;
-  text-transform: uppercase;
+  text-align: center;
+}
+
+.colDescription {
+  color: var(--text-muted);
+  font-size: 13.5px;
+  line-height: 1.5;
 }
 
 /* --- loading / failure ---------------------------------------------------- */

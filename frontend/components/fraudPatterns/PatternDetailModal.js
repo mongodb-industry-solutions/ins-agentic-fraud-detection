@@ -181,21 +181,16 @@ export default function PatternDetailModal({
               <div className={styles.sectionTitle}>Performance</div>
               <div className={styles.perfGrid}>
                 <div>
-                  <div className={styles.perfLabel}>
-                    Confirmed fraud rate — of claims that matched, how many were confirmed fraud
-                  </div>
+                  <div className={styles.perfLabel}>Confirmed fraud rate</div>
                   <div className={styles.perfValue}>{detail.confirmedFraudRate}</div>
+                  <div className={styles.perfGapNote}>
+                    {detail.confirmedCount} of {detail.timesTriggered} matched claims
+                  </div>
                 </div>
                 <div>
-                  <div className={styles.perfLabel}>
-                    Share of all fraud claims — of every confirmed-fraud claim portfolio-wide, how
-                    many had this pattern
-                  </div>
-                  <div className={styles.perfValue}>—</div>
-                  <div className={styles.perfGapNote}>
-                    Not yet computable — needs a portfolio-wide confirmed-fraud count this endpoint
-                    doesn&apos;t return.
-                  </div>
+                  <div className={styles.perfLabel}>Share of all fraud claims</div>
+                  <div className={styles.perfValue}>{detail.shareOfAllFraud.label}</div>
+                  <div className={styles.perfGapNote}>{detail.shareOfAllFraud.detail}</div>
                 </div>
               </div>
             </div>

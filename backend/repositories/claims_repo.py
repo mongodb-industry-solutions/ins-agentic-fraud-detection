@@ -451,6 +451,15 @@ class ClaimsRepository:
         row = next(iter(self.collection.aggregate(pipeline)), {})
         return {"flagged": row.get("flagged", 0), "cleared": row.get("cleared", 0)}
 
+    def count_confirmed_fraud_with_pattern(self, pattern_id: str) -> int:
+        """Confirmed-fraud claims whose assessment matched a pattern.
+
+        A count rather than the length of `find_by_pattern`, which is capped.
+        """
+        return self.collection.count_documents(
+            {"fraud.matchedPatterns.patternId": pattern_id, "fraud.fraudFlag": True}
+        )
+
     # ---------------------------------------------------------------- graph
 
     def find_graph_candidates(self, scope: str = "ALL", limit: int = 60) -> list[dict[str, Any]]:

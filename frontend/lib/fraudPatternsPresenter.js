@@ -87,6 +87,30 @@ export function toPatternCardViewModel(pattern) {
 }
 
 /**
+ * The catalogue's headline numbers, over every pattern passed in.
+ */
+export function toCatalogueSummary(rules, patterns) {
+  const all = [...rules, ...patterns];
+  const active = all.filter((pattern) => pattern.active);
+  const triggered = all.reduce((sum, pattern) => sum + pattern.timesTriggered, 0);
+  const confirmed = all.reduce((sum, pattern) => sum + pattern.confirmedCount, 0);
+  const mostReliable = all
+    .filter((pattern) => pattern.timesTriggered > 0)
+    .sort((a, b) => b.rateValue - a.rateValue || b.timesTriggered - a.timesTriggered)[0];
+  return {
+    total: all.length,
+    active: active.length,
+    rules: rules.length,
+    patterns: patterns.length,
+    triggered,
+    confirmed,
+    mostReliable: mostReliable
+      ? { name: mostReliable.name, rateLabel: mostReliable.confirmedFraudRate }
+      : null,
+  };
+}
+
+/**
  * `ruleLogic` is a single comparison object, not a `conditions` array, and it
  * carries optional extras (comparisonField, a secondary bound, a lookback
  * window). Each of those is a real part of the rule, so each becomes its own
@@ -151,7 +175,23 @@ function toMatchedClaimRow(claim) {
   };
 }
 
-export function toPatternDetailViewModel(pattern, matchedClaims = []) {
+/**
+ * `recall` is the portfolio-wide figure the detail endpoint computes:
+ * { confirmedFraudWithPattern, confirmedFraudTotal, shareOfAllFraudClaims }.
+ * The share is null when the portfolio holds no confirmed fraud, which renders as
+ * a dash rather than a 0% that would claim the pattern never fires on fraud.
+ */
+function toShareOfFraud(recall) {
+  if (!recall || recall.shareOfAllFraudClaims === null || recall.shareOfAllFraudClaims === undefined) {
+    return { label: "—", detail: "No confirmed-fraud claims in the portfolio yet." };
+  }
+  return {
+    label: toRateLabel(recall.shareOfAllFraudClaims),
+    detail: `${recall.confirmedFraudWithPattern} of ${recall.confirmedFraudTotal} confirmed-fraud claims`,
+  };
+}
+
+export function toPatternDetailViewModel(pattern, matchedClaims = [], recall = null) {
   const isRule = pattern.patternType === PATTERN_TYPE.RULE;
   const appliesTo = pattern.appliesTo || {};
 
@@ -169,11 +209,9 @@ export function toPatternDetailViewModel(pattern, matchedClaims = []) {
       coverageTypes: (appliesTo.coverageTypes || []).map(humanizeEnum),
     },
     matchedClaims: matchedClaims.map(toMatchedClaimRow),
-    /* Explicitly absent: this needs a portfolio-wide confirmed-fraud count,
-       which get_fraud_pattern_detail does not return. Rendered as an em-dash
-       with a note rather than computed from the numbers that are here — those
-       would give a different, wrong figure. */
-    shareOfAllFraudClaims: null,
+    // Computed server-side over the whole portfolio, not from the matched list
+    // here: that list is capped, and its denominator would be the wrong one.
+    shareOfAllFraud: toShareOfFraud(recall),
   };
 }
 

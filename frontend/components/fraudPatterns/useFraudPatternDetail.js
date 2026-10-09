@@ -18,6 +18,7 @@ import { toPatternDetailViewModel } from "@/lib/fraudPatternsPresenter";
 export default function useFraudPatternDetail(patternId) {
   const [pattern, setPattern] = useState(null);
   const [matchedClaims, setMatchedClaims] = useState([]);
+  const [recall, setRecall] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -25,6 +26,7 @@ export default function useFraudPatternDetail(patternId) {
     if (!patternId) {
       setPattern(null);
       setMatchedClaims([]);
+      setRecall(null);
       setError(null);
       return undefined;
     }
@@ -39,6 +41,11 @@ export default function useFraudPatternDetail(patternId) {
         if (cancelled) return;
         setPattern(response.pattern);
         setMatchedClaims(response.matchedClaims || []);
+        setRecall({
+          confirmedFraudWithPattern: response.confirmedFraudWithPattern,
+          confirmedFraudTotal: response.confirmedFraudTotal,
+          shareOfAllFraudClaims: response.shareOfAllFraudClaims,
+        });
         setError(null);
       })
       .catch((requestError) => {
@@ -58,8 +65,8 @@ export default function useFraudPatternDetail(patternId) {
   const applyUpdate = useCallback((updatedPattern) => setPattern(updatedPattern), []);
 
   const detail = useMemo(
-    () => (pattern ? toPatternDetailViewModel(pattern, matchedClaims) : null),
-    [pattern, matchedClaims]
+    () => (pattern ? toPatternDetailViewModel(pattern, matchedClaims, recall) : null),
+    [pattern, matchedClaims, recall]
   );
 
   return { detail, isLoading, error, applyUpdate };

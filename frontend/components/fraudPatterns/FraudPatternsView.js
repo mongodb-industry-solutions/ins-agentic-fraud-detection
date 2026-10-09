@@ -6,7 +6,7 @@ import FilterMenu from "@/components/filterMenu/FilterMenu";
 import Icon from "@/components/icons/Icons";
 import PageHeader from "@/components/pageHeader/PageHeader";
 import { useToast } from "@/components/shared/ToastProvider";
-import { sortPatterns, toPatternSortControl } from "@/lib/fraudPatternsPresenter";
+import { sortPatterns, toCatalogueSummary, toPatternSortControl } from "@/lib/fraudPatternsPresenter";
 import AddPatternModal from "./AddPatternModal";
 import AddRuleModal from "./AddRuleModal";
 import PatternCard, { AddPatternCard } from "./PatternCard";
@@ -14,26 +14,67 @@ import PatternDetailModal from "./PatternDetailModal";
 import styles from "./FraudPatternsView.module.css";
 import useFraudPatterns from "./useFraudPatterns";
 
-function InfoBanner({ onDismiss }) {
+/** The catalogue at a glance. Every figure is counted from the loaded patterns. */
+function CatalogueSummary({ summary }) {
+  const cells = [
+    {
+      id: "active",
+      icon: "check",
+      label: "Active patterns",
+      value: `${summary.active}`,
+      note: `of ${summary.total} in the catalogue`,
+    },
+    {
+      id: "mix",
+      icon: "grid",
+      label: "Rules · Descriptions",
+      value: `${summary.rules} · ${summary.patterns}`,
+      note: "constraint-based · similarity",
+    },
+    {
+      id: "triggers",
+      icon: "bolt",
+      label: "Total triggers",
+      value: `${summary.triggered}`,
+      note: `${summary.confirmed} confirmed as fraud`,
+    },
+    {
+      id: "reliable",
+      icon: "shield",
+      label: "Most reliable",
+      value: summary.mostReliable?.rateLabel ?? "—",
+      note: summary.mostReliable?.name ?? "No pattern has triggered yet",
+    },
+  ];
+
   return (
-    <div className={styles.banner}>
-      <Icon name="info" size={16} className={styles.bannerIcon} />
-      <span>
-        This is where your team explores and maintains the ruleset the fraud-detection agent checks
-        every claim against. <span className={styles.bannerTerm}>Constraint-based rules</span> are
-        deterministic field comparisons (e.g. &ldquo;claim opened within 15 days of policy
-        inception&rdquo;). <span className={styles.bannerTerm}>Description-based patterns</span> are
-        softer signals matched by narrative similarity to past claims. Both contribute points to a
-        claim&apos;s fraud score the same way.
-      </span>
-      <button type="button" className={styles.bannerClose} onClick={onDismiss} aria-label="Dismiss">
-        <Icon name="close" size={13} />
-      </button>
-    </div>
+    <section className={styles.summary} aria-label="Pattern catalogue summary">
+      {cells.map((cell) => (
+        <div key={cell.id} className={`${styles.summaryCell} ${styles[`tone-${cell.id}`]}`}>
+          <span className={styles.summaryChip}>
+            <Icon name={cell.icon} size={15} />
+          </span>
+          <div className={styles.summaryText}>
+            <span className={styles.summaryLabel}>{cell.label}</span>
+            <span className={styles.summaryValue}>{cell.value}</span>
+            <span className={styles.summaryNote}>{cell.note}</span>
+          </div>
+        </div>
+      ))}
+    </section>
   );
 }
 
-function PatternColumn({ title, patterns, addLabel, onCardClick, onAddClick, onSetActive }) {
+function PatternColumn({
+  title,
+  description,
+  icon,
+  patterns,
+  addLabel,
+  onCardClick,
+  onAddClick,
+  onSetActive,
+}) {
   const [sort, setSort] = useState("triggered");
   const sortControl = useMemo(() => toPatternSortControl(sort), [sort]);
   // Sorted here rather than refetching: the whole catalogue is already loaded.
@@ -43,8 +84,16 @@ function PatternColumn({ title, patterns, addLabel, onCardClick, onAddClick, onS
     <section>
       <div className={styles.colHeader}>
         <div className={styles.colHeaderLeft}>
-          <span className={styles.colTitle}>{title}</span>
-          <span className={styles.colCount}>{patterns.length}</span>
+          <span className={styles.colIcon}>
+            <Icon name={icon} size={14} />
+          </span>
+          <div className={styles.colHeading}>
+            <div className={styles.colTitleRow}>
+              <span className={styles.colTitle}>{title}</span>
+              <span className={styles.colCount}>{patterns.length}</span>
+            </div>
+            <span className={styles.colDescription}>{description}</span>
+          </div>
         </div>
         <FilterMenu
           control={sortControl}
@@ -78,8 +127,6 @@ export default function FraudPatternsView({ onOpenClaim }) {
   const { rules, patterns, isLoading, error, setActive, applyUpdate, addPattern } =
     useFraudPatterns();
   const showToast = useToast();
-  // Session-only: dismissing the primer is not worth persisting.
-  const [isBannerVisible, setIsBannerVisible] = useState(true);
   const [detailPatternId, setDetailPatternId] = useState(null);
   const [isAddRuleOpen, setIsAddRuleOpen] = useState(false);
   const [isAddPatternOpen, setIsAddPatternOpen] = useState(false);
@@ -121,6 +168,7 @@ export default function FraudPatternsView({ onOpenClaim }) {
 
   const total = rules.length + patterns.length;
   const activeCount = [...rules, ...patterns].filter((pattern) => pattern.active).length;
+  const summary = useMemo(() => toCatalogueSummary(rules, patterns), [rules, patterns]);
 
   return (
     <main className={styles.content}>
@@ -133,7 +181,7 @@ export default function FraudPatternsView({ onOpenClaim }) {
         }
       />
 
-      {isBannerVisible && <InfoBanner onDismiss={() => setIsBannerVisible(false)} />}
+      {!isLoading && !error && total > 0 && <CatalogueSummary summary={summary} />}
 
       {/* Stated plainly rather than backfilled with fixture patterns: an empty
           catalogue is honest, a plausible fake one is not. */}
@@ -148,6 +196,8 @@ export default function FraudPatternsView({ onOpenClaim }) {
         <div className={styles.columns}>
           <PatternColumn
             title="Constraint-based rules"
+            description="Exact checks on claim fields, such as amounts, dates and report delays, against fixed thresholds. Each match adds points to the fraud score."
+            icon="flag"
             patterns={rules}
             addLabel="Add new rule"
             onCardClick={setDetailPatternId}
@@ -156,6 +206,8 @@ export default function FraudPatternsView({ onOpenClaim }) {
           />
           <PatternColumn
             title="Description-based patterns"
+            description="Softer signals described in plain language. The agent compares each claim narrative to the description and adds points when they read alike."
+            icon="sparkle"
             patterns={patterns}
             addLabel="Add new pattern"
             onCardClick={setDetailPatternId}
