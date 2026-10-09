@@ -275,17 +275,92 @@ function toReasonIcon(reason) {
   return "file";
 }
 
-/** Linked claims carry their own reason lines, each with its own icon. */
-export function toLinkedClaims(response) {
-  return (response?.linked || []).map((linked, index) => ({
-    id: linked.claimId,
-    claimId: linked.claimId,
+/** How the historical claim turned out, for the outcome pill; null when undecided. */
+function toSimilarOutcome(similar) {
+  if (similar.fraudFlag === true) return STATUS.FLAGGED;
+  if (similar.fraudFlag === false && similar.reviewedBy) return STATUS.CLEARED;
+  return null;
+}
+
+/**
+ * Linked claims, from two sources the reader should see as one list:
+ *
+ *   response       — GET /claims/{id}/linked: same customer, repair shop or
+ *                    fraud pattern, found by matching fields
+ *   similarClaims  — the precedents the agent surfaced by vector search on the
+ *                    claim narrative during its assessment (the newest review's
+ *                    `similarClaims`)
+ *
+ * A claim found by both appears once, carrying both reasons. Semantic-only
+ * matches follow the field-based links, best match first. Each row carries its
+ * own reason lines and icons.
+ */
+export function toLinkedClaims(response, similarClaims = []) {
+  const similarById = new Map(
+    (similarClaims || []).filter((similar) => similar?.claimId).map((s) => [s.claimId, s])
+  );
+
+  const percent = (similar) =>
+    similar.similarity != null ? Math.round(similar.similarity * 100) : null;
+
+  const toSemantic = (similar) =>
+    similar
+      ? {
+          similarityLabel: percent(similar) !== null ? `${percent(similar)}% match` : null,
+          citedByAgent: similar.citedByAgent === true,
+          outcomeKey: toSimilarOutcome(similar),
+        }
+      : null;
+
+  const semanticReason = (similar) => ({
+    text:
+      percent(similar) !== null
+        ? `Semantically similar narrative (${percent(similar)}% match)`
+        : "Semantically similar narrative",
+    icon: "sparkle",
+  });
+
+  const fieldLinked = (response?.linked || []).map((linked) => {
+    const similar = similarById.get(linked.claimId);
+    similarById.delete(linked.claimId);
+    return {
+      id: linked.claimId,
+      claimId: linked.claimId,
+      customerName: linked.customerName || "Unknown customer",
+      reasons: [
+        ...(linked.linkReasons || []).map((reason) => ({
+          text: reason,
+          icon: toReasonIcon(reason),
+        })),
+        ...(similar ? [semanticReason(similar)] : []),
+      ],
+      semantic: toSemantic(similar),
+    };
+  });
+
+  // Whatever is left was found by meaning alone. The stored precedent carries no
+  // customer name, so the row is titled by what kind of claim it was.
+  const semanticOnly = [...similarById.values()]
+    .sort((a, b) => (b.similarity ?? 0) - (a.similarity ?? 0))
+    .map((similar) => {
+      const kind = humanizeEnum(similar.coverageType || similar.claimType);
+      return {
+        id: similar.claimId,
+        claimId: similar.claimId,
+        customerName: kind ? `${kind} claim` : "Similar claim",
+        reasons: [
+          semanticReason(similar),
+          ...(similar.claimAmount != null
+            ? [{ text: `Claim amount ${toMoney(similar.claimAmount)}`, icon: "file" }]
+            : []),
+        ],
+        semantic: toSemantic(similar),
+      };
+    });
+
+  return [...fieldLinked, ...semanticOnly].map((row, index) => ({
+    ...row,
     numberLabel: String(index + 1),
-    customerName: linked.customerName || "Unknown customer",
-    reasons: (linked.linkReasons || []).map((reason) => ({
-      text: reason,
-      icon: toReasonIcon(reason),
-    })),
   }));
 }
 

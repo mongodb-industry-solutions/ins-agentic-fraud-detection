@@ -11,6 +11,7 @@
   gap: 16px;
   width: 100%;
   max-width: 1180px;
+  margin-inline: auto;
   padding: var(--content-pad-y) var(--content-pad-x);
   min-width: 0;
 }

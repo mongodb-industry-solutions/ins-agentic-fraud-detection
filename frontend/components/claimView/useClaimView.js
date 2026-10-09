@@ -80,7 +80,15 @@ export default function useClaimView(claimId) {
   const overviewSections = useMemo(() => (detail ? toOverviewSections(detail) : []), [detail]);
   const policy = useMemo(() => (detail ? toPolicyTab(detail) : null), [detail]);
   const customer = useMemo(() => (detail ? toCustomerTab(detail) : null), [detail]);
-  const linkedClaims = useMemo(() => toLinkedClaims(linked), [linked]);
+  // The agent's semantic precedents: the newest assessment's, falling back to
+  // the copy persisted on the claim itself.
+  const linkedClaims = useMemo(() => {
+    const newestReview = audit?.records?.[0];
+    const similar = newestReview?.similarClaims?.length
+      ? newestReview.similarClaims
+      : detail?.fraud?.similarClaims || [];
+    return toLinkedClaims(linked, similar);
+  }, [linked, audit, detail]);
   const auditEntries = useMemo(() => toAuditTimeline(audit), [audit]);
   const tabs = useMemo(() => toClaimTabs(linkedClaims.length), [linkedClaims.length]);
 

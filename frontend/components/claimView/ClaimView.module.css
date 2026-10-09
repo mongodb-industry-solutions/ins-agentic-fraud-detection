@@ -1,11 +1,12 @@
 /* A single claim is a bounded document, not a wide browsing surface, so the
-   column is capped and left-aligned rather than stretching like the table. */
+   column is capped and centred rather than stretching like the table. */
 .content {
   display: flex;
   flex-direction: column;
   gap: 16px;
   width: 100%;
   max-width: 1180px;
+  margin-inline: auto;
   padding: var(--content-pad-y) var(--content-pad-x);
   min-width: 0;
 }
