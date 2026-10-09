@@ -2,10 +2,11 @@
 
 from typing import Annotated
 
-from fastapi import Depends
+from fastapi import Depends, Request
 
 from core.config import Settings, get_settings
 from core.db import DbDep
+from repositories.assessment_jobs_repo import AssessmentJobsRepository
 from repositories.claims_repo import ClaimsRepository
 from repositories.customers_repo import CustomersRepository
 from repositories.embeddings_repo import EmbeddingsRepository
@@ -13,6 +14,7 @@ from repositories.patterns_repo import PatternsRepository
 from repositories.policies_repo import PoliciesRepository
 from repositories.reviews_repo import ReviewsRepository
 from services.agent_chat_service import AgentChatService
+from services.assessment_queue_service import AssessmentQueueService
 from services.claims_service import ClaimsService
 from services.directory_service import DirectoryService
 from services.embeddings_service import EmbeddingsService
@@ -102,3 +104,17 @@ FraudAnalyticsServiceDep = Annotated[FraudAnalyticsService, Depends(get_fraud_an
 AgentChatServiceDep = Annotated[AgentChatService, Depends(get_agent_chat_service)]
 FraudAssessmentServiceDep = Annotated[FraudAssessmentService, Depends(get_fraud_assessment_service)]
 EmbeddingsServiceDep = Annotated[EmbeddingsService, Depends(get_embeddings_service)]
+
+
+def get_assessment_queue_service(
+    request: Request,
+    db: DbDep,
+    claims_repo: Annotated[ClaimsRepository, Depends(get_claims_repo)],
+) -> AssessmentQueueService:
+    # The worker is process-wide, created in the app lifespan.
+    return AssessmentQueueService(
+        AssessmentJobsRepository(db), claims_repo, getattr(request.app.state, "queue_worker", None)
+    )
+
+
+AssessmentQueueServiceDep = Annotated[AssessmentQueueService, Depends(get_assessment_queue_service)]

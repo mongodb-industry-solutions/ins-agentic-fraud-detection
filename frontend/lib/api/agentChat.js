@@ -173,32 +173,6 @@ export function streamAgentMessage({ message, sessionId, userId, signal }, handl
 }
 
 /**
- * Runs the agent's full fraud assessment of one claim.
- *
- * The instruction is composed server-side, so there is no `message` here — the
- * client chooses *which* claim to assess, never what the agent is asked to do.
- * Omit `sessionId` for the normal case: an assessment runs in its own fresh
- * conversation rather than inheriting unrelated chat context. The handle comes
- * back on `onSessionId`, so follow-up questions can join that same thread.
- */
-export function streamClaimAssessment(
-  { claimId, sessionId, userId, focus, triggeredBy, signal },
-  handlers = {}
-) {
-  return streamAgentEndpoint(
-    `/api/fraud-assessment/${encodeURIComponent(claimId)}`,
-    {
-      ...(sessionId && { sessionId }),
-      ...(userId && { userId }),
-      ...(focus && { focus }),
-      ...(triggeredBy && { triggeredBy }),
-    },
-    signal,
-    handlers
-  );
-}
-
-/**
  * Hands the reviewer's verdict to the agent, the only writer of fraud state.
  * It merges the verdict into the claim's decision trace and streams its
  * confirmation of what it wrote.

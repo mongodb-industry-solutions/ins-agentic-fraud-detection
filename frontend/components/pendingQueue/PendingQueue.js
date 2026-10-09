@@ -1,5 +1,6 @@
 "use client";
 
+import AnalyzeButton from "@/components/assessmentQueue/AnalyzeButton";
 import ScoreChip from "@/components/scoreChip/ScoreChip";
 import styles from "./PendingQueue.module.css";
 
@@ -38,15 +39,22 @@ export default function PendingQueue({ queue, onReview, onAnalyze }) {
             ))}
             {item.overflowTag && <span className={styles.tag}>{item.overflowTag}</span>}
           </div>
-          <button
-            type="button"
-            className={styles.reviewButton}
-            onClick={() =>
-              item.isUnprocessed ? onAnalyze?.(item.claimId) : onReview?.(item.claimId)
-            }
-          >
-            {item.actionLabel}
-          </button>
+          {item.isUnprocessed ? (
+            <AnalyzeButton
+              claimId={item.claimId}
+              className={styles.reviewButton}
+              idleLabel={item.actionLabel}
+              onAnalyze={onAnalyze}
+            />
+          ) : (
+            <button
+              type="button"
+              className={styles.reviewButton}
+              onClick={() => onReview?.(item.claimId)}
+            >
+              {item.actionLabel}
+            </button>
+          )}
         </div>
       ))}
     </section>

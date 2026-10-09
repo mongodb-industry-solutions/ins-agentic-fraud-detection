@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import AnalyzeButton from "@/components/assessmentQueue/AnalyzeButton";
 import BackLink from "@/components/backLink/BackLink";
 import Badge from "@/components/badge/Badge";
 import ClaimAudit from "@/components/claimAudit/ClaimAudit";
@@ -128,14 +129,13 @@ export default function ClaimView({ claimId, backLabel, onBack, onOpenClaim, onA
                   View fraud report
                 </button>
               )}
-              <button
-                type="button"
+              <AnalyzeButton
+                claimId={header.claimId}
                 className={`${styles.analyzeButton} ${showPulse ? styles.pulse : ""}`}
-                onClick={() => onAnalyze?.(header.claimId)}
-              >
-                <Icon name="sparkle" size={12} />
-                {header.isProcessed ? "Re-run analysis" : "Analyze for fraud"}
-              </button>
+                idleLabel={header.isProcessed ? "Re-run analysis" : "Analyze for fraud"}
+                icon={<Icon name="sparkle" size={12} />}
+                onAnalyze={onAnalyze}
+              />
             </div>
           </div>
 

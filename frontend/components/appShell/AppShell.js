@@ -2,9 +2,10 @@ import Sidebar from "@/components/sidebar/Sidebar";
 import Topbar from "@/components/topbar/Topbar";
 import styles from "./AppShell.module.css";
 
-export default function AppShell({ activeSection, onNavigate, children }) {
+/** `rightPanel` is docked as a third column (the Fraud Assessment Queue). */
+export default function AppShell({ activeSection, onNavigate, rightPanel, children }) {
   return (
-    <div className={styles.shell}>
+    <div className={`${styles.shell} ${rightPanel ? styles.withRightPanel : ""}`}>
       <div className={styles.backdrop} />
       <div className={styles.glow} />
       <Sidebar activeSection={activeSection} onNavigate={onNavigate} />
@@ -12,6 +13,7 @@ export default function AppShell({ activeSection, onNavigate, children }) {
         <Topbar />
         {children}
       </div>
+      {rightPanel}
     </div>
   );
 }

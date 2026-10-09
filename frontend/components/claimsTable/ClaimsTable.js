@@ -1,5 +1,6 @@
 "use client";
 
+import AnalyzeButton from "@/components/assessmentQueue/AnalyzeButton";
 import ScoreChip from "@/components/scoreChip/ScoreChip";
 import StatusPill from "@/components/statusPill/StatusPill";
 import styles from "./ClaimsTable.module.css";
@@ -75,13 +76,11 @@ export default function ClaimsTable({
                     View details
                   </button>
                   {row.isUnprocessed ? (
-                    <button
-                      type="button"
+                    <AnalyzeButton
+                      claimId={row.claimId}
                       className={styles.solidButton}
-                      onClick={() => onAnalyze?.(row.claimId)}
-                    >
-                      Analyze for fraud
-                    </button>
+                      onAnalyze={onAnalyze}
+                    />
                   ) : (
                     <button
                       type="button"
