@@ -285,7 +285,7 @@ export function toHistogramLegend(distribution) {
 
 /** Prose for each band the backend can send. */
 const BAND_LABEL = {
-  LOW: "Low",
-  REVIEW: "Review",
-  HIGH: "High",
+  FAST_TRACK: "Fast-track (0–3)",
+  REVIEW: "Review (4–8)",
+  PRIORITY: "Priority (9–12)",
 };

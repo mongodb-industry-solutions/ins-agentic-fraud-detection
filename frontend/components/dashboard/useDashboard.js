@@ -180,12 +180,6 @@ export default function useDashboard() {
   const openReport = useCallback((claimId) => setReportClaimId(claimId), []);
   const closeReport = useCallback(() => setReportClaimId(null), []);
 
-  // The drawer needs a fallback row for claims outside the current page.
-  const reportRow = useMemo(
-    () => allRows.find((row) => row.claimId === reportClaimId) || null,
-    [allRows, reportClaimId]
-  );
-
   return {
     isLoading,
     error,
@@ -208,7 +202,6 @@ export default function useDashboard() {
     selectedIds,
     toggleRow,
     reportClaimId,
-    reportRow,
     openReport,
     closeReport,
   };

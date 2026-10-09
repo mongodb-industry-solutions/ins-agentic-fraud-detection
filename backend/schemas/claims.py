@@ -2,9 +2,9 @@
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, Literal
+from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class Complexity(str, Enum):
@@ -163,33 +163,3 @@ class BatchSelectResponse(BaseModel):
     rejected: list[RejectedClaim]
     acceptedCount: int
     rejectedCount: int
-
-
-# ------------------------------------------------------------------ endpoint 8
-
-class FraudDecisionRequest(BaseModel):
-    decision: Literal["CONFIRMED_FRAUD", "DISMISSED"]
-    reviewedBy: str = Field(min_length=1)
-    dismissReason: str | None = None
-
-    @model_validator(mode="after")
-    def require_dismiss_reason(self) -> "FraudDecisionRequest":
-        if self.decision == "DISMISSED" and not (self.dismissReason or "").strip():
-            raise ValueError("dismissReason is required when decision is DISMISSED")
-        return self
-
-
-class PatternStatUpdate(BaseModel):
-    patternId: str
-    timesTriggered: int
-    confirmedCount: int
-    confirmedFraudRate: float
-
-
-class FraudDecisionResponse(BaseModel):
-    claimId: str
-    decision: str
-    fraudFlag: bool
-    reviewedBy: str
-    reviewedAt: datetime
-    patternsUpdated: list[PatternStatUpdate]

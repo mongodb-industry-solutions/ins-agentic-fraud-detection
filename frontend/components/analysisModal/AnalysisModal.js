@@ -6,6 +6,7 @@ import remarkGfm from "remark-gfm";
 
 import ChatMessage from "@/components/fraudChat/ChatMessage";
 import Icon from "@/components/icons/Icons";
+import { useToast } from "@/components/shared/ToastProvider";
 import useThrottledText from "@/lib/useThrottledText";
 import styles from "./AnalysisModal.module.css";
 import useAnalysisModal from "./useAnalysisModal";
@@ -71,10 +72,11 @@ function CloseCaseBar({
   isSubmitting,
   isStreaming,
   error,
-  hasSession,
+  isOpen,
+  onOpen,
+  onCancel,
   onDecide,
 }) {
-  const [isOpen, setIsOpen] = useState(false);
   const [verdict, setVerdict] = useState(null); // CONFIRMED_FRAUD | DISMISSED
   const [siuChecked, setSiuChecked] = useState(false);
   const [reason, setReason] = useState("");
@@ -95,13 +97,7 @@ function CloseCaseBar({
         {persistence === "verified" && (
           <span className={styles.persistenceOk}>
             <Icon name="check" size={11} />
-            Verified on the claim record
-          </span>
-        )}
-        {persistence === "not-recorded" && (
-          <span className={styles.persistenceOk}>
-            <Icon name="check" size={11} />
-            The agent reported success and will persist your decision shortly.
+            Verified on the claim record · claim closed
           </span>
         )}
         {persistence === "unknown" && (
@@ -117,13 +113,16 @@ function CloseCaseBar({
   if (!isOpen) {
     return (
       <div className={styles.decisionArea}>
+        {/* The obvious next step once the report is in, so it is the one filled
+            button in the footer. */}
         <button
           type="button"
           className={styles.closeCaseTrigger}
           disabled={isStreaming}
-          onClick={() => setIsOpen(true)}
+          onClick={onOpen}
         >
-          Close case — record a decision
+          <Icon name="checkCircle" size={14} />
+          Record your decision
         </button>
         {error && <div className={styles.decisionError}>{error}</div>}
       </div>
@@ -164,6 +163,14 @@ function CloseCaseBar({
             Also refer to SIU
           </label>
         )}
+        <button
+          type="button"
+          className={styles.cancelDecision}
+          disabled={isSubmitting}
+          onClick={onCancel}
+        >
+          Back to the conversation
+        </button>
       </div>
 
       <div className={styles.dismissForm}>
@@ -192,11 +199,9 @@ function CloseCaseBar({
       {/* Said before the hand-off, not after: the reviewer is asking something
           that may not do it, so what is expected to happen is stated up front. */}
       <div className={styles.commitNote}>
-        The agent records the decision on the claim, writes the audit-trail entry for this review
-        and closes the case, on the same conversation as the analysis above. The claim is read back
-        afterwards to confirm what actually landed.
-        {!hasSession &&
-          " No agent session was captured for this run, so the decision cannot be handed over — re-run the analysis."}
+        The agent records your decision and reason on the claim, merges them into this
+        assessment&apos;s audit trail and closes the claim. The claim is read back afterwards to
+        confirm what actually landed.
       </div>
 
       {error && <div className={styles.decisionError}>{error}</div>}
@@ -205,18 +210,77 @@ function CloseCaseBar({
 }
 
 /**
+ * The minimised assessment: a small pill pinned to the corner of every screen,
+ * so the reviewer can keep working while the agent runs and come back to it.
+ * It turns into the "ready for review" reminder once the run finishes.
+ */
+function MinimizedPill({ claimId, phase, decision, onRestore, onDiscard }) {
+  const isRunning = phase === "running";
+  const label = isRunning
+    ? `Assessing ${claimId}…`
+    : phase === "error"
+      ? `${claimId} assessment did not finish`
+      : decision
+        ? `${claimId} decision recorded`
+        : `${claimId} assessment ready for review`;
+
+  return (
+    <div
+      className={`${styles.pill} ${!isRunning && !decision ? styles.pillReady : ""}`}
+      role="status"
+      aria-live="polite"
+    >
+      <button type="button" className={styles.pillMain} onClick={onRestore}>
+        {isRunning ? (
+          <span className={styles.stepSpinner} />
+        ) : (
+          <Icon name={phase === "error" ? "alert" : "checkCircle"} size={14} />
+        )}
+        <span className={styles.pillLabel}>{label}</span>
+        <span className={styles.pillAction}>{isRunning ? "Show" : "Open"}</span>
+      </button>
+      <button
+        type="button"
+        className={styles.pillDismiss}
+        onClick={onDiscard}
+        aria-label={isRunning ? "Stop and discard this assessment" : "Dismiss"}
+        title={isRunning ? "Stop and discard this assessment" : "Dismiss"}
+      >
+        <Icon name="close" size={11} />
+      </button>
+    </div>
+  );
+}
+
+/**
  * The live fraud-analysis overlay: streams the agent's run, then shows its
  * report and the confirm/dismiss decision.
+ *
+ * Closing it while the agent works does not cancel anything: the component
+ * stays mounted and collapses into a MinimizedPill, so the run continues and
+ * the reviewer is told when it is ready. Only the pill's dismiss discards it.
  *
  * The report is the agent's markdown prose. Once the agent emits a structured
  * payload, `FraudReportContent` replaces the markdown block here and nothing
  * else in this shell changes.
  */
-export default function AnalysisModal({ claimId, onClose, onDecided }) {
+export default function AnalysisModal({
+  claimId,
+  isMinimized,
+  onMinimize,
+  onRestore,
+  onClose,
+  onDecided,
+}) {
   const analysis = useAnalysisModal(claimId);
   const isRunning = analysis.phase === "running";
+  const showToast = useToast();
 
   const [draft, setDraft] = useState("");
+  // The decision form replaces the composer while it is open, so the footer
+  // shows one task at a time.
+  const [isDeciding, setIsDeciding] = useState(false);
+  const [isActivityCollapsed, setIsActivityCollapsed] = useState(false);
   const inputRef = useRef(null);
   const bottomRef = useRef(null);
 
@@ -243,22 +307,44 @@ export default function AnalysisModal({ claimId, onClose, onDecided }) {
   // The browser blurs a disabled element, so focus is restored when a turn ends
   // rather than only when the composer first appears.
   useEffect(() => {
-    if (!isRunning && !analysis.isStreaming) inputRef.current?.focus();
-  }, [isRunning, analysis.isStreaming]);
+    if (!isMinimized && !isRunning && !analysis.isStreaming && !isDeciding) {
+      inputRef.current?.focus();
+    }
+  }, [isMinimized, isRunning, analysis.isStreaming, isDeciding]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ block: "end" });
   }, [analysis.messages]);
 
-  // Closing is the only thing that aborts the stream. The hook deliberately does
-  // not abort on effect cleanup, because Strict Mode's double invocation would
-  // then kill the run before it produced anything.
+  // Tell a reviewer who walked away that the run finished. Only on the
+  // transition out of "running", and only when the modal is not on screen.
+  const previousPhaseRef = useRef(analysis.phase);
+  useEffect(() => {
+    const finished = previousPhaseRef.current === "running" && analysis.phase !== "running";
+    previousPhaseRef.current = analysis.phase;
+    if (finished && isMinimized) {
+      showToast(
+        analysis.phase === "error"
+          ? `The assessment of ${claimId} did not finish.`
+          : `The assessment of ${claimId} is complete and ready for review.`
+      );
+    }
+  }, [analysis.phase, isMinimized, claimId, showToast]);
+
+  // Once a decision is recorded there is nothing to come back to, so closing
+  // really closes. Before that, closing minimises and the run carries on.
   const close = useCallback(() => {
+    if (analysis.decision) onClose();
+    else onMinimize();
+  }, [analysis.decision, onClose, onMinimize]);
+
+  const discard = useCallback(() => {
     analysis.stop();
     onClose();
   }, [analysis, onClose]);
 
   useEffect(() => {
+    if (isMinimized) return undefined;
     const onKeyDown = (event) => {
       if (event.key === "Escape") close();
     };
@@ -269,7 +355,7 @@ export default function AnalysisModal({ claimId, onClose, onDecided }) {
       document.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = previousOverflow;
     };
-  }, [close]);
+  }, [close, isMinimized]);
 
   const decide = async (payload) => {
     try {
@@ -284,11 +370,30 @@ export default function AnalysisModal({ claimId, onClose, onDecided }) {
     onDecided?.();
   };
 
+  // A recorded decision ends the decision task, so the form closes with it.
+  useEffect(() => {
+    if (analysis.decision) setIsDeciding(false);
+  }, [analysis.decision]);
+
+  if (isMinimized) {
+    return (
+      <MinimizedPill
+        claimId={claimId}
+        phase={analysis.phase}
+        decision={analysis.decision}
+        onRestore={onRestore}
+        onDiscard={discard}
+      />
+    );
+  }
+
+  const showConversation = !isRunning && analysis.phase !== "error";
+
   return (
     <>
-      {/* No click-to-close while the agent is mid-run: a stray click on the
-          backdrop would silently discard a 90-second assessment. */}
-      <div className={styles.backdrop} onClick={isRunning ? undefined : close} />
+      {/* Clicking outside minimises rather than discards, so a stray click
+          never loses a run in progress. */}
+      <div className={styles.backdrop} onClick={close} />
       <div
         className={styles.modal}
         role="dialog"
@@ -302,15 +407,29 @@ export default function AnalysisModal({ claimId, onClose, onDecided }) {
             </div>
             <div className={styles.sub}>
               {isRunning
-                ? "The agent is working through the claim…"
+                ? "The agent is working through the claim"
                 : analysis.phase === "error"
                   ? "The analysis did not finish"
-                  : "Assessment complete — recorded once you decide"}
+                  : "Assessment complete and recorded — awaiting your decision"}
             </div>
           </div>
-          <button type="button" className={styles.closeBtn} onClick={close} aria-label="Close">
-            ✕
-          </button>
+          {/* Until a decision is recorded, leaving never cancels the run: it
+              minimises to the corner pill. After that, there is nothing to come
+              back to, so it is a plain close. */}
+          {analysis.decision ? (
+            <button type="button" className={styles.closeBtn} onClick={close} aria-label="Close">
+              ✕
+            </button>
+          ) : (
+            <button
+              type="button"
+              className={styles.laterBtn}
+              onClick={close}
+              title="Hide this window — reopen it any time from the corner of the screen"
+            >
+              Come back later
+            </button>
+          )}
         </div>
 
         <div className={styles.body}>
@@ -338,10 +457,12 @@ export default function AnalysisModal({ claimId, onClose, onDecided }) {
                   transcript continues in the same scroll area rather than in a
                   separate panel. Turns use the same ChatMessage component as the
                   fraud chat, so a reply reads identically in both places. */}
-              {!isRunning && analysis.phase !== "error" && (
+              {showConversation && (
                 <>
-                  <div className={styles.conversationDivider}>Conversation</div>
-                  {analysis.messages.length === 0 && (
+                  {(analysis.messages.length > 0 || !isDeciding) && (
+                    <div className={styles.conversationDivider}>Conversation</div>
+                  )}
+                  {analysis.messages.length === 0 && !isDeciding && (
                     <div className={styles.conversationHint}>
                       Anything else you&apos;d like to know about this case? Ask below — the agent still
                       has this assessment in context.
@@ -363,10 +484,10 @@ export default function AnalysisModal({ claimId, onClose, onDecided }) {
               )}
             </div>
 
-            {/* Composer only once the assessment is done: there is nothing to ask
-                about mid-run, and a second concurrent turn on the same session would
-                interleave with the assessment still streaming. */}
-            {!isRunning && analysis.phase !== "error" && (
+            {/* Composer only once the assessment is done — there is nothing to ask
+                about mid-run — and hidden while the decision form is open, so the
+                footer holds one task at a time. */}
+            {showConversation && !isDeciding && (
               <div className={styles.composer}>
                 <textarea
                   ref={inputRef}
@@ -407,11 +528,12 @@ export default function AnalysisModal({ claimId, onClose, onDecided }) {
                 <>
                   <span className={styles.runningNote}>
                     <span className={styles.stepSpinner} /> Analysing — this usually takes under two
-                    minutes.
+                    minutes. Choose &ldquo;Come back later&rdquo; to keep using the app; you&apos;ll
+                    be told when it&apos;s ready.
                   </span>
                   <span className={styles.footerSpacer} />
-                  <button type="button" className={styles.btnOutline} onClick={analysis.stop}>
-                    Stop
+                  <button type="button" className={styles.btnStop} onClick={analysis.stop}>
+                    Stop assessment
                   </button>
                 </>
               ) : (
@@ -421,7 +543,9 @@ export default function AnalysisModal({ claimId, onClose, onDecided }) {
                   isSubmitting={analysis.isSubmitting}
                   isStreaming={analysis.isStreaming}
                   error={analysis.decisionError}
-                  hasSession={analysis.hasSession}
+                  isOpen={isDeciding}
+                  onOpen={() => setIsDeciding(true)}
+                  onCancel={() => setIsDeciding(false)}
                   onDecide={decide}
                 />
               )}
@@ -430,25 +554,42 @@ export default function AnalysisModal({ claimId, onClose, onDecided }) {
 
           {/* The agent's own trace, alongside the conversation rather than above
               it: while the run happens this is the only thing moving, and
-              afterwards it is the evidence for how the report was reached. */}
-          <aside className={styles.aside}>
-            <div className={styles.asideTitle}>Agent activity</div>
-            <div className={styles.asideScroll}>
-              <StepList steps={analysis.steps} isRunning={isRunning} />
+              afterwards it is the evidence for how the report was reached. It
+              collapses to a narrow rail to give the report the full width. */}
+          <aside className={`${styles.aside} ${isActivityCollapsed ? styles.asideCollapsed : ""}`}>
+            <button
+              type="button"
+              className={styles.asideToggle}
+              onClick={() => setIsActivityCollapsed((collapsed) => !collapsed)}
+              aria-expanded={!isActivityCollapsed}
+              title={isActivityCollapsed ? "Show agent activity" : "Hide agent activity"}
+            >
+              <span className={styles.asideChevron}>
+                <Icon name="chevronDown" size={12} />
+              </span>
+              <span className={styles.asideTitle}>
+                Agent activity{analysis.steps.length ? ` · ${analysis.steps.length}` : ""}
+              </span>
+              {isActivityCollapsed && isRunning && <span className={styles.stepSpinner} />}
+            </button>
+            {!isActivityCollapsed && (
+              <div className={styles.asideScroll}>
+                <StepList steps={analysis.steps} isRunning={isRunning} />
 
-              {isRunning && !analysis.steps.length && (
-                <div className={styles.step}>
-                  <span className={styles.stepSpinner} />
-                  <span className={styles.stepTextActive}>Starting the agent…</span>
-                </div>
-              )}
+                {isRunning && !analysis.steps.length && (
+                  <div className={styles.step}>
+                    <span className={styles.stepSpinner} />
+                    <span className={styles.stepTextActive}>Starting the agent…</span>
+                  </div>
+                )}
 
-              {!isRunning && !analysis.steps.length && (
-                <div className={styles.asideEmpty}>
-                  The agent reported no tool activity for this run.
-                </div>
-              )}
-            </div>
+                {!isRunning && !analysis.steps.length && (
+                  <div className={styles.asideEmpty}>
+                    The agent reported no tool activity for this run.
+                  </div>
+                )}
+              </div>
+            )}
           </aside>
         </div>
       </div>

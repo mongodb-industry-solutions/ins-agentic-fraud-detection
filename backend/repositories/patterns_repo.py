@@ -102,17 +102,6 @@ class PatternsRepository:
             return_document=True,
         )
 
-    def increment_confirmed_count(self, pattern_id: str) -> dict[str, Any] | None:
-        """+1 to stats.confirmedCount, returning the updated document."""
-        return self.collection.find_one_and_update(
-            {"patternId": pattern_id},
-            {
-                "$inc": {"stats.confirmedCount": 1},
-                "$set": {"updatedAt": datetime.now(timezone.utc)},
-            },
-            return_document=True,
-        )
-
     def set_why_effective(self, pattern_id: str, text: str, generated_at: datetime) -> int:
         """Store a generated reliability blurb and when it was generated.
 
@@ -123,16 +112,5 @@ class PatternsRepository:
         result = self.collection.update_one(
             {"patternId": pattern_id},
             {"$set": {"whyEffective": text, "whyEffectiveGeneratedAt": generated_at}},
-        )
-        return result.matched_count
-
-    def set_confirmed_rate(self, pattern_id: str, rate: float) -> int:
-        """Write the recomputed confirmedFraudRate."""
-        result = self.collection.update_one(
-            {"patternId": pattern_id},
-            {"$set": {
-                "stats.confirmedFraudRate": rate,
-                "updatedAt": datetime.now(timezone.utc),
-            }},
         )
         return result.matched_count

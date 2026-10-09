@@ -97,13 +97,9 @@ export function toMoney(amount) {
 export const MAX_SCORE = 12;
 
 /**
- * Where the severe band starts on the 0..12 capped scale, matching the top arm
- * of the backend's score histogram (SCORE_BOUNDARIES, 9..12).
- *
- * This is the dashboard's own banding, not the agent's: the agent reports a
- * `bandLabel` of its own from cutoffs held in its instructions, outside this
- * repo. If those two ever need to agree, this constant is the thing to move
- * server-side — do not read it as authoritative for a claim's review band.
+ * Where the severe segment starts on the 0..12 capped scale: the agent's
+ * PRIORITY band (9-12), as also used by the backend's SCORE_BANDS. The other
+ * two bands (0-3 fast-track, 4-8 review) make up the "simple" segment.
  */
 export const SEVERE_SCORE_MIN = 9;
 

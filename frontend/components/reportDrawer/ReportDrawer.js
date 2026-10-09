@@ -122,8 +122,8 @@ function DecisionSection({ decision, isSubmitting, onDecide }) {
   );
 }
 
-export default function ReportDrawer({ claimId, row, onClose, onViewClaim }) {
-  const { report, isLoading, error, isSubmitting, decide } = useReportDrawer(claimId, row);
+export default function ReportDrawer({ claimId, onClose, onViewClaim }) {
+  const { report, isLoading, error, decisionError, isSubmitting, decide } = useReportDrawer(claimId);
 
   // Escape-to-close, click-outside-to-close and the body-scroll lock all live
   // in Overlay — the drawer and the fraud-pattern modals share one backdrop.
@@ -245,6 +245,11 @@ export default function ReportDrawer({ claimId, row, onClose, onViewClaim }) {
                 isSubmitting={isSubmitting}
                 onDecide={decide}
               />
+              {decisionError && (
+                <p className={styles.rationale} role="alert">
+                  The agent could not record the decision: {decisionError}
+                </p>
+              )}
             </>
           )}
         </div>

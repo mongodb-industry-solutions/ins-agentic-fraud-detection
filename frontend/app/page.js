@@ -36,6 +36,21 @@ export default function Home() {
   // Dashboard or ClaimView so the same overlay serves every entry point, and so
   // it survives navigating between them.
   const [analyzeClaimId, setAnalyzeClaimId] = useState(null);
+  // Closing the overlay mid-run minimises it to a pill instead of unmounting,
+  // so the agent keeps working while the reviewer moves around the app.
+  const [isAnalysisMinimized, setIsAnalysisMinimized] = useState(false);
+
+  // "Analyze for fraud" on the claim already being assessed reopens that run
+  // rather than starting another one. A different claim replaces it.
+  const analyze = useCallback((claimId) => {
+    setAnalyzeClaimId(claimId);
+    setIsAnalysisMinimized(false);
+  }, []);
+
+  const closeAnalysis = useCallback(() => {
+    setAnalyzeClaimId(null);
+    setIsAnalysisMinimized(false);
+  }, []);
   // Bumped when a decision is recorded, to make the views behind the overlay
   // refetch — otherwise a claim's status pill keeps contradicting the decision
   // that was just committed.
@@ -105,7 +120,7 @@ export default function Home() {
             backLabel={backLabel}
             onBack={goBack}
             onOpenClaim={openClaim}
-            onAnalyze={setAnalyzeClaimId}
+            onAnalyze={analyze}
             nudgeAnalyze={nudgeAnalyze}
           />
         );
@@ -119,7 +134,7 @@ export default function Home() {
           <Dashboard
             key={dataVersion}
             onOpenClaim={openClaim}
-            onAnalyze={setAnalyzeClaimId}
+            onAnalyze={analyze}
           />
         );
       case "customers":
@@ -148,8 +163,12 @@ export default function Home() {
 
       {analyzeClaimId && (
         <AnalysisModal
+          key={analyzeClaimId}
           claimId={analyzeClaimId}
-          onClose={() => setAnalyzeClaimId(null)}
+          isMinimized={isAnalysisMinimized}
+          onMinimize={() => setIsAnalysisMinimized(true)}
+          onRestore={() => setIsAnalysisMinimized(false)}
+          onClose={closeAnalysis}
           onDecided={() => setDataVersion((version) => version + 1)}
         />
       )}

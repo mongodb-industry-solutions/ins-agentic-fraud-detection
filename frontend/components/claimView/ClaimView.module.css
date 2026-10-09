@@ -33,6 +33,17 @@
   font-size: 12.5px;
 }
 
+.retryButton {
+  margin-left: 4px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .bannerIcon {
   display: flex;
   flex: none;

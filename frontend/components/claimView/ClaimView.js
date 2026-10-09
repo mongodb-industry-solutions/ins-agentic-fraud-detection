@@ -42,7 +42,14 @@ export default function ClaimView({ claimId, backLabel, onBack, onOpenClaim, onA
 
       {claim.closeError && <div className={styles.errorNote}>Couldn&apos;t close this claim: {claim.closeError}</div>}
 
-      {claim.isLoading || !header ? (
+      {!claim.isLoading && claim.loadError ? (
+        <div className={styles.errorNote} role="alert">
+          Couldn&apos;t load claim {claimId}: {claim.loadError}{" "}
+          <button type="button" className={styles.retryButton} onClick={claim.retry}>
+            Try again
+          </button>
+        </div>
+      ) : claim.isLoading || !header ? (
         <div className={styles.skeleton} />
       ) : (
         <>

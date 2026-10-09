@@ -111,6 +111,24 @@
   color: var(--text);
 }
 
+/* Leaving mid-assessment minimises rather than cancels, so the control says
+   so in words instead of a bare cross. */
+.laterBtn {
+  flex: none;
+  padding: 6px 13px;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 12.5px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.laterBtn:hover {
+  background: var(--surface-2);
+}
+
 /* --- two columns ---------------------------------------------------------- */
 
 /* Left: the conversation — report, transcript, composer, decision. Right: the
@@ -144,9 +162,52 @@
   background: var(--surface-2);
 }
 
+.asideCollapsed {
+  width: 44px;
+}
+
+/* The whole header row toggles the panel; collapsed, it becomes a narrow rail
+   with the title running vertically. */
+.asideToggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  width: 100%;
+  padding: 11px 18px 10px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.asideToggle:hover .asideTitle {
+  color: var(--text);
+}
+
+.asideChevron {
+  display: flex;
+  color: var(--text-dim);
+  transform: rotate(-90deg);
+  transition: transform 0.15s ease;
+}
+
+.asideCollapsed .asideChevron {
+  transform: rotate(90deg);
+}
+
+.asideCollapsed .asideToggle {
+  flex-direction: column;
+  height: 100%;
+  padding: 12px 0;
+}
+
+.asideCollapsed .asideTitle {
+  writing-mode: vertical-rl;
+}
+
 .asideTitle {
   flex: none;
-  padding: 13px 18px 10px;
   color: var(--text-dim);
   font-size: 11px;
   letter-spacing: 0.05em;
@@ -177,6 +238,17 @@
     max-height: 190px;
     border-left: none;
     border-top: 1px solid var(--border);
+  }
+
+  /* Stacked layout: collapsing leaves a one-line header, not a vertical rail. */
+  .asideCollapsed .asideToggle {
+    flex-direction: row;
+    height: auto;
+    padding: 11px 18px 10px;
+  }
+
+  .asideCollapsed .asideTitle {
+    writing-mode: horizontal-tb;
   }
 }
 
@@ -328,6 +400,24 @@
   border-radius: var(--radius);
   color: var(--text);
   font-size: 12.5px;
+}
+
+/* Destructive: cancels a run in progress. LeafyGreen's red, kept local because
+   the brand palette in globals.css deliberately has no red. */
+.btnStop {
+  min-width: 160px;
+  padding: 8px 26px;
+  border: none;
+  border-radius: var(--radius);
+  background: #db3030;
+  color: var(--white);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btnStop:hover {
+  background: #c22a2a;
 }
 
 .btnConfirm:hover:not(:disabled),
@@ -600,13 +690,48 @@
 
 /* --- closing the case ----------------------------------------------------- */
 
+/* The primary action once the report is in: filled, bold and sized up so it
+   reads as the obvious next step rather than another outline control. */
 .closeCaseTrigger {
-  padding: 7px 16px;
-  background: transparent;
-  border: 1px solid var(--border-strong);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  padding: 10px 20px;
+  border: none;
   border-radius: var(--radius);
+  /* Spring Green on Evergreen is the brand's primary button in both themes. */
+  background: var(--spring-green);
+  color: var(--evergreen);
+  font-size: 13.5px;
+  font-weight: 600;
+  box-shadow: 0 0 0 3px var(--accent-glow);
+  cursor: pointer;
+}
+
+.closeCaseTrigger:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+
+.closeCaseTrigger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.cancelDecision {
+  margin-left: auto;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-size: 12px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.cancelDecision:hover:not(:disabled) {
   color: var(--text);
-  font-size: 12.5px;
 }
 
 .verdictRow {
@@ -668,4 +793,85 @@
 .persistenceWarn {
   border: 1px dashed var(--border-strong);
   color: var(--text-muted);
+}
+
+/* --- minimised assessment ------------------------------------------------- */
+
+/* Bottom-left, clear of the fraud-chat launcher (bottom-right) and the toast
+   (bottom-centre). Above page content, below every modal. */
+.pill {
+  position: fixed;
+  left: 26px;
+  bottom: 26px;
+  z-index: 46;
+  display: flex;
+  align-items: center;
+  max-width: calc(100vw - 52px);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  box-shadow: 0 8px 24px rgba(0, 10, 15, 0.25);
+  animation: fadeIn 0.18s ease;
+}
+
+.pillReady {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow), 0 8px 24px rgba(0, 10, 15, 0.25);
+}
+
+.pillMain {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  padding: 10px 6px 10px 16px;
+  border: none;
+  background: none;
+  color: var(--text);
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.pillReady .pillMain {
+  color: var(--accent);
+}
+
+.pillLabel {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--text);
+}
+
+.pillAction {
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.pillReady .pillAction {
+  background: var(--spring-green);
+  color: var(--evergreen);
+}
+
+.pillDismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  margin-right: 6px;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+
+.pillDismiss:hover {
+  background: var(--surface-2);
+  color: var(--text);
 }

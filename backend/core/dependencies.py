@@ -18,7 +18,6 @@ from services.directory_service import DirectoryService
 from services.embeddings_service import EmbeddingsService
 from services.fraud_analytics_service import FraudAnalyticsService
 from services.fraud_assessment_service import FraudAssessmentService
-from services.fraud_decision_service import FraudDecisionService
 from services.patterns_service import PatternsService
 
 
@@ -51,13 +50,6 @@ def get_claims_service(
     reviews_repo: Annotated[ReviewsRepository, Depends(get_reviews_repo)],
 ) -> ClaimsService:
     return ClaimsService(claims_repo, reviews_repo)
-
-
-def get_fraud_decision_service(
-    claims_repo: Annotated[ClaimsRepository, Depends(get_claims_repo)],
-    patterns_repo: Annotated[PatternsRepository, Depends(get_patterns_repo)],
-) -> FraudDecisionService:
-    return FraudDecisionService(claims_repo, patterns_repo)
 
 
 def get_directory_service(
@@ -104,7 +96,6 @@ def get_embeddings_service(
 
 
 ClaimsServiceDep = Annotated[ClaimsService, Depends(get_claims_service)]
-FraudDecisionServiceDep = Annotated[FraudDecisionService, Depends(get_fraud_decision_service)]
 DirectoryServiceDep = Annotated[DirectoryService, Depends(get_directory_service)]
 PatternsServiceDep = Annotated[PatternsService, Depends(get_patterns_service)]
 FraudAnalyticsServiceDep = Annotated[FraudAnalyticsService, Depends(get_fraud_analytics_service)]

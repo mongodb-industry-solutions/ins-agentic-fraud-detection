@@ -2,18 +2,19 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import { getAuditTrail, getClaim, submitFraudDecision } from "@/lib/api/claims";
-import { STATUS, toFraudReportViewModel } from "@/lib/claimsPresenter";
-import { toDemoReport } from "@/lib/const/demoReports";
+import { streamClaimDecision } from "@/lib/api/agentChat";
+import { getAuditTrail, getClaim } from "@/lib/api/claims";
+import { toFraudReportViewModel } from "@/lib/claimsPresenter";
 import { PROFILE } from "@/lib/const/nav";
+import { getOrCreateUserId } from "@/lib/userIdentity";
 
 /**
  * Loads one claim's fraud report: the claim detail (authoritative for the
  * current decision) plus the newest audit-trail entry (authoritative for the
- * analysis content). Falls back to the canned report when no backend is
- * reachable, so the drawer is demoable standalone.
+ * analysis content). A failed load is shown as an error, never replaced
+ * with sample data.
  */
-export default function useReportDrawer(claimId, row) {
+export default function useReportDrawer(claimId) {
   const [report, setReport] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -34,17 +35,12 @@ export default function useReportDrawer(claimId, row) {
         setReport(toFraudReportViewModel(claim, audit?.records?.[0]));
       } catch (fetchError) {
         if (signal?.aborted) return;
-        const demo = toDemoReport(claimId, row);
-        if (demo) {
-          setReport(toFraudReportViewModel(demo.claim, demo.review));
-        } else {
-          setError(fetchError.message);
-        }
+        setError(fetchError.message || "Could not load this report.");
       } finally {
         if (!signal?.aborted) setIsLoading(false);
       }
     },
-    [claimId, row]
+    [claimId]
   );
 
   useEffect(() => {
@@ -54,37 +50,36 @@ export default function useReportDrawer(claimId, row) {
     return () => controller.abort();
   }, [claimId, load]);
 
+  const [decisionError, setDecisionError] = useState(null);
+
   /**
+   * The agent is the only writer of fraud state, so the verdict goes to the
+   * agent (no session needed: the assessment trace is already persisted) and
+   * the report is reloaded from MongoDB to show what actually landed.
+   *
    * A dismissal always carries a reason — the backend rejects one without it,
    * so the caller is expected to have gated on a non-empty field already.
    */
   const decide = useCallback(
     async (decision, dismissReason) => {
       setIsSubmitting(true);
+      setDecisionError(null);
       try {
-        await submitFraudDecision(claimId, {
-          decision,
-          reviewedBy: PROFILE.name,
-          dismissReason: decision === "DISMISSED" ? dismissReason : undefined,
-        });
-        await load();
-      } catch {
-        // No backend in demo mode: apply the decision locally so the section
-        // still reflects the new state without a close/reopen.
-        setReport((current) =>
-          current
-            ? {
-                ...current,
-                statusKey: decision === "CONFIRMED_FRAUD" ? STATUS.FLAGGED : STATUS.CLEARED,
-                decision: {
-                  state: decision === "CONFIRMED_FRAUD" ? "confirmed" : "dismissed",
-                  reviewedBy: PROFILE.name,
-                  reviewedAtLabel: "JUST NOW",
-                  dismissReason: decision === "DISMISSED" ? dismissReason : null,
-                },
-              }
-            : current
+        let streamError = null;
+        await streamClaimDecision(
+          {
+            claimId,
+            decision,
+            reviewedBy: PROFILE.name,
+            dismissReason: decision === "DISMISSED" ? dismissReason : undefined,
+            userId: getOrCreateUserId(),
+          },
+          { onStreamError: (reason) => (streamError = reason) }
         );
+        if (streamError) throw new Error(streamError);
+        await load();
+      } catch (submitError) {
+        setDecisionError(submitError.message || "The agent could not record the decision.");
       } finally {
         setIsSubmitting(false);
       }
@@ -92,5 +87,5 @@ export default function useReportDrawer(claimId, row) {
     [claimId, load]
   );
 
-  return { report, isLoading, error, isSubmitting, decide };
+  return { report, isLoading, error, decisionError, isSubmitting, decide };
 }

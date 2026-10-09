@@ -30,13 +30,14 @@ MAX_SCORE = 12
 # read from. Anything that needs to know what band a score falls into should now
 # read it from a response rather than re-deriving it from a threshold of its own.
 #
-# Note this is still not the *agent's* banding: the agent reports a bandLabel
-# from cutoffs held in its own instructions, outside this repo. Reconciling those
-# two is a separate job; this constant is the authority for portfolio analytics.
+# These mirror the agent's triage bands exactly (FAST_TRACK_MAX / REVIEW_MIN /
+# PRIORITY_MIN in the agent's main.py), which are also what it writes into each
+# decision trace: 0-3 fast-track, 4-8 review, 9-12 priority. The agent assigns
+# the score, so the dashboard must band it the same way. Change both together.
 SCORE_BANDS: tuple[tuple[int, str], ...] = (
-    (9, "HIGH"),
-    (6, "REVIEW"),
-    (0, "LOW"),
+    (9, "PRIORITY"),
+    (4, "REVIEW"),
+    (0, "FAST_TRACK"),
 )
 
 # One enormous cluster — a pattern that fired on 40 claims — would otherwise

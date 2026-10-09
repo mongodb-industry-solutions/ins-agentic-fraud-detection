@@ -12,9 +12,7 @@ import {
   toOverviewSections,
   toPolicyTab,
 } from "@/lib/claimDetailPresenter";
-import { STATUS } from "@/lib/claimsPresenter";
 import { toUpdatePayload } from "@/lib/const/claimFields";
-import { toDemoClaimDetail } from "@/lib/const/demoClaimDetail";
 
 /**
  * All state for one claim's view. The detail document is fetched once when the
@@ -26,6 +24,7 @@ export default function useClaimView(claimId) {
   const [linked, setLinked] = useState(null);
   const [audit, setAudit] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
 
   const [activeTab, setActiveTab] = useState("overview");
   const [isEditing, setIsEditing] = useState(false);
@@ -37,6 +36,7 @@ export default function useClaimView(claimId) {
   const load = useCallback(
     async (signal) => {
       setIsLoading(true);
+      setLoadError(null);
       try {
         const [claim, linkedResponse, auditResponse] = await Promise.all([
           getClaim(claimId),
@@ -47,12 +47,14 @@ export default function useClaimView(claimId) {
         setDetail(claim);
         setLinked(linkedResponse);
         setAudit(auditResponse);
-      } catch {
+      } catch (error) {
         if (signal?.aborted) return;
-        const demo = toDemoClaimDetail(claimId);
-        setDetail(demo.claim);
-        setLinked(demo.linked);
-        setAudit(demo.audit);
+        // Cleared rather than kept: another claim's data under this claim's id
+        // would misrepresent it.
+        setDetail(null);
+        setLinked(null);
+        setAudit(null);
+        setLoadError(error.message || "Could not load this claim.");
       } finally {
         if (!signal?.aborted) setIsLoading(false);
       }
@@ -115,17 +117,9 @@ export default function useClaimView(claimId) {
       setIsEditing(false);
       setDrafts({});
     } catch (error) {
-      // 502 is this app's proxy reporting the backend unreachable: merge
-      // locally so the demo shows the saved value.
-      if (error.status === 502 || !error.status) {
-        setDetail((current) => (current ? { ...current, ...changed } : current));
-        setIsEditing(false);
-        setDrafts({});
-        return;
-      }
-      // A real refusal (422 whitelist violation, 404, ...) keeps edit mode open
-      // with the drafts intact so the values aren't silently lost.
-      setSaveError(error.message);
+      // Any failure (422 whitelist violation, 404, backend unreachable) keeps
+      // edit mode open with the drafts intact so the values aren't lost.
+      setSaveError(error.message || "Could not save the changes.");
     }
   }, [claimId, drafts, detail, load, cancelEditing]);
 
@@ -144,29 +138,17 @@ export default function useClaimView(claimId) {
         return;
       }
 
-      // 502 is this app's own proxy reporting the backend unreachable, so fall
-      // back to demo behaviour: apply the backend's own guard locally, and
-      // otherwise mark the claim closed so the gated actions can be seen.
-      if (error.status === 502 || !error.status) {
-        if (header?.statusKey === STATUS.PENDING) {
-          setCloseConflict(true);
-        } else {
-          setDetail((current) =>
-            current
-              ? { ...current, claimStatus: "CLOSED", closedAt: new Date().toISOString() }
-              : current
-          );
-        }
-        return;
-      }
-
-      // Any other status is a real backend refusal and gets stated as one.
-      setCloseError(error.message);
+      // Anything else (including the backend being unreachable) is stated as is.
+      setCloseError(error.message || "Could not close this claim.");
     }
   }, [claimId, load, header]);
 
+  const retry = useCallback(() => load(), [load]);
+
   return {
     isLoading,
+    loadError,
+    retry,
     header,
     tabs,
     activeTab,

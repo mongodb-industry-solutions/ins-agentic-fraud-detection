@@ -35,12 +35,3 @@ export function closeClaim(claimId) {
 export function selectBatch(claimIds) {
   return apiFetch("/claims/batch/select", { method: "POST", body: { claimIds } });
 }
-
-/** Commits the human decision. The path is `/decision` — matches
- *  `@router.post("/{claim_id}/decision")` in backend/routers/claims.py. */
-export function submitFraudDecision(claimId, { decision, reviewedBy, dismissReason, siuReferred }) {
-  return apiFetch(`/claims/${claimId}/decision`, {
-    method: "POST",
-    body: { decision, reviewedBy, dismissReason, siuReferred },
-  });
-}

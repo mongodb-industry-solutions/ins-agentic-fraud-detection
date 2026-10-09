@@ -80,7 +80,6 @@ export default function Dashboard({ onOpenClaim, onAnalyze }) {
       {dashboard.reportClaimId && (
         <ReportDrawer
           claimId={dashboard.reportClaimId}
-          row={dashboard.reportRow}
           onClose={dashboard.closeReport}
           onViewClaim={onOpenClaim}
         />

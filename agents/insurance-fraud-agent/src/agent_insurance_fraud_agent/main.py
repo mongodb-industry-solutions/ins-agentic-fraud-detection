@@ -25,7 +25,6 @@ import uuid
 from datetime import UTC, datetime
 from typing import Annotated, Any, Literal, TypedDict, cast
 
-from agent_engine_runner_shared.models import SuspendPayload
 from agent_engine_sdk_langgraph import App
 from dotenv import load_dotenv
 from langchain_core.language_models import BaseChatModel
@@ -236,19 +235,41 @@ def _eval_single(
 
     if left is None:
         return False, f"field '{field}' missing"
-    if operator == "GREATER_THAN":
-        return left > value, f"{field}={left} > {value}"
-    if operator == "GREATER_THAN_OR_EQUAL":
-        return left >= value, f"{field}={left} >= {value}"
-    if operator == "LESS_THAN":
-        return left < value, f"{field}={left} < {value}"
-    if operator == "LESS_THAN_OR_EQUAL":
-        return left <= value, f"{field}={left} <= {value}"
-    if operator == "EQUALS":
-        return left == value, f"{field}={left} == {value}"
-    if operator == "NOT_EQUALS":
-        return left != value, f"{field}={left} != {value}"
-    return False, f"unsupported operator {operator}"
+
+    if operator in ("IN", "NOT_IN"):
+        if not isinstance(value, list):
+            return False, f"{operator} needs a list value"
+        inside = left in value
+        if operator == "IN":
+            return inside, f"{field}={left} {'in' if inside else 'not in'} {value}"
+        return not inside, f"{field}={left} {'in' if inside else 'not in'} {value}"
+
+    # Field-to-field comparison: with no literal `value`, compare against
+    # `comparisonField` (e.g. FP-004: claimAmount > vehicleSnapshot.value).
+    target, target_label = value, value
+    if value is None and comparison_field:
+        target = _get_path(claim, comparison_field)
+        target_label = f"{comparison_field}={target}"
+        if target is None:
+            return False, f"field '{comparison_field}' missing"
+    if target is None and operator not in ("EQUALS", "NOT_EQUALS"):
+        return False, f"rule has no value to compare {field} against"
+
+    comparisons = {
+        "GREATER_THAN": (lambda a, b: a > b, ">"),
+        "GREATER_THAN_OR_EQUAL": (lambda a, b: a >= b, ">="),
+        "LESS_THAN": (lambda a, b: a < b, "<"),
+        "LESS_THAN_OR_EQUAL": (lambda a, b: a <= b, "<="),
+        "EQUALS": (lambda a, b: a == b, "=="),
+        "NOT_EQUALS": (lambda a, b: a != b, "!="),
+    }
+    if operator not in comparisons:
+        return False, f"unsupported operator {operator}"
+    compare, symbol = comparisons[operator]
+    try:
+        return compare(left, target), f"{field}={left} {symbol} {target_label}"
+    except TypeError:
+        return False, f"cannot compare {field}={left!r} {symbol} {target_label!r}"
 
 
 def _applies_to(claim: dict, pattern: dict) -> bool:
@@ -308,7 +329,18 @@ def _evaluate_rules(claim: dict) -> list[dict]:
     store = _require_store()
     fired: list[dict] = []
     for pattern in store.fraud_patterns.list_active_rules():
-        ok, detail = _rule_fires(claim, pattern)
+        # One malformed rule must not abort the whole assessment: it is logged
+        # and treated as not fired.
+        try:
+            ok, detail = _rule_fires(claim, pattern)
+        except Exception as exc:  # noqa: BLE001
+            logger.warning(
+                "Rule %s could not be evaluated on %s: %s",
+                pattern.get("patternId"),
+                claim.get("claimId"),
+                exc,
+            )
+            continue
         if ok:
             fired.append(_matched_pattern(pattern, detail))
     return fired
@@ -404,6 +436,88 @@ def _similar_patterns(claim: dict) -> list[dict]:
     if vector_matches is not None:
         return vector_matches
     return _similar_by_examples(claim)
+
+
+def _similar_claim_entry(m: dict, similarity: Any) -> dict:
+    fraud = m.get("fraud") or {}
+    return {
+        "claimId": m.get("claimId"),
+        "similarity": round(float(similarity), 4) if similarity is not None else None,
+        "claimType": m.get("claimType"),
+        "coverageType": m.get("coverageType"),
+        "claimAmount": m.get("claimAmount"),
+        "claimStatus": m.get("claimStatus"),
+        "description": m.get("description"),
+        "fraudFlag": fraud.get("fraudFlag"),
+        "computedScore": fraud.get("computedScore"),
+        "reviewedBy": fraud.get("reviewedBy"),
+        "siuReferred": fraud.get("siuReferred"),
+    }
+
+
+def _similar_claims(
+    store, claim: dict, k: int = 5, all_claim_types: bool = False
+) -> tuple[list[dict], str, str | None]:
+    """Claim-to-claim vector search shared by find_similar_claims and assess_claim_fraud.
+
+    Returns (similar claims, embedding source, error). Prefers the claim's own stored
+    embedding: it is already in the same (document) space as the corpus, so no Voyage
+    call is needed. Only embeds the narrative on the fly when the claim has none yet
+    (e.g. a brand-new claim written before its embedding was backfilled).
+    """
+    embedding = claim.get("embedding")
+    embedding_source = "stored"
+    if not embedding:
+        embedding = _embed_text(_claim_narrative(claim))
+        embedding_source = "computed"
+    if not embedding:
+        return (
+            [],
+            embedding_source,
+            "Similarity search unavailable: claim has no stored embedding and an embedding "
+            "could not be computed (check VOYAGE_API_KEY / VOYAGE_MODEL in the tool runtime "
+            "and the logs for 'Error in get_embedding').",
+        )
+    matches = store.claims.vector_search(
+        embedding,
+        k=k,
+        exclude_claim_id=claim.get("claimId"),
+        claim_type=None if all_claim_types else claim.get("claimType"),
+        adjudicated_only=True,
+    )
+    results = [_similar_claim_entry(m, m.get("similarity", 0.0)) for m in matches]
+    return results, embedding_source, None
+
+
+def _linked_claims(store, claim: dict, similar_claim_ids: str) -> list[dict]:
+    """The similar claims persisted on an assessed claim, for later analytics.
+
+    Uses the claim IDs the agent cited in its assessment (comma-separated). Each is
+    enriched with its vector similarity when it appears in the search results, or
+    looked up directly otherwise (similarity null). When the agent cites none, the top
+    vector-search neighbours are stored so every assessment still carries precedent.
+    """
+    found, _, _ = _similar_claims(store, claim, k=10, all_claim_types=True)
+    by_id = {c["claimId"]: c for c in found}
+    cited = [c.strip() for c in (similar_claim_ids or "").split(",") if c.strip()]
+    cited = [c for c in dict.fromkeys(cited) if c != claim.get("claimId")]
+    if cited:
+        linked = []
+        for cid in cited:
+            entry = by_id.get(cid)
+            if entry is None:
+                doc = store.claims.read(cid)
+                if not doc:
+                    continue
+                entry = _similar_claim_entry(doc, None)
+            linked.append({**entry, "citedByAgent": True})
+    else:
+        same_type = [c for c in found if c.get("claimType") == claim.get("claimType")]
+        linked = [{**c, "citedByAgent": False} for c in (same_type or found)[:5]]
+    # Keep the persisted record lean: the narrative lives on the linked claim itself.
+    for entry in linked:
+        entry.pop("description", None)
+    return linked
 
 
 def _score_band(score: int) -> str:
@@ -724,9 +838,22 @@ def update_claim(claim_id: str, updates_json: str) -> str:
         claim_id:     Claim ID to update (e.g. "CLM-IL-2024-0047821")
         updates_json: JSON object of field paths -> new values
                       (e.g. '{"claimStatus": "CLOSED", "paidAmount": 9800}')
+                      Fraud fields (`fraud` / `fraud.*`) are rejected: they are written
+                      only by `assess_claim_fraud` and `record_fraud_decision`.
     """
     try:
         updates = json.loads(updates_json)
+        fraud_keys = sorted(k for k in updates if k == "fraud" or k.startswith("fraud."))
+        if fraud_keys:
+            # Hand-written fraud state would skip the decision trace and pattern stats.
+            return json.dumps(
+                {
+                    "error": "Fraud fields cannot be set with update_claim: "
+                    f"{fraud_keys}. Use assess_claim_fraud (score, patterns, similar "
+                    "claims) or record_fraud_decision (verdict). If one of those tools "
+                    "fails, report the error to the human instead of working around it."
+                }
+            )
         # If the loss narrative changes, re-embed it so the claim's vector stays in sync.
         new_desc = updates.get("description")
         if isinstance(new_desc, str) and new_desc.strip():
@@ -764,53 +891,9 @@ def find_similar_claims(claim_id: str, k: int = 5, all_claim_types: bool = False
         if not claim:
             return json.dumps({"error": f"No claim found: {claim_id}"})
 
-        # Prefer the claim's own stored embedding: it is already in the same
-        # (document) space as the corpus, so claim-to-claim search needs no query
-        # embedding — no Voyage call, no VOYAGE_API_KEY dependency at query time.
-        # Only embed the narrative on the fly when the claim has none yet (e.g. a
-        # brand-new claim written before its embedding was backfilled).
-        embedding = claim.get("embedding")
-        embedding_source = "stored"
-        if not embedding:
-            embedding = _embed_text(_claim_narrative(claim))
-            embedding_source = "computed"
-        if not embedding:
-            return json.dumps(
-                {
-                    "claimId": claim_id,
-                    "error": (
-                        "Similarity search unavailable: claim has no stored embedding and "
-                        "an embedding could not be computed (check VOYAGE_API_KEY / VOYAGE_MODEL "
-                        "in the tool runtime and the logs for 'Error in get_embedding')."
-                    ),
-                }
-            )
-        claim_type = None if all_claim_types else claim.get("claimType")
-        matches = store.claims.vector_search(
-            embedding,
-            k=k,
-            exclude_claim_id=claim_id,
-            claim_type=claim_type,
-            adjudicated_only=True,
-        )
-        results = []
-        for m in matches:
-            fraud = m.get("fraud") or {}
-            results.append(
-                {
-                    "claimId": m.get("claimId"),
-                    "similarity": round(float(m.get("similarity", 0.0)), 4),
-                    "claimType": m.get("claimType"),
-                    "coverageType": m.get("coverageType"),
-                    "claimAmount": m.get("claimAmount"),
-                    "claimStatus": m.get("claimStatus"),
-                    "description": m.get("description"),
-                    "fraudFlag": fraud.get("fraudFlag"),
-                    "computedScore": fraud.get("computedScore"),
-                    "reviewedBy": fraud.get("reviewedBy"),
-                    "siuReferred": fraud.get("siuReferred"),
-                }
-            )
+        results, embedding_source, error = _similar_claims(store, claim, k, all_claim_types)
+        if error:
+            return json.dumps({"claimId": claim_id, "error": error})
         return json.dumps(
             {
                 "claimId": claim_id,
@@ -976,13 +1059,16 @@ def assess_claim_fraud(
     triggered_by: str,
     trigger_type: str = "SINGLE_CLAIM",
     batch_id: str = "",
+    similar_claim_ids: str = "",
 ) -> str:
     """Compute a fraud-assessment proposal for a claim and persist it for human approval.
 
     Runs both tracks — deterministic RULE patterns and the HISTORICAL_SIMILARITY track —
     collects every pattern that matches, sums their integer `weight` to get `rawScore`,
     and caps it at 12 to get `computedScore`. Writes `computedScore` / `rawScore` /
-    `matchedPatterns` onto the claim, increments each matched pattern's `timesTriggered`,
+    `matchedPatterns` / `similarClaims` onto the claim and marks it `processed` (so its
+    fraud status reads as assessed everywhere, whatever started the assessment),
+    recounts the stats of each affected pattern from the claims it matches,
     and opens ONE decision_traces document (traceId TRC-nnnn) holding the whole assessment.
     The human's verdict is later merged into that SAME trace by `record_fraud_decision` —
     it does not create a second document.
@@ -1001,6 +1087,11 @@ def assess_claim_fraud(
                        e.g. "adjuster:ADJ-1004", "manager:MGR-2001", "batch:nightly".
         trigger_type:  SINGLE_CLAIM (default) or BATCH.
         batch_id:      Batch identifier when trigger_type is BATCH; leave empty otherwise.
+        similar_claim_ids: Comma-separated IDs of the similar historical claims you cited
+                       as precedent (from `find_similar_claims`, which you must call
+                       BEFORE this tool), e.g. "CLM-2003,CLM-2011". Stored on the claim
+                       and the trace as `similarClaims`, with each one's similarity and
+                       fraud outcome. If empty, the top vector-search neighbours are stored.
     """
     try:
         store = _require_store()
@@ -1032,13 +1123,17 @@ def assess_claim_fraud(
             {"patternId": m["patternId"], "patternName": m["patternName"], "weight": m["weight"]}
             for m in matched
         ]
-        store.claims.set_fraud_assessment(claim_id, computed_score, raw_score, matched_patterns)
-        for m in matched:
-            store.fraud_patterns.increment_triggered(m["patternId"])
+        similar_claims = _linked_claims(store, claim, similar_claim_ids)
+        # Patterns from a previous assessment of this claim are recounted too, so one a
+        # re-assessment no longer matches drops this claim from its stats.
+        previous_ids = [
+            m.get("patternId") for m in ((claim.get("fraud") or {}).get("matchedPatterns") or [])
+        ]
 
         now = datetime.now(UTC)
+        trace_id = store.decision_traces.next_trace_id()
         trace = DecisionTrace(
-            traceId=store.decision_traces.next_trace_id(),
+            traceId=trace_id,
             claimId=claim_id,
             customerId=claim.get("customerId"),
             policyId=claim.get("policyId"),
@@ -1047,6 +1142,7 @@ def assess_claim_fraud(
             triggeredBy=triggered_by.strip(),
             triggeredAt=now,
             matchedPatterns=matched_patterns,
+            similarClaims=similar_claims,
             rawScore=raw_score,
             computedScore=computed_score,
             agentSummary=agent_summary.strip(),
@@ -1068,6 +1164,18 @@ def assess_claim_fraud(
             createdAt=now,
         )
         written = store.decision_traces.write(trace)
+        # Claim written after the trace so fraud.lastTraceId always points at a real one.
+        store.claims.set_fraud_assessment(
+            claim_id,
+            computed_score,
+            raw_score,
+            matched_patterns,
+            similar_claims=similar_claims,
+            trace_id=trace_id,
+        )
+        patterns_updated = store.fraud_patterns.recompute_stats(
+            previous_ids + [m["patternId"] for m in matched]
+        )
 
         return json.dumps(
             {
@@ -1082,6 +1190,8 @@ def assess_claim_fraud(
                 or "no patterns matched",
                 "traceId": written.get("traceId"),
                 "agentSummary": written.get("agentSummary"),
+                "similarClaimsRecorded": [c["claimId"] for c in similar_claims],
+                "patternsUpdated": patterns_updated,
                 "note": "Proposal only — awaiting human approval. record_fraud_decision "
                 "will merge the verdict into this same trace.",
             },
@@ -1098,43 +1208,6 @@ def assess_claim_fraud(
 
 
 @app.tool()
-def request_fraud_review(
-    claim_id: str,
-    computed_score: int,
-    complexity: str,
-    rationale: str,
-    matched_patterns: str = "",
-) -> str:
-    """Request human review of a fraud-assessment proposal.
-
-    SUSPENDS execution until an analyst approves or overrides the proposal. Use for
-    COMPLEX claims and priority-band scores; low-risk fast-track claims can go straight
-    to record_fraud_decision.
-
-    Args:
-        claim_id:         Claim under review
-        computed_score:   The proposed computed fraud score (0-12)
-        complexity:       SIMPLE or COMPLEX (the claim's triage segment)
-        rationale:        Why this proposal needs human review (matched patterns, evidence)
-        matched_patterns: Optional JSON list of the patterns that matched
-    """
-    task_id = f"REVIEW-{uuid.uuid4().hex[:8].upper()}"
-    return SuspendPayload(
-        suspend_reason="awaiting_human_review",
-        suspend_context={
-            "task_id": task_id,
-            "claim_id": claim_id,
-            "computed_score": computed_score,
-            "complexity": complexity,
-            "rationale": rationale,
-            "matched_patterns": matched_patterns,
-            "created_at": datetime.now(UTC).isoformat(),
-            "instructions": "Approve (confirm fraud) or override (dismiss, with a reason) this proposal.",
-        },
-    ).to_json()
-
-
-@app.tool()
 def record_fraud_decision(
     claim_id: str,
     decision: str,
@@ -1142,15 +1215,17 @@ def record_fraud_decision(
     notes: str = "",
     siu_referred: bool = False,
     dismiss_reason: str = "",
+    close_claim: bool = True,
 ) -> str:
-    """Record the human's decision on a fraud proposal and close the feedback loop.
+    """Record the human's decision on a fraud proposal, close the claim and the feedback loop.
 
     This is the approval step: the human either approves the agent's proposal
     (CONFIRMED_FRAUD) or overrides it (DISMISSED). It writes the decision onto the claim's
-    fraud block (fraudFlag / flagSource=HUMAN / reviewedBy / reviewedAt, plus siuReferred /
-    dismissReason), MERGES the verdict into the claim's existing assessment trace as
-    `humanDecision` (no second trace document is created), and updates confirmedFraudRate
-    on every pattern that matched during the assessment.
+    fraud block (fraudFlag / flagSource=HUMAN / reviewedBy / reviewedAt / processed, plus
+    siuReferred / dismissReason), closes the claim (claimStatus=CLOSED, closedAt), MERGES
+    the verdict into the claim's existing assessment trace as `humanDecision` (no second
+    trace document is created), and updates confirmedFraudRate on every pattern that
+    matched during the assessment.
 
     Normally run `assess_claim_fraud` first so there is a trace to decide on. If none
     exists, a decision-only trace is opened so the verdict is never lost.
@@ -1166,6 +1241,8 @@ def record_fraud_decision(
         siu_referred:   True if the claim is being referred to the SIU (Special
                         Investigations Unit)
         dismiss_reason: Reason for dismissal (recommended when decision is DISMISSED)
+        close_claim:    Close the claim as part of recording the decision (default True).
+                        Pass False only if the human explicitly asks to keep it open.
     """
     try:
         store = _require_store()
@@ -1182,7 +1259,7 @@ def record_fraud_decision(
         reasoning = (dismiss_reason or notes or "").strip()
         now = datetime.now(UTC)
 
-        store.claims.set_fraud_decision(
+        updated_claim = store.claims.set_fraud_decision(
             claim_id,
             fraud_flag,
             "HUMAN",
@@ -1190,7 +1267,10 @@ def record_fraud_decision(
             now,
             siu_referred=siu_referred,
             dismiss_reason=(dismiss_reason.strip() or None) if not fraud_flag else None,
+            close_claim=close_claim,
         )
+        if not updated_claim:
+            return json.dumps({"error": f"Decision for {claim_id} was not written to the claim."})
 
         # The matched patterns are persisted on the claim by assess_claim_fraud;
         # fall back to the claim's assessment trace if needed.
@@ -1210,11 +1290,9 @@ def record_fraud_decision(
                 if m.get("patternId")
             ]
 
-        bumped = []
-        for pid in matched_ids:
-            updated = store.fraud_patterns.bump_stats(pid, confirmed=fraud_flag)
-            if updated:
-                bumped.append({"patternId": pid, "stats": updated.get("stats")})
+        # Recounted from the claims (now carrying this verdict), so re-deciding a claim
+        # can never count it twice.
+        bumped = store.fraud_patterns.recompute_stats(matched_ids)
 
         if assessment:
             written = (
@@ -1272,6 +1350,8 @@ def record_fraud_decision(
                 "decision": label,
                 "fraudFlag": fraud_flag,
                 "siuReferred": siu_referred,
+                "claimStatus": updated_claim.get("claimStatus"),
+                "closedAt": updated_claim.get("closedAt"),
                 "traceId": written.get("traceId"),
                 "traceAction": trace_action,
                 "patternsUpdated": bumped,
@@ -1651,8 +1731,8 @@ is descriptive only — `weight` is what scores. Two tracks find matches:
 
 `assess_claim_fraud` runs BOTH tracks, records every matched pattern with the points it
 contributed (`matchedPatterns`), computes `rawScore` = sum of weights and `computedScore` =
-min(rawScore, 12), writes them onto the claim, increments each matched pattern's
-`timesTriggered`, opens the claim's audit trace, and returns the proposal. It does NOT set
+min(rawScore, 12), writes them onto the claim, recounts each matched pattern's stats,
+opens the claim's audit trace, and returns the proposal. It does NOT set
 `complexity`. Prefer it for a deep-dive; call the two track tools individually to show one track
 in isolation or explain a single number. It requires `agent_summary` and `triggered_by` — see
 "The Audit Trail" below.
@@ -1677,23 +1757,30 @@ into.)
    `fraud.computedScore` from a prior assessment.
 2. Build context: `get_customer_profile` (prior claims, other policies); if useful,
    `list_claims_by_policy` and `lookup_policy` (inception date, coverage, premium).
-3. `assess_claim_fraud` — compute the proposal: matched patterns, `computedScore`/`rawScore`,
-   and the point breakdown. This persists the score and opens the audit trace. You MUST pass
-   `agent_summary` (your prose summary) and `triggered_by` (the initiator, as role:id).
+3. Gather the pattern evidence (read-only): `evaluate_claim_rules` and
+   `find_similar_fraud_patterns` show which patterns fire and why.
 4. `find_similar_claims` — **REQUIRED**: every fraud analysis MUST include a claim-to-claim
    similarity comparison. Retrieve the closest historical claims and inspect their fraud
    outcomes. Call out any neighbour that was **CONFIRMED fraud** (`fraudFlag=true` / SIU-referred):
    a high-similarity match to a known fraud claim is strong corroborating evidence and must be
    stated explicitly. (Defaults to the same `claimType`; set `all_claim_types=true` to widen when
-   the segment is thin.)
-5. Optionally `lookup_claim` on a matched similarity pattern's `exampleClaimIds` to cite concrete
-   precedent as supporting evidence.
+   the segment is thin.) Optionally `lookup_claim` on a matched similarity pattern's
+   `exampleClaimIds` to cite concrete precedent.
+5. `assess_claim_fraud` — only once ALL evidence above is in hand. You own persistence: this
+   one call writes the score, matched patterns, the similar claims you linked and
+   `processed=true` onto the claim, and opens the audit trace. You MUST pass `agent_summary`
+   (your prose summary), `triggered_by` (the initiator, as role:id) and `similar_claim_ids`
+   (comma-separated IDs of the similar claims you cite in your report). Never skip this
+   step, whether the assessment came from the Analyze button, a chat question or a batch:
+   an assessment that is not recorded does not exist for the rest of the system.
 6. Deliver the **Fraud Assessment Proposal** (report format below) — the proposed score with its
-   full arithmetic breakdown and a fraud / no-fraud recommendation.
+   full arithmetic breakdown, the `traceId`, and a fraud / no-fraud recommendation.
 7. Hand the decision to the human. On their response, call `record_fraud_decision` —
    CONFIRMED_FRAUD to approve your proposal, or DISMISSED (with a `dismiss_reason`, and
    `siu_referred=true` if they're referring it to the Special Investigations Unit) to override
-   it. This merges their verdict into the trace opened in step 3.
+   it. This writes the verdict onto the claim, closes the claim, and merges the verdict into
+   the trace opened in step 5.
+   Never set fraud fields by hand with `update_claim`: these two tools are the only writers.
 8. Offer `send_notification` if a downstream party should be told.
 
 ### Simple-Claims Triage & Bulk Fast-Track
@@ -1800,13 +1887,16 @@ itself a 🟡 control gap. Report the `traceId` back to the human on every recor
 ---
 
 ## Decision Recording & The Feedback Loop
-The score is computed at assessment time (each matched pattern's `timesTriggered` increments
-then). The human's judgement enters via `record_fraud_decision`, which on every call:
-- writes `fraudFlag` / `flagSource=HUMAN` / `reviewedBy` / `reviewedAt` onto the claim, plus
+The score is computed at assessment time, and each matched pattern's stats are recounted
+from the claims then (`timesTriggered` = claims it matches). The human's judgement enters via `record_fraud_decision`, which on every call:
+- writes `fraudFlag` / `flagSource=HUMAN` / `reviewedBy` / `reviewedAt` / `processed=true`
+  onto the claim (and `processedAt` if the claim never had one), closes the claim
+  (`claimStatus=CLOSED`, `closedAt`), plus
   `siuReferred` and `dismissReason` when provided,
 - merges the verdict into the claim's existing assessment trace as `humanDecision`, and
-- updates `confirmedFraudRate` on every fraud_pattern that matched for that claim (the patterns
-  stored in `fraud.matchedPatterns`).
+- recounts `confirmedCount` / `confirmedFraudRate` on every fraud_pattern that matched for that
+  claim (the patterns stored in `fraud.matchedPatterns`). Stats are recounted from the claims,
+  never incremented, so they always reflect the current data.
 That last step is the learning loop: confirmations and dismissals refine each pattern's proven
 reliability, a useful signal for recalibrating point weights later. Note `confirmedFraudRate` is
 independent of `weight` — a pattern can be highly reliable yet still carry a modest point value.
@@ -1845,7 +1935,6 @@ faithfully even when it overrides your proposal.
 - Tune/retire a pattern (`update_fraud_pattern`)
 
 ### Human Review & Decisions
-- Suspend for a human analyst on COMPLEX claims (`request_fraud_review`)
 - Record the confirm/dismiss decision + run the feedback loop (`record_fraud_decision`)
 
 ### Decision Traces (Audit)

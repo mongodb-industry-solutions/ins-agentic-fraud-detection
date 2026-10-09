@@ -16,7 +16,7 @@ function toFragments(event) {
   const scoreLabel = toScoreLabel(event.computedScore);
 
   switch (event.type) {
-    case "AGENT_SCORED":
+    case "SCORE_PRODUCED":
       return {
         statusKey: STATUS.PENDING,
         icon: "sparkle",
@@ -28,7 +28,7 @@ function toFragments(event) {
           text(" — sent for review"),
         ],
       };
-    case "FRAUD_CONFIRMED":
+    case "DECISION_CONFIRMED":
       return {
         statusKey: STATUS.FLAGGED,
         icon: "alert",
@@ -36,6 +36,16 @@ function toFragments(event) {
           text(`${event.reviewedBy || "Reviewer"} confirmed fraud on `),
           mono(event.claimId),
           ...(scoreLabel ? [text(" scored "), score(scoreLabel)] : []),
+        ],
+      };
+    case "DECISION_DISMISSED":
+      return {
+        statusKey: STATUS.CLEARED,
+        icon: "check",
+        parts: [
+          text(`${event.reviewedBy || "Reviewer"} dismissed `),
+          mono(event.claimId),
+          text(" as not fraud"),
         ],
       };
     // case "BATCH_CLEARED":
@@ -55,7 +65,9 @@ function toFragments(event) {
 
 export function toActivityFeed(response) {
   return (response?.events || []).map((event, index) => ({
-    id: `${event.type}-${event.claimId || index}`,
+    // A claim can have several assessments, so the trace (plus the timestamp,
+    // for claim openings that have no trace) keeps every row's key unique.
+    id: `${event.type}-${event.traceId || event.claimId || "event"}-${event.timestamp || index}`,
     timestamp: toRelativeTime(event.timestamp),
     ...toFragments(event),
   }));

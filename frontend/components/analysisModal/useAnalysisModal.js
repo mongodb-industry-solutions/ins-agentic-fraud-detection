@@ -14,7 +14,8 @@ import { getOrCreateUserId } from "@/lib/userIdentity";
  *
  * The run starts on mount rather than behind a second click: the person already
  * pressed "Analyze for fraud", so making them confirm again would be a dead
- * step. Closing the modal aborts whatever is streaming.
+ * step. Minimising the modal keeps this hook mounted, so the run carries on;
+ * only discarding the assessment aborts what is streaming.
  *
  * `steps` accumulates every progress frame in order. `onProgress` only ever
  * carries the newest one, so without keeping the list the tool sequence the
@@ -49,7 +50,8 @@ export default function useAnalysisModal(claimId) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [decisionError, setDecisionError] = useState(null);
   // What the claim document actually looks like after the agent says it wrote:
-  // "verified" | "not-recorded" | "unknown", or null before a decision.
+  // "verified" | "unknown", or null before a decision. A "not-recorded" check
+  // surfaces as decisionError instead, with the form still open.
   const [persistence, setPersistence] = useState(null);
 
   /* Two abort refs, deliberately.
@@ -98,16 +100,26 @@ export default function useAnalysisModal(claimId) {
     activeAbortRef.current = controller;
 
     streamClaimAssessment(
-      { claimId, userId: getOrCreateUserId(), signal: controller.signal },
+      {
+        claimId,
+        userId: getOrCreateUserId(),
+        triggeredBy: `analyst:${PROFILE.name}`,
+        signal: controller.signal,
+      },
       {
         // The handle the follow-up questions and the decision both ride on.
         onSessionId: (sessionId) => acceptSessionId(sessionId, controller),
-        onProgress: (activity) =>
+        onProgress: (activity) => {
+          // The platform emits empty progress frames between steps; they would
+          // render as blank rows, so only labelled activity is kept.
+          const label = typeof activity === "string" ? activity.trim() : "";
+          if (!label) return;
           setSteps((current) =>
             // The agent repeats "Thinking..." between tool calls; collapsing
             // consecutive duplicates keeps the step list readable.
-            current[current.length - 1] === activity ? current : [...current, activity]
-          ),
+            current[current.length - 1] === label ? current : [...current, label]
+          );
+        },
         onText: (chunk) => setReport((current) => current + chunk),
         onDone: () => setPhase("complete"),
         onSuspend: () => setPhase("complete"),
@@ -117,9 +129,13 @@ export default function useAnalysisModal(claimId) {
         },
       }
     ).catch((streamError) => {
-      // Aborting is the reviewer closing the modal, not a failure.
-      if (streamError.name === "AbortError") return;
-      setError(streamError.message || "The assessment could not be completed.");
+      // The assessment is only ever aborted explicitly (Stop, or discarding it),
+      // so an abort ends the run rather than leaving it "running" for good.
+      setError(
+        streamError.name === "AbortError"
+          ? "You stopped the assessment before it finished. Nothing was recorded unless the agent had already reached assess_claim_fraud."
+          : streamError.message || "The assessment could not be completed."
+      );
       setPhase("error");
     });
 
@@ -230,37 +246,30 @@ export default function useAnalysisModal(claimId) {
    * The agent reporting success is not evidence that a write happened — it is a
    * language model describing its own actions. Since the audit trail and the
    * claim outcome are now the agent's responsibility, the one thing this UI can
-   * still do honestly is check.
+   * still do honestly is check. Returns "verified" | "not-recorded" | "unknown".
    */
   const verifyPersisted = useCallback(async () => {
     try {
-      const response = await getClaim(claimId);
-      const fraud = response?.claim?.fraud || {};
-      const recorded = fraud.reviewedAt != null && fraud.fraudFlag != null;
-      setPersistence(recorded ? "verified" : "not-recorded");
+      // GET /claims/{id} returns the claim document flat (ClaimDetailResponse),
+      // not wrapped in a `claim` key.
+      const claim = (await getClaim(claimId)) || {};
+      const fraud = claim.fraud || {};
+      const recorded =
+        fraud.reviewedAt != null && fraud.fraudFlag != null && claim.claimStatus === "CLOSED";
+      return recorded ? "verified" : "not-recorded";
     } catch {
       // Could not check — reported as unknown rather than as either outcome.
-      setPersistence("unknown");
+      return "unknown";
     }
   }, [claimId]);
 
   /**
-   * Sends the reviewer's verdict to the agent to commit, on the same session.
-   *
-   * Unlike the previous version of this hook, this does NOT call
-   * POST /claims/{id}/decision: the agent owns persistence now, so the verdict
-   * goes to the agent and the claim is read back afterwards to see whether it
-   * actually landed.
+   * Sends the reviewer's verdict to the agent to record, on the assessment's
+   * session when there is one. The agent is the only writer of fraud state, so
+   * the claim is read back afterwards to see whether the write actually landed.
    */
   const recordDecision = useCallback(
     async ({ decision: verdict, dismissReason, siuReferred }) => {
-      if (!sessionIdRef.current) {
-        setDecisionError(
-          "No agent session for this assessment, so the agent cannot be asked to record the decision. Re-run the analysis."
-        );
-        return;
-      }
-
       setIsSubmitting(true);
       setDecisionError(null);
       setPersistence(null);
@@ -274,7 +283,7 @@ export default function useAnalysisModal(claimId) {
             streamClaimDecision(
               {
                 claimId,
-                sessionId: sessionIdRef.current,
+                sessionId: sessionIdRef.current || undefined,
                 decision: verdict,
                 dismissReason,
                 siuReferred,
@@ -285,11 +294,19 @@ export default function useAnalysisModal(claimId) {
               handlers
             )
         );
+        const persisted = await verifyPersisted();
+        if (persisted === "not-recorded") {
+          // The decision form stays open so the reviewer can try again.
+          setDecisionError(
+            "The decision did not reach the claim record (it is not marked as decided and closed). Check the agent's reply above and record the decision again."
+          );
+          return;
+        }
+        setPersistence(persisted);
         setDecision({
           state: verdict === "CONFIRMED_FRAUD" ? "confirmed" : "dismissed",
           siuReferred,
         });
-        await verifyPersisted();
       } catch (submitError) {
         setDecisionError(submitError.message || "Could not send the decision to the agent.");
         throw submitError;

@@ -32,7 +32,7 @@ class ScoreBucket(BaseModel):
 
     score: int
     count: int = 0
-    # LOW / REVIEW / HIGH, assigned by SCORE_BANDS server-side. Clients colour
+    # FAST_TRACK / REVIEW / PRIORITY, assigned by SCORE_BANDS server-side. Clients colour
     # bars from this rather than re-deriving thresholds of their own.
     band: str
 

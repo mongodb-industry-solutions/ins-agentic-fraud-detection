@@ -47,9 +47,10 @@ class ReviewsRepository:
         claim openings are real events but not agentic ones, so a caller asking
         for agent activity must not be handed them.
 
-        A review document is one full assessment cycle: the agent produced a
-        score at `createdAt`, and a human may later have decided at
-        `reviewedAt`. So a single document can emit *two* events — the
+        A trace is one full assessment cycle: the agent produced a score at
+        `createdAt`, and a human may later have decided at
+        `humanDecision.decidedAt`. A claim can have several traces (one per
+        assessment), so events carry `traceId` to stay unique. So a single document can emit *two* events — the
         $concatArrays below builds a per-document event array (one entry, or
         two once a decision exists) which is then unwound. Claim openings are
         appended from the claims collection via $unionWith.
@@ -59,20 +60,23 @@ class ReviewsRepository:
                 [{
                     "type": "SCORE_PRODUCED",
                     "timestamp": "$createdAt",
+                    "traceId": "$traceId",
                     "claimId": "$claimId",
                     "computedScore": "$computedScore",
                 }],
                 {"$cond": [
-                    {"$ne": [{"$ifNull": ["$reviewedAt", None]}, None]},
+                    {"$ne": [{"$ifNull": ["$humanDecision.decidedAt", None]}, None]},
                     [{
                         "type": {"$cond": [
-                            {"$eq": ["$decision", "CONFIRMED_FRAUD"]},
+                            {"$eq": ["$humanDecision.decision", "CONFIRMED_FRAUD"]},
                             "DECISION_CONFIRMED",
                             "DECISION_DISMISSED",
                         ]},
-                        "timestamp": "$reviewedAt",
+                        "timestamp": "$humanDecision.decidedAt",
+                        "traceId": "$traceId",
                         "claimId": "$claimId",
-                        "reviewedBy": "$reviewedBy",
+                        "computedScore": "$computedScore",
+                        "reviewedBy": "$humanDecision.decidedBy",
                     }],
                     [],
                 ]},

@@ -37,6 +37,7 @@ async def assess_claim(
         session_id=options.sessionId,
         user_id=options.userId,
         focus=options.focus,
+        triggered_by=options.triggeredBy,
     )
 
     return StreamingResponse(
@@ -54,7 +55,7 @@ async def assess_claim(
 
 @router.post(
     "/{claim_id}/decision",
-    summary="Hand the reviewer's verdict to the agent to commit, and stream its reply",
+    summary="Hand the reviewer's verdict to the agent to record, and stream its reply",
     response_class=StreamingResponse,
 )
 async def commit_decision_via_agent(
@@ -62,12 +63,11 @@ async def commit_decision_via_agent(
     service: FraudAssessmentServiceDep,
     claim_id: str = ClaimIdPath,
 ) -> StreamingResponse:
-    """The closing turn of the assessment conversation.
+    """The closing turn of an assessment: the agent records the verdict.
 
-    Distinct from `POST /claims/{claim_id}/decision`, which writes the verdict to
-    MongoDB itself. This one asks the agent to persist the outcome and its own
-    audit record, on the session where it did the analysis — so the record is
-    written by the thing that produced the findings.
+    The agent is the only writer of fraud state, so this asks it to merge the
+    verdict into the claim's decision trace (record_fraud_decision) rather
+    than writing to MongoDB here. Uses the assessment's session when given.
 
     Streams the agent's confirmation of what it wrote. 400 if the decision is
     unusable, 404 if the claim does not exist, 503 if the agent is not
