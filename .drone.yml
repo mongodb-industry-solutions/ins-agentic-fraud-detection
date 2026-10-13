@@ -154,7 +154,7 @@ steps:
       chart_version: 4.30.0
       add_repos: [mongodb=https://10gen.github.io/helm-charts]
       namespace: industrysolutions
-      release: ins-agentic-fraud-detection-backend-prod ## NEED TO CHANGE - based on your demo name for eg.: financial-news-vector-search-backend-prod
+      release: ins-fraud-detection-backend-prod # kept short: gateway label <release>-web-app.<namespace> must be <= 63 chars ## NEED TO CHANGE - based on your demo name for eg.: financial-news-vector-search-backend-prod
       values:
         - "image.tag=git-${DRONE_COMMIT_SHA:0:7}-prod"
         - "image.repository=795250896452.dkr.ecr.us-east-1.amazonaws.com/industrysolutions/ins-agentic-fraud-detection-backend-prod" ## NEED TO CHANGE replace <your-demo-name> with your backend pod name from above
@@ -181,7 +181,7 @@ steps:
       chart_version: 4.30.0
       add_repos: [mongodb=https://10gen.github.io/helm-charts]
       namespace: industrysolutions
-      release: ins-agentic-fraud-detection-frontend-prod
+      release: ins-fraud-detection-frontend-prod # kept short: gateway label <release>-web-app.<namespace> must be <= 63 chars
       values:
         - "image.tag=git-${DRONE_COMMIT_SHA:0:7}-prod"
         - "image.repository=795250896452.dkr.ecr.us-east-1.amazonaws.com/industrysolutions/ins-agentic-fraud-detection-frontend-prod"

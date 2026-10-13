@@ -10,7 +10,7 @@ env:
   NODE_ENV: prod
   AWS_REGION: us-east-1
   # Backend API URL for frontend to connect to backend health check
-  BACKEND_URL: http://ins-agentic-fraud-detection-backend-prod-web-app:80 # or http://localhost:8000 if multicontainer pod is setup and backend is running on 8000
+  BACKEND_URL: http://ins-fraud-detection-backend-prod-web-app:80 # or http://localhost:8000 if multicontainer pod is setup and backend is running on 8000
 
 ## Single Pod Containers
 envSecrets:
