@@ -14,7 +14,7 @@
   --forest-green: #00684a;
   --evergreen: #023430;
   --mist: #e3fcf7;
-  --lavender: #f9ebff;
+  --light-green: #cdf9a0;
   /* The mid step of the template's green ramp (Forest -> Leaf -> Spring ->
      Chartreuse), sampled from the slide template. */
   --leaf-green: #05b861;
@@ -26,10 +26,10 @@
      intelligence trend chart does, because none of its four lines corresponds
      to a pill anywhere. Lime and Clear Blue were added for that chart's third
      and fourth series. */
-  --chart-sky: #00d2ff;
-  --chart-chartreuse: #b1ff05;
-  --chart-lime: #e9ff99;
-  --chart-clear-blue: #006eff;
+  --chart-sky: var(--leaf-green);
+  --chart-chartreuse: var(--chartreuse);
+  --chart-lime: var(--light-green);
+  --chart-clear-blue: var(--forest-green);
 
   /* --- Slate derivatives: dark theme (default) -------------------------- */
   --bg: var(--slate);
@@ -49,7 +49,7 @@
   --accent-glow: rgba(0, 237, 100, 0.16);
 
   /* text that sits on top of the solid status fills */
-  --on-lavender: var(--slate);
+  --on-light-green: var(--slate);
   --on-mist: var(--forest-green);
   --on-evergreen: var(--white);
   --on-spring-green: var(--slate);

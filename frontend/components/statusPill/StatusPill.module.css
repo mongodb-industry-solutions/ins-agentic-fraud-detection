@@ -30,7 +30,7 @@
 /* Solid, undiluted fills — never a low-opacity tint, which would vanish
    against either theme background. */
 /* Scored, but nobody is being asked to decide yet: a quiet outline, so the solid
-   Lavender stays reserved for claims actually waiting on a human. */
+   Light Green stays reserved for claims actually waiting on a human. */
 .assessed {
   background: var(--surface-2);
   border-color: var(--border-strong);
@@ -38,8 +38,8 @@
 }
 
 .pending {
-  background: var(--lavender);
-  color: var(--on-lavender);
+  background: var(--light-green);
+  color: var(--on-light-green);
 }
 
 .cleared {

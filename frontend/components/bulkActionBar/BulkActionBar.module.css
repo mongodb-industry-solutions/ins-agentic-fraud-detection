@@ -22,8 +22,8 @@
   padding: 6px 14px;
   border: none;
   border-radius: var(--radius);
-  background: var(--lavender);
-  color: var(--on-lavender);
+  background: var(--light-green);
+  color: var(--on-light-green);
   font-size: 12px;
 }
 

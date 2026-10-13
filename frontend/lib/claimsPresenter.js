@@ -125,7 +125,7 @@ function toSegment(claim) {
   return claim.computedScore >= SEVERE_SCORE_MIN ? "severe" : "simple";
 }
 
-/** computedScore is capped points, not a ratio — shown bare in a Lavender chip. */
+/** computedScore is capped points, not a ratio — shown bare in a Light Green chip. */
 export function toScoreLabel(score) {
   if (score === null || score === undefined) return null;
   return String(Math.round(score));

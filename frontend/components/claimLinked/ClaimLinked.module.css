@@ -5,7 +5,7 @@
 }
 
 /* The group itself stays on the page background; only the claim cards carry a
-   solid brand tint — Mist for the agent's semantic matches, Lavender for plain
+   solid brand tint — Mist for the agent's semantic matches, Light Green for plain
    field links. Both are light fills, so each card re-points the text and border
    tokens at their Slate values: the dark theme's white text would otherwise
    vanish on them. */
@@ -20,7 +20,7 @@
 }
 
 .fieldBased {
-  --card-bg: var(--lavender);
+  --card-bg: var(--light-green);
 }
 
 .sectionHeader {
