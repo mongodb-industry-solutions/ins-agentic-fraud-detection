@@ -1,0 +1,14 @@
+/* The donut sits open on the page; only the pending-assessment list is boxed.
+   Roughly a quarter / three quarters. */
+.zone {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
+  gap: var(--section-gap);
+  align-items: start;
+}
+
+.divider {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  min-width: 0;
+}

@@ -1,0 +1,536 @@
+/* Shell-agnostic on purpose: no positioning, width or overflow lives here, so
+   the same component drops into the live analysis modal and the "View report"
+   drawer unchanged. The overlay owns its own geometry. */
+
+.report {
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- header --------------------------------------------------------------- */
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 20px 15px;
+  border-bottom: 1px solid var(--border);
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--font-serif);
+  font-size: 15px;
+}
+
+.claimId {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+.sub {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* The audit run's own id, not the claim's. Small and quiet, but present so a
+   reviewer can cite one specific run of several on the same claim. */
+.traceId {
+  margin-top: 3px;
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 10.5px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.closeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex: none;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1;
+}
+
+.closeBtn:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+/* --- sections ------------------------------------------------------------- */
+
+.section {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sectionTitle {
+  margin-bottom: 12px;
+  font-size: 12.5px;
+}
+
+/* --- severity: one convention, three tiers, used by rules and evidence ----- */
+
+.sevDot {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  margin-top: 4px;
+  border-radius: 50%;
+}
+
+/* Most severe — same Evergreen as the flagged status pill. */
+.sevCritical {
+  background: var(--evergreen);
+}
+
+/* Middle. No warning hue exists in the palette, so this borrows the muted tone
+   already used for "unprocessed" rather than inventing a colour. */
+.sevWarning {
+  background: var(--text-dim);
+}
+
+/* Mildest. Forest Green reuses the "cleared/positive" convention, because a LOW
+   or INFO signal is functionally good news. */
+.sevInfo {
+  background: var(--forest-green);
+}
+
+/* --- score ---------------------------------------------------------------- */
+
+.scoreSummary {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.scoreBig {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  flex: none;
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  background: var(--light-green);
+  color: var(--on-light-green);
+}
+
+.scoreBigNum {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 26px;
+  line-height: 1;
+}
+
+.scoreBigMax {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.capNote {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.bandBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 10px;
+  padding: 3px 9px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.arithmeticLine {
+  margin-top: 8px;
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 11.5px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.arithmeticLine b {
+  color: var(--text);
+  font-weight: var(--weight-mono);
+}
+
+/* --- triggered rules ------------------------------------------------------ */
+
+.ruleRow {
+  display: flex;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.ruleRow:last-child {
+  border-bottom: none;
+}
+
+.ruleBody {
+  min-width: 0;
+}
+
+.ruleTop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ruleName {
+  font-size: 13px;
+}
+
+/* The pattern's configured weight — a neutral chip, deliberately not the solid
+   Light Green score chip, which means "a score the agent computed". */
+.weightChip {
+  padding: 1px 7px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 11px;
+}
+
+.badge {
+  padding: 1px 6px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: 10.5px;
+}
+
+.badgeMuted {
+  padding: 1px 6px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  color: var(--text-dim);
+  font-size: 10.5px;
+}
+
+.confirmedRate {
+  margin-top: 5px;
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 11.5px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.narrative {
+  margin-top: 6px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+/* --- precedent ------------------------------------------------------------ */
+
+/* Dashed, reusing the established "this isn't available" grammar from
+   unprocessed claims and pending embeddings — a degraded search is the same
+   kind of missing state, so it should look related rather than novel. */
+.degradedBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding: 11px 14px;
+  background: var(--surface-2);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.degradedIcon {
+  flex: none;
+  margin-top: 1px;
+}
+
+.precedentTable {
+  width: 100%;
+  font-size: 12px;
+}
+
+.precedentTable th {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+  font-weight: var(--weight-normal);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.precedentTable td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.precedentTable tr:last-child td {
+  border-bottom: none;
+}
+
+.fieldLabel {
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* A prior claim's confirmed-fraud outcome carries the same meaning as the
+   flagged pill, so it carries the same solid Evergreen. */
+.outcomeChip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--radius);
+  background: var(--evergreen);
+  color: var(--on-evergreen);
+  font-size: 11px;
+}
+
+.priorLink {
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* --- supporting evidence -------------------------------------------------- */
+
+.evidenceRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.evidenceRow:last-child {
+  border-bottom: none;
+}
+
+.evidenceBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.evidenceSignal {
+  font-size: 12.5px;
+}
+
+.evidenceDetail {
+  margin-top: 3px;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.evidenceSevLabel {
+  flex: none;
+  font-size: 10.5px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+/* --- verdict -------------------------------------------------------------- */
+
+.verdictSection {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* FRAUD: the established most-severe pairing. */
+.verdictBanner {
+  padding: 16px 18px;
+  border-radius: var(--radius);
+  background: var(--evergreen);
+  color: var(--white);
+}
+
+/* NOT_FRAUD: the established cleared/positive pairing. */
+.notFraud {
+  background: var(--mist);
+  color: var(--on-mist);
+}
+
+/* UNCERTAIN: extends the dashed "no definite value yet" grammar to "the agent
+   itself is not confident". */
+.uncertain {
+  background: var(--surface-2);
+  border: 1px dashed var(--border-strong);
+  color: var(--text);
+}
+
+.verdictHeadline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+}
+
+.verdictConfidence {
+  font-size: 11px;
+  font-weight: var(--weight-light);
+  opacity: 0.75;
+}
+
+.verdictReason {
+  margin-top: 8px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  opacity: 0.92;
+}
+
+.verdictRecommendation {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 12.5px;
+  font-weight: var(--weight-normal);
+}
+
+/* The white divider is invisible on the two light treatments. */
+.notFraud .verdictRecommendation,
+.uncertain .verdictRecommendation {
+  border-top-color: var(--border-strong);
+}
+
+/* --- decision ------------------------------------------------------------- */
+
+.decisionMade {
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+.decisionButtons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btnConfirm {
+  padding: 7px 16px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--evergreen);
+  color: var(--on-evergreen);
+  font-size: 12.5px;
+}
+
+.btnDismiss,
+.btnPrimary {
+  padding: 7px 16px;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 12.5px;
+}
+
+.btnConfirm:hover:not(:disabled),
+.btnDismiss:hover:not(:disabled),
+.btnPrimary:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+.btnConfirm:disabled,
+.btnDismiss:disabled,
+.btnPrimary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.siuRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.siuRow input {
+  accent-color: var(--accent);
+}
+
+.dismissForm {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.formTextarea {
+  width: 100%;
+  min-height: 62px;
+  padding: 8px 10px;
+  background: var(--bg);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-weight: var(--weight-light);
+  font-size: 12.5px;
+  resize: vertical;
+}
+
+.formTextarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.decisionError {
+  margin-top: 10px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+/* --- footer --------------------------------------------------------------- */
+
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 20px;
+}
+
+/* Visibly inert: export is deferred, so it must not read as a working control. */
+.disabledButton {
+  padding: 7px 16px;
+  background: transparent;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  color: var(--text-dim);
+  font-size: 12.5px;
+  cursor: not-allowed;
+}
+
+.footerSpacer {
+  flex: 1;
+}

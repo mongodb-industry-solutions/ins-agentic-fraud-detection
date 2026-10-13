@@ -1,0 +1,534 @@
+/* --- floating launcher ---------------------------------------------------- */
+
+/* Bottom-right, above everything except the modal it opens. Solid Spring Green
+   is the one place in the app that gets the full brand accent as a fill — it is
+   the only always-present call to action. */
+.launcher {
+  position: fixed;
+  right: 26px;
+  bottom: 26px;
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 18px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--spring-green);
+  color: var(--on-spring-green);
+  font-size: 12.5px;
+  box-shadow: 0 6px 22px rgba(0, 10, 15, 0.38);
+}
+
+.launcher:hover {
+  opacity: 0.9;
+}
+
+/* --- overlay -------------------------------------------------------------- */
+
+/* Translucent, not opaque: the dashboard stays faintly readable through the
+   blur so the modal reads as layered over the data it is answering about. */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(0, 10, 15, 0.55);
+  backdrop-filter: blur(6px);
+  animation: fadeIn 0.18s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Centred with a transform rather than flex, so no full-viewport wrapper sits
+   between the backdrop and the click-to-close handler. The box-shadow is
+   permitted here for the same reason as the report drawer's: an overlay above
+   blurred content has to read as elevated, which a border cannot do. */
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 51;
+  display: flex;
+  flex-direction: column;
+  width: 760px;
+  max-width: 94vw;
+  height: 660px;
+  max-height: 88vh;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 24px 60px rgba(0, 10, 15, 0.5);
+  animation: riseIn 0.2s ease;
+}
+
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -46%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop,
+  .modal {
+    animation-duration: 0.01s;
+  }
+}
+
+/* --- header --------------------------------------------------------------- */
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: none;
+  padding: 16px 18px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.headerMain {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-size: 15px;
+}
+
+.subline {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.headerButton {
+  flex: none;
+  padding: 5px 11px;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: 11.5px;
+}
+
+.headerButton:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex: none;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1;
+}
+
+.close:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+/* --- feed ----------------------------------------------------------------- */
+
+.scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.userRow {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.userBubble {
+  max-width: 78%;
+  padding: 9px 13px;
+  border: 1px solid var(--accent-glow);
+  border-radius: var(--radius);
+  background: var(--accent-soft);
+  font-size: 12.5px;
+  white-space: pre-wrap;
+}
+
+.assistantRow {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: flex-start;
+  max-width: 92%;
+}
+
+.speaker {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+
+/* Left accent border rather than a filled bubble: assistant turns are the long
+   ones, and a full fill behind a table or a list becomes hard to read. */
+.assistantBubble {
+  padding: 2px 0 2px 13px;
+  border-left: 2px solid var(--accent);
+  font-size: 12.5px;
+  min-width: 0;
+}
+
+.errorBubble {
+  padding: 9px 13px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+
+.streamingText {
+  white-space: pre-wrap;
+}
+
+.activity {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 12px;
+}
+
+.spinner {
+  width: 11px;
+  height: 11px;
+  flex: none;
+  border: 1.5px solid var(--border-strong);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Stands in for the first token, so an empty reply never looks stalled. */
+.caret {
+  display: inline-block;
+  width: 7px;
+  height: 13px;
+  background: var(--accent);
+  animation: blink 1s steps(2, start) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner,
+  .caret {
+    animation: none;
+  }
+}
+
+/* Deliberately breaks the bubble language: a run waiting on a person must not
+   be skimmable as just another answer. */
+.suspendNote {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--light-green);
+  color: var(--on-light-green);
+  font-size: 11.5px;
+}
+
+.suspendTitle {
+  font-weight: var(--weight-normal);
+}
+
+/* --- empty state ---------------------------------------------------------- */
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: auto 0;
+}
+
+.emptyTitle {
+  font-family: var(--font-serif);
+  font-size: 15px;
+}
+
+.emptyBody {
+  max-width: 52ch;
+  margin-bottom: 10px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.prompts {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.prompt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: 12px;
+  text-align: left;
+}
+
+.prompt:hover {
+  border-color: var(--border-strong);
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.promptText {
+  flex: 1;
+  min-width: 0;
+}
+
+.promptArrow {
+  flex: none;
+  color: var(--text-dim);
+}
+
+/* --- composer ------------------------------------------------------------- */
+
+.composer {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  flex: none;
+  padding: 14px 18px;
+  border-top: 1px solid var(--border);
+}
+
+.input {
+  width: 100%;
+  padding: 9px 11px;
+  background: var(--bg);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-weight: var(--weight-light);
+  font-size: 12.5px;
+  line-height: 1.5;
+  resize: none;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.input:disabled {
+  color: var(--text-dim);
+  cursor: not-allowed;
+}
+
+.composerFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.hint {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.sendButton {
+  padding: 7px 18px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--evergreen);
+  color: var(--on-evergreen);
+  font-size: 12.5px;
+}
+
+.sendButton:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+.sendButton:disabled {
+  background: var(--surface-2);
+  color: var(--text-dim);
+  cursor: not-allowed;
+}
+
+.stopButton {
+  padding: 7px 18px;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 12.5px;
+}
+
+.stopButton:hover {
+  background: var(--surface-2);
+}
+
+/* --- rendered markdown ---------------------------------------------------- */
+
+.mdParagraph {
+  margin: 0 0 9px;
+  line-height: 1.55;
+}
+
+.mdParagraph:last-child {
+  margin-bottom: 0;
+}
+
+.mdHeading {
+  margin: 14px 0 7px;
+  font-family: var(--font-serif);
+  font-size: 13.5px;
+  font-weight: var(--weight-normal);
+}
+
+.mdSubheading {
+  margin: 12px 0 6px;
+  font-size: 12.5px;
+  font-weight: var(--weight-normal);
+}
+
+.mdHeading:first-child,
+.mdSubheading:first-child {
+  margin-top: 0;
+}
+
+/* Restated explicitly — the CSS reset strips list markers and indentation. */
+.mdList {
+  margin: 0 0 9px;
+  padding-left: 20px;
+  list-style: revert;
+}
+
+.mdListItem {
+  margin-bottom: 3px;
+  line-height: 1.5;
+}
+
+.mdStrong {
+  font-weight: var(--weight-normal);
+  color: var(--text);
+}
+
+/* Identifiers and scores arrive inline in prose, and this is the app's one
+   marker for a machine value. */
+.mdCode {
+  padding: 1px 5px;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 11.5px;
+  text-transform: uppercase;
+}
+
+.mdPre {
+  margin: 0 0 9px;
+  padding: 10px 12px;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+}
+
+.mdPre .mdCode {
+  padding: 0;
+  background: none;
+  text-transform: none;
+}
+
+.mdQuote {
+  margin: 0 0 9px;
+  padding-left: 11px;
+  border-left: 2px solid var(--border-strong);
+  color: var(--text-muted);
+}
+
+.mdLink {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Agent tables can be wider than the modal; they scroll rather than forcing
+   the whole feed sideways. */
+.mdTableWrap {
+  margin-bottom: 9px;
+  overflow-x: auto;
+}
+
+.mdTable {
+  width: 100%;
+  font-size: 11.5px;
+}
+
+.mdTh,
+.mdTd {
+  padding: 6px 9px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+.mdTh {
+  color: var(--text-muted);
+  font-weight: var(--weight-normal);
+  white-space: nowrap;
+}
+
+.mdRule {
+  margin: 12px 0;
+  border: none;
+  border-top: 1px solid var(--border);
+}

@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev --turbopack --port 3000",
+    "dev": "next dev --turbopack --port 8080",
     "build": "next build --turbopack",
-    "start": "next start --port 3000",
+    "start": "next start --hostname 0.0.0.0 --port 8080",
     "lint": "eslint"
   },
   "dependencies": {
@@ -18,9 +18,11 @@
     "@leafygreen-ui/tabs": "^14.2.5",
     "@leafygreen-ui/typography": "^20.1.9",
     "dotenv": "^17.2.2",
-    "next": "^15.5.7",
+    "next": "^16.3.1",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "react-markdown": "^9.1.0",
+    "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

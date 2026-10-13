@@ -1,0 +1,43 @@
+/* Translucent, not an opaque scrim: the page stays faintly visible through the
+   blur so whatever floats above it reads as layered over context. This is the
+   ONE backdrop implementation — the centred modals and the right-anchored
+   report drawer both mount inside it and differ only by variant. */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(0, 10, 15, 0.45);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  animation: fadeIn 0.2s ease;
+}
+
+/* Centred variant owns its own padding so a tall panel can never touch the
+   viewport edge; the panel's own max-height then scrolls inside it. */
+.centeredVariant {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+/* The drawer positions itself (fixed, right: 0) — the backdrop only supplies
+   the darkened layer and the click-outside target. */
+.drawerVariant {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop {
+    animation-duration: 0.01s;
+  }
+}

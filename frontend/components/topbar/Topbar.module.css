@@ -1,0 +1,85 @@
+/* Left side is intentionally empty — global search is out of scope and is not
+   replaced by a placeholder element. */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--topbar-height);
+  flex: none;
+  padding: 0 30px;
+  border-bottom: 1px solid var(--border);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.iconButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: 0px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+}
+
+.iconButton:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.plainButton {
+  composes: iconButton;
+  border-color: transparent;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px 6px 6px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.profile:hover {
+  background: var(--surface-2);
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex: none;
+  border-radius: var(--radius);
+  background: var(--spring-green);
+  color: var(--on-spring-green);
+  font-size: 10.5px;
+  font-weight: var(--weight-normal);
+}
+
+.profileText {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.25;
+}
+
+.profileName {
+  font-size: 12.5px;
+  font-weight: var(--weight-normal);
+}
+
+.profileTeam {
+  font-size: 11px;
+  font-weight: var(--weight-light);
+  color: var(--text-muted);
+}

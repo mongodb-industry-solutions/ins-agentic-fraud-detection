@@ -1,0 +1,49 @@
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--section-gap);
+  /* Extra room at the bottom so the fixed "Ask the fraud agent" launcher
+     (~70px from the viewport edge) never sits over the pagination. */
+  padding: var(--content-pad-y) var(--content-pad-x) 100px;
+  min-width: 0;
+}
+
+/* --- loading / failure ---------------------------------------------------- */
+
+/* Data now arrives over the network, so the zones need a resting state. Same
+   shimmer and hairline treatment as the claim view's skeleton. */
+.skeleton {
+  height: 96px;
+  margin-bottom: var(--section-gap);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}
+
+/* A failed fetch states the refusal plainly rather than borrowing a status
+   colour it does not own. */
+.errorNote {
+  margin-bottom: var(--section-gap);
+  padding: 10px 16px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: 12.5px;
+}

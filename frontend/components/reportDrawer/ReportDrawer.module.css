@@ -1,0 +1,424 @@
+/* The darkened, blurred backdrop is not here: it lives in components/shared/
+   Overlay, which this drawer mounts inside with variant="drawer". The
+   fraud-pattern modals use the same component with variant="centered". */
+
+/* One of the few permitted box-shadows in this application. Everything sitting flat
+   within the page uses border-only depth; an overlay floating above blurred
+   content has to read as elevated, which a border cannot do. Do not treat
+   this as license to add shadows elsewhere. */
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 41;
+  display: flex;
+  flex-direction: column;
+  width: 680px;
+  max-width: 92vw;
+  height: 100vh;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  box-shadow: -18px 0 44px rgba(0, 10, 15, 0.4);
+  transform: translateX(100%);
+  animation: slideIn 0.25s ease forwards;
+}
+
+/* Slides in rather than fading, so it reads as physically entering. */
+@keyframes slideIn {
+  to {
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer {
+    animation-duration: 0.01s;
+  }
+}
+
+.scroll {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* --- header --------------------------------------------------------------- */
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 22px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.headerMain {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.headerTop {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.claimId {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 16px;
+  text-transform: uppercase;
+}
+
+.subline {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  text-transform: uppercase;
+}
+
+.close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex: none;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1;
+}
+
+.close:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+/* --- sections ------------------------------------------------------------- */
+
+.section {
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sectionTitle {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 12.5px;
+  font-weight: var(--weight-normal);
+}
+
+/* --- score ---------------------------------------------------------------- */
+
+.scoreRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Same solid-Light Green family as every other score chip, just larger — this is
+   the drawer's focal point. */
+.scoreChip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  flex: none;
+  border-radius: var(--radius);
+  background: var(--light-green);
+  color: var(--on-light-green);
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 15px;
+}
+
+.scoreNotes {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* --- steps ---------------------------------------------------------------- */
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 5px 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.stepDot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex: none;
+  margin-top: 1px;
+  border-radius: var(--radius-pill);
+  background: var(--mist);
+  color: var(--on-mist);
+}
+
+/* --- matched patterns ----------------------------------------------------- */
+
+.patternRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 11px 0;
+  border-top: 1px solid var(--border);
+}
+
+.patternRow:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+
+.points {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 30px;
+  padding: 3px 7px;
+  flex: none;
+  border-radius: var(--radius);
+  background: var(--light-green);
+  color: var(--on-light-green);
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 11.5px;
+}
+
+.patternBody {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.patternHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.patternName {
+  font-size: 12.5px;
+}
+
+/* Uncolored on purpose: pattern type is a category, not a status, so it stays
+   out of the four-color status system. */
+.typeBadge {
+  padding: 1px 6px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: 10.5px;
+}
+
+.rationale {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+/* --- similar claims ------------------------------------------------------- */
+
+.similarRow {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+}
+
+.similarRow:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+
+.similarity {
+  min-width: 40px;
+  flex: none;
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 12.5px;
+  text-transform: uppercase;
+}
+
+.similarReason {
+  flex: 1;
+  min-width: 0;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+/* Navigates to that claim's own detail — never opens a nested drawer. */
+.similarLink {
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 11.5px;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  flex: none;
+}
+
+/* --- decision ------------------------------------------------------------- */
+
+.decisionActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.confirmButton {
+  padding: 7px 16px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--evergreen);
+  color: var(--on-evergreen);
+  font-size: 12.5px;
+}
+
+.outlineButton {
+  padding: 7px 16px;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 12.5px;
+}
+
+.outlineButton:hover,
+.confirmButton:hover {
+  opacity: 0.88;
+}
+
+.dismissForm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.label {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.input {
+  width: 100%;
+  padding: 8px 10px;
+  background: var(--bg);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--text-muted);
+}
+
+.decisionStatement {
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+.decisionReason {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* --- footer --------------------------------------------------------------- */
+
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+  padding: 14px 22px;
+  border-top: 1px solid var(--border);
+}
+
+/* Visibly inert placeholder marking where export will land — export was
+   deferred, so this must not look like a working control. */
+.disabledButton {
+  padding: 7px 16px;
+  background: transparent;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  color: var(--text-dim);
+  font-size: 12.5px;
+  cursor: not-allowed;
+}
+
+.footerSpacer {
+  flex: 1;
+}
+
+/* --- loading skeleton ----------------------------------------------------- */
+
+.skeletonBlock {
+  height: 14px;
+  margin-bottom: 10px;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.skeletonScore {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.short {
+  width: 45%;
+}
+
+.medium {
+  width: 70%;
+}
+
+@keyframes shimmer {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeletonBlock,
+  .skeletonScore {
+    animation: none;
+  }
+}

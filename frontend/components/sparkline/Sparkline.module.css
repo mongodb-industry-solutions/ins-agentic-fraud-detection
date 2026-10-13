@@ -1,0 +1,15 @@
+/* Stroke only: no fill under the line, no axes. These are the only two places
+   in the UI where a reserved chart color is allowed, because a sparkline has no
+   status badge it needs to visually match. */
+.line {
+  display: block;
+  overflow: visible;
+}
+
+.sky {
+  stroke: var(--chart-sky);
+}
+
+.chartreuse {
+  stroke: var(--chart-chartreuse);
+}

@@ -1,0 +1,187 @@
+.sections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--section-gap);
+}
+
+/* The group itself stays on the page background; only the claim cards carry a
+   solid brand tint — Mist for the agent's semantic matches, Light Green for plain
+   field links. Both are light fills, so each card re-points the text and border
+   tokens at their Slate values: the dark theme's white text would otherwise
+   vanish on them. */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.semantic {
+  --card-bg: var(--mist);
+}
+
+.fieldBased {
+  --card-bg: var(--light-green);
+}
+
+.sectionHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-bottom: 2px;
+}
+
+.sectionTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: var(--weight-normal);
+}
+
+.sectionCount {
+  min-width: 24px;
+  padding: 1px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--text);
+  color: var(--bg);
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 11.5px;
+  text-align: center;
+}
+
+.sectionDescription {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.row {
+  --text: var(--slate);
+  --text-muted: #2f5158;
+  --border-strong: rgba(0, 30, 43, 0.4);
+  --surface-2: rgba(0, 30, 43, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  color: var(--text);
+}
+
+/* Neutral, not colored: the index is an ordinal, not a status. */
+.numberChip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex: none;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 11.5px;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.customer {
+  font-size: 12.5px;
+  font-weight: var(--weight-normal);
+}
+
+.claimId {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 11.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Semantic matches are the agent's finding, not a field lookup, so they carry
+   the similarity as a small mono chip beside the id. */
+.matchBadge,
+.citedBadge {
+  padding: 1px 7px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  font-size: 10.5px;
+  white-space: nowrap;
+}
+
+.matchBadge {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  text-transform: uppercase;
+}
+
+.citedBadge {
+  color: var(--text-muted);
+}
+
+/* A "Cleared" pill is Mist on a Mist card; the outline keeps it readable. */
+.outcome {
+  display: flex;
+  flex: none;
+  border-radius: var(--radius);
+  box-shadow: 0 0 0 1px rgba(0, 30, 43, 0.3);
+}
+
+.reason {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.reasonIcon {
+  display: flex;
+  flex: none;
+}
+
+.viewButton {
+  flex: none;
+  padding: 5px 13px;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 11.5px;
+}
+
+.viewButton:hover {
+  background: var(--surface-2);
+}
+
+.empty {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px 0;
+  color: var(--text-muted);
+  font-size: 12.5px;
+  text-align: center;
+}
+
+.empty p {
+  margin: 0;
+}

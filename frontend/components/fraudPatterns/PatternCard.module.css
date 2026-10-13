@@ -1,0 +1,222 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 16px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.card:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-2);
+}
+
+/* A retired card is dimmed by fading its content, not the whole card: fading the
+   card too would put a haze over the Activate button, the one thing on it a
+   reader has to be able to act on. */
+.card.inactive .cardTop,
+.card.inactive .cardMeta {
+  opacity: 0.6;
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Rules and similarity patterns look alike at a glance, so the chip carries the
+   difference: a flag for a deterministic rule, a sparkle for a narrative match. */
+.typeChip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border-radius: var(--radius-pill);
+  background: var(--forest-green);
+  color: var(--white);
+}
+
+.titleBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+
+.cardName {
+  font-size: 14px;
+  font-weight: var(--weight-normal);
+}
+
+.cardType {
+  color: var(--text-dim);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Deliberately NOT the solid-Light Green score chip: that chip means "the agent
+   computed this". A pattern's weight is static configuration, so it gets the
+   uncolored outline treatment instead. */
+.weightChip {
+  flex: none;
+  padding: 3px 9px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+/* --- meta + footer -------------------------------------------------------- */
+
+.cardMeta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.metaItem svg {
+  color: var(--text-dim);
+}
+
+.metaValue {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  color: var(--text);
+  text-transform: uppercase;
+}
+
+.cardBottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.statusOn,
+.statusOff {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+}
+
+.statusOn {
+  color: var(--text);
+}
+
+.statusOn::before,
+.statusOff::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: var(--radius-pill);
+  background: var(--leaf-green);
+}
+
+.statusOff {
+  color: var(--text-dim);
+}
+
+.statusOff::before {
+  background: var(--border-strong);
+}
+
+/* Activate is the solid call to action; Deactivate is the quieter outline, since
+   retiring a pattern is the less common move. */
+.activateButton,
+.deactivateButton {
+  flex: none;
+  padding: 5px 13px;
+  border-radius: var(--radius);
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+
+.activateButton {
+  border: 1px solid var(--forest-green);
+  background: var(--forest-green);
+  color: var(--white);
+}
+
+.activateButton:hover {
+  opacity: 0.88;
+}
+
+.deactivateButton {
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  color: var(--text);
+}
+
+.deactivateButton:hover {
+  background: var(--surface-2);
+}
+
+/* Same dashed, uncolored grammar as the "not yet analyzed" claim pill, because
+   the meaning is identical: a value that does not exist yet. */
+.pendingTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-pill);
+  color: var(--text-dim);
+  font-size: 10.5px;
+}
+
+.pdot {
+  width: 4px;
+  height: 4px;
+  flex: none;
+  border-radius: var(--radius-pill);
+  background: var(--text-dim);
+}
+
+/* Placeholder for a pattern that has not been created yet — dashed for the same
+   reason the pending tag is. */
+.addCard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 16px;
+  background: transparent;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.addCard:hover {
+  color: var(--text);
+  border-color: var(--text-muted);
+}

@@ -1,0 +1,920 @@
+"""Portfolio-level fraud analytics: trend, score spread, activity feed, graph,
+and the Phase 1 fraud-intelligence lenses built on top of them."""
+
+import logging
+from datetime import datetime, timedelta, timezone
+from itertools import combinations
+from typing import Any
+
+from core.serialization import to_jsonable
+from repositories.claims_repo import ClaimsRepository
+from repositories.patterns_repo import PatternsRepository
+from repositories.reviews_repo import ReviewsRepository
+
+logger = logging.getLogger(__name__)
+
+DEFAULT_TREND_DAYS = 90
+RATE_PRECISION = 4
+
+# computedScore is capped at 12 by the scoring step (the raw pre-cap score can
+# run higher), so the histogram spans 0..12 inclusive.
+MAX_SCORE = 12
+
+# Review-band cutoffs on the 0..12 capped scale, as (inclusive minimum, label)
+# in descending order.
+#
+# This is the server-side home for banding, and it exists so that a score is
+# labelled in exactly one place. The frontend previously carried its own
+# `SEVERE_SCORE_MIN` in claimsPresenter.js, documented there as explicitly NOT
+# authoritative — which was honest but left the histogram with no authority to
+# read from. Anything that needs to know what band a score falls into should now
+# read it from a response rather than re-deriving it from a threshold of its own.
+#
+# These mirror the agent's triage bands exactly (FAST_TRACK_MAX / REVIEW_MIN /
+# PRIORITY_MIN in the agent's main.py), which are also what it writes into each
+# decision trace: 0-3 fast-track, 4-8 review, 9-12 priority. The agent assigns
+# the score, so the dashboard must band it the same way. Change both together.
+SCORE_BANDS: tuple[tuple[int, str], ...] = (
+    (9, "PRIORITY"),
+    (4, "REVIEW"),
+    (0, "FAST_TRACK"),
+)
+
+# One enormous cluster — a pattern that fired on 40 claims — would otherwise
+# produce ~800 edges and an unreadable graph, so each group is truncated
+# before pairing.
+MAX_GROUP_MEMBERS = 5
+
+MONEY_PRECISION = 2
+
+# The two dimensions that need a $bucket stage instead of a plain $group, and so
+# come back keyed by a numeric lower bound that has to be relabelled.
+BUCKETED_DIMENSIONS = frozenset({"claimAmountBucket", "customerTenureBucket"})
+
+# How much of the portfolio the leaderboard clusters over. Larger than the
+# graph's default because a flat ranked list stays readable at any length —
+# it is the *graph* that becomes unreadable past a few dozen nodes, not the
+# clustering itself.
+CLUSTER_CANDIDATE_LIMIT = 200
+
+# A cluster's priority is its members' average score plus one point for each
+# member beyond the first pair. Deliberately a formula anyone can reproduce in
+# their head from the row's own fields, rather than a tuned weighting: this list
+# is read top-down as a work queue, so a manager needs to be able to see why one
+# row outranks another.
+CLUSTER_SIZE_BONUS = 1.0
+
+# Human wording for each grouping key, and the edge type it corresponds to in
+# the relationship graph — the two views describe the same connections.
+CLUSTER_REASONS = {
+    "SAME_CUSTOMER": "claims filed by customer {key}",
+    "SAME_REPAIR_SHOP": "claims routed through repair shop {key}",
+    "SHARED_PATTERN": "claims that all triggered {key}",
+}
+
+# Which reason wins when several connect the same pair of claims, strongest
+# first. A shared fraud pattern is a statement about the claims' mechanism and
+# is the most actionable; a shared customer is an identity link; a shared repair
+# shop is the weakest on its own, since a busy garage legitimately appears on
+# many unrelated claims. This order decides only which reason styles the line —
+# every reason is still listed on the edge.
+EDGE_PRECEDENCE = ("SHARED_PATTERN", "SAME_CUSTOMER", "SAME_REPAIR_SHOP")
+
+EDGE_TYPE_LABEL = {
+    "SAME_CUSTOMER": "Same customer",
+    "SAME_REPAIR_SHOP": "Same repair shop",
+}
+
+# Both axes of the co-occurrence heatmap. A hard cap, not a default that grows:
+# the grid stops being readable much past this, so a larger catalogue gets a
+# denser selection rather than a bigger grid.
+MATRIX_AXIS_LIMIT = 8
+
+# How many pairs the "notable pairs" list restates in precise text.
+TOP_PAIRS_LIMIT = 6
+
+
+def _range_label(low: int, high: int | None, unit: str | None) -> str:
+    """A bucket range as a person would say it.
+
+    `unit` is None for money and "years" for tenure, which is the only thing
+    separating "$2,500 – $5,000" from "1 – 3 years" — the shape of the label is
+    otherwise identical, so the two are formatted by one function rather than
+    two that could drift apart.
+    """
+    if unit == "years":
+        if high is None:
+            return f"{low}+ years"
+        if low == 0:
+            return f"Under {high} year" + ("" if high == 1 else "s")
+        return f"{low} – {high} years"
+
+    money = lambda amount: f"${amount:,}"  # noqa: E731 — one local formatter
+    if high is None:
+        return f"{money(low)}+"
+    if low == 0:
+        return f"Under {money(high)}"
+    return f"{money(low)} – {money(high)}"
+
+
+class FraudAnalyticsService:
+    """Read-only aggregate views across the whole claims portfolio."""
+
+    def __init__(
+        self,
+        claims_repo: ClaimsRepository,
+        reviews_repo: ReviewsRepository,
+        patterns_repo: PatternsRepository,
+    ):
+        self.claims = claims_repo
+        self.reviews = reviews_repo
+        self.patterns = patterns_repo
+
+    # ------------------------------------------------------- portfolio stats
+
+    def get_portfolio_stats(
+        self,
+        date_from: datetime | None = None,
+        date_to: datetime | None = None,
+        bucket: str = "week",
+    ) -> dict[str, Any]:
+        """Trend and score spread, computed as two separate aggregations.
+
+        They are kept apart rather than forced into one $facet because the
+        grouping logic differs: the trend is date-bucketed over every claim in
+        the range, the histogram is score-bucketed over scored claims only.
+        """
+        # The trailing window is anchored to the newest claim in the portfolio,
+        # not to the wall clock. On live data the two are the same thing. On the
+        # seeded demo data they are eighteen months apart, and anchoring to
+        # "now" returned an empty trend for every caller — the dashboard's
+        # sparklines have been silently drawing nothing for exactly this reason.
+        # An explicit dateTo still wins, so a caller can ask for any window.
+        if date_to is None:
+            latest = self.claims.latest_claim_date()
+            date_to = latest or datetime.now(timezone.utc)
+            # Stored timestamps are naive UTC; mixing in a tz-aware bound would
+            # raise on the subtraction below and never compare in Mongo.
+            if latest is not None and date_from is not None and date_from.tzinfo:
+                date_from = date_from.replace(tzinfo=None)
+        date_from = date_from or (date_to - timedelta(days=DEFAULT_TREND_DAYS))
+
+        trend = self.claims.trend_by_bucket(date_from, date_to, unit=bucket)
+        distribution = self._label_distribution(self.claims.score_distribution())
+
+        # Deliberately unfiltered by date: this is a portfolio-level
+        # reliability figure, not a point on the trend line.
+        counts = self.claims.overall_decision_counts()
+        decided = counts["flagged"] + counts["cleared"]
+        rate = round(counts["flagged"] / decided, RATE_PRECISION) if decided else 0.0
+
+        average = self.claims.average_computed_score()
+
+        return {
+            "trend": to_jsonable(trend),
+            "scoreDistribution": distribution,
+            "overallConfirmedFraudRate": rate,
+            # None, not 0.0, when nothing has been scored: an unscored portfolio
+            # has no average score, and 0.0 would read as "every claim scored 0".
+            "avgComputedScore": round(average, 2) if average is not None else None,
+            "dateFrom": date_from,
+            "dateTo": date_to,
+            "bucket": bucket,
+        }
+
+    @staticmethod
+    def score_band(score: int) -> str:
+        """The review band a score falls into. The one place this is decided."""
+        return next(label for minimum, label in SCORE_BANDS if score >= minimum)
+
+    @classmethod
+    def _label_distribution(cls, rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        """One entry per score 0..12, each tagged with its band.
+
+        Every score is present even when no claim landed on it: the histogram
+        draws a bar per score, and omitting the empty ones would silently
+        compress the x-axis so that neighbouring bars stopped being neighbouring
+        scores. A gap in the distribution is information, so it is rendered as a
+        zero rather than closed up.
+        """
+        counts = {row["score"]: row.get("count", 0) for row in rows}
+        return [
+            {"score": score, "count": counts.get(score, 0), "band": cls.score_band(score)}
+            for score in range(0, MAX_SCORE + 1)
+        ]
+
+    # ------------------------------------------------------- recent activity
+
+    def get_recent_activity(
+        self,
+        limit: int = 20,
+        days: int | None = None,
+        agent_only: bool = False,
+    ) -> dict[str, Any]:
+        """Newest activity first, optionally windowed and narrowed to the agent.
+
+        `total` is the number of events returned, not a portfolio-wide count —
+        with a window applied there is nothing else it could honestly mean.
+        """
+        since = None
+        if days is not None:
+            # Naive UTC: the stored timestamps carry no offset, and a
+            # tz-aware bound would not compare against them in Mongo.
+            since = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(days=days)
+
+        events = to_jsonable(
+            self.reviews.recent_activity(limit=limit, since=since, agent_only=agent_only)
+        )
+        return {"events": events, "total": len(events)}
+
+    # --------------------------------------------------- relationship graph
+
+    def get_pending_queue(self, limit: int = 10) -> dict[str, Any]:
+        """Scored claims still awaiting a confirm/dismiss decision."""
+        items, total = self.claims.find_pending_review(limit=limit)
+        return {"items": items, "total": total}
+
+    def get_relationship_graph(self, scope: str = "ALL", limit: int = 60) -> dict[str, Any]:
+        """Pairwise claim relationships, built in Python over a capped candidate set.
+
+        The pairing is application code on purpose: expressing "every pair
+        within every group, for three different grouping keys" as a pipeline
+        needs nested $lookup/$unwind/$group that is far harder to read — and
+        to change — than the dictionaries below.
+
+        One edge per pair of claims, however many reasons connect them. The
+        reasons are collected onto that single edge instead: two claims sharing
+        a customer AND a repair shop are one relationship with two explanations,
+        and emitting two edges made the renderer draw overlapping lines it had
+        to pick between arbitrarily. Four claims sharing four patterns produced
+        four identical parallel edges for the same reason.
+        """
+        claims = self.claims.find_graph_candidates(scope=scope, limit=limit)
+
+        by_customer: dict[str, list[str]] = {}
+        by_shop: dict[str, list[str]] = {}
+        by_pattern: dict[str, list[str]] = {}
+
+        for claim in claims:
+            claim_id = claim["claimId"]
+            if claim.get("customerId"):
+                by_customer.setdefault(claim["customerId"], []).append(claim_id)
+            if claim.get("repairShop"):
+                by_shop.setdefault(claim["repairShop"], []).append(claim_id)
+            for pattern in claim.get("matchedPatterns") or []:
+                if pattern.get("patternId"):
+                    by_pattern.setdefault(pattern["patternId"], []).append(claim_id)
+
+        raw: list[dict[str, Any]] = []
+        raw += self._pair_groups(by_customer, "SAME_CUSTOMER")
+        raw += self._pair_groups(by_shop, "SAME_REPAIR_SHOP")
+        raw += self._pair_groups(by_pattern, "SHARED_PATTERN", tag_pattern=True)
+
+        edges = self._merge_edges(raw, self._pattern_meta(by_pattern.keys()))
+
+        nodes = [self._graph_node(claim) for claim in claims]
+        return {
+            "nodes": nodes,
+            "edges": edges,
+            "scope": scope,
+            # Lets the scope filter label every option with its own count,
+            # including the two not currently selected.
+            "scopeCounts": self.claims.graph_scope_counts(),
+        }
+
+    @staticmethod
+    def _graph_node(claim: dict[str, Any]) -> dict[str, Any]:
+        """One node, carrying the status the renderer colours it by.
+
+        `status` is resolved here rather than left to the client to infer from
+        the flag-plus-boolean combination, in the same precedence every other
+        status read in the app uses. Without it a never-analysed claim and one
+        awaiting a decision both arrive as `fraudFlag: null` and are drawn
+        identically, which is exactly the confusion the status system exists to
+        prevent.
+        """
+        flag = claim.get("fraudFlag")
+        processed = claim.get("processed") is True
+
+        if flag is True:
+            status = "flagged"
+        elif not processed:
+            status = "unprocessed"
+        elif flag is False:
+            status = "cleared"
+        else:
+            status = "pending"
+
+        return {
+            "claimId": claim["claimId"],
+            "customerId": claim.get("customerId"),
+            "computedScore": claim.get("computedScore"),
+            "fraudFlag": flag,
+            "processed": processed,
+            "status": status,
+        }
+
+    @classmethod
+    def _merge_edges(
+        cls,
+        raw: list[dict[str, Any]],
+        pattern_meta: dict[str, dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        """Collapse every reason connecting a pair of claims onto one edge.
+
+        The surviving edge's `type` is its strongest reason by EDGE_PRECEDENCE
+        and is what the client styles the line from; `reasons` carries all of
+        them, in the same order, for the edge's tooltip. Keeping both means the
+        line style stays a single unambiguous channel while nothing about the
+        relationship is lost.
+        """
+        merged: dict[tuple[str, str], dict[str, Any]] = {}
+
+        for edge in raw:
+            # Sorted so the same pair keys identically no matter which grouping
+            # pass produced it or which claim it happened to list first.
+            key = tuple(sorted((edge["source"], edge["target"])))
+            meta = pattern_meta.get(edge.get("patternId")) or {}
+            reason = {
+                "type": edge["type"],
+                "patternId": edge.get("patternId"),
+                "patternName": meta.get("name"),
+                "patternType": meta.get("patternType"),
+                "label": cls._reason_label(edge, meta),
+            }
+
+            existing = merged.get(key)
+            if existing is None:
+                merged[key] = {
+                    "source": key[0],
+                    "target": key[1],
+                    "reasons": [reason],
+                }
+            else:
+                existing["reasons"].append(reason)
+
+        for edge in merged.values():
+            edge["reasons"].sort(key=lambda r: EDGE_PRECEDENCE.index(r["type"]))
+            primary = edge["reasons"][0]
+            edge["type"] = primary["type"]
+            # Kept at the top level as well as inside `reasons`: existing
+            # readers of this response address the primary pattern directly.
+            edge["patternId"] = primary["patternId"]
+            edge["patternType"] = primary["patternType"]
+            edge["reasonCount"] = len(edge["reasons"])
+
+        return sorted(merged.values(), key=lambda e: (e["source"], e["target"]))
+
+    @staticmethod
+    def _reason_label(edge: dict[str, Any], meta: dict[str, Any]) -> str:
+        """One reason as a sentence fragment, for the edge tooltip.
+
+        Named by the pattern rather than its id where a name is available: a
+        reader can act on "Repair shop on internal watchlist" and has to go and
+        look up "FP-012".
+        """
+        edge_type = edge["type"]
+        if edge_type == "SHARED_PATTERN":
+            pattern_id = edge.get("patternId")
+            name = meta.get("name")
+            return f"Shared pattern {pattern_id} — {name}" if name else f"Shared pattern {pattern_id}"
+        return EDGE_TYPE_LABEL.get(edge_type, edge_type)
+
+    @staticmethod
+    def _pair_groups(
+        groups: dict[str, list[str]],
+        edge_type: str,
+        tag_pattern: bool = False,
+    ) -> list[dict[str, Any]]:
+        """Every pair inside every group of 2+, each group capped first."""
+        edges: list[dict[str, Any]] = []
+        for key, members in groups.items():
+            if len(members) < 2:
+                continue
+            for source, target in combinations(members[:MAX_GROUP_MEMBERS], 2):
+                edge: dict[str, Any] = {"source": source, "target": target, "type": edge_type}
+                if tag_pattern:
+                    edge["patternId"] = key
+                edges.append(edge)
+        return edges
+
+    def _pattern_meta(self, pattern_ids) -> dict[str, dict[str, Any]]:
+        """Name and type per pattern id — the name is what edge tooltips read."""
+        ids = [pid for pid in pattern_ids if pid]
+        if not ids:
+            return {}
+        return {
+            p["patternId"]: {"name": p.get("name"), "patternType": p.get("patternType")}
+            for p in self.patterns.get_many(ids)
+        }
+
+    # ------------------------------------------------------ similarity leaderboard
+
+    def get_similarity_leaderboard(self, limit: int = 10, scope: str = "ALL") -> dict[str, Any]:
+        """The same shared connections as the graph, ranked as a flat work queue.
+
+        This is the triage-first complement to `get_relationship_graph`: identical
+        candidate set and identical grouping keys, but returned as ordered rows
+        rather than nodes and edges, because reading a ranking top-down and
+        reading a network layout are different tasks.
+
+        Unlike the graph, groups are *not* truncated to MAX_GROUP_MEMBERS: the
+        cap exists to keep an edge count drawable, and a cluster that quietly
+        dropped three of its eight members would misstate the very thing a
+        manager is ranking on.
+        """
+        claims = self.claims.find_graph_candidates(scope=scope, limit=CLUSTER_CANDIDATE_LIMIT)
+        scores = {c["claimId"]: c.get("computedScore") for c in claims}
+        flags = {c["claimId"]: c.get("fraudFlag") for c in claims}
+
+        groups: dict[tuple[str, str], list[str]] = {}
+        for claim in claims:
+            claim_id = claim["claimId"]
+            if claim.get("customerId"):
+                groups.setdefault(("SAME_CUSTOMER", claim["customerId"]), []).append(claim_id)
+            if claim.get("repairShop"):
+                groups.setdefault(("SAME_REPAIR_SHOP", claim["repairShop"]), []).append(claim_id)
+            for pattern in claim.get("matchedPatterns") or []:
+                if pattern.get("patternId"):
+                    key = ("SHARED_PATTERN", pattern["patternId"])
+                    groups.setdefault(key, []).append(claim_id)
+
+        # Pattern names, so a cluster explains itself as "…triggered FP-012 —
+        # Repair shop on internal watchlist" rather than citing a bare id the
+        # reader has to go and resolve.
+        pattern_meta = self._pattern_meta(
+            key for (kind, key) in groups if kind == "SHARED_PATTERN"
+        )
+
+        clusters = [
+            self._build_cluster(kind, key, members, scores, flags, pattern_meta)
+            for (kind, key), members in groups.items()
+            if len(members) >= 2
+        ]
+        clusters = self._merge_identical_clusters(clusters)
+        clusters.sort(key=lambda c: (-c["priority"], -c["maxScore"], c["clusterId"]))
+
+        return {
+            "clusters": clusters[:limit],
+            "total": len(clusters),
+            "scope": scope,
+            "candidatesConsidered": len(claims),
+        }
+
+    @staticmethod
+    def _build_cluster(
+        kind: str,
+        key: str,
+        members: list[str],
+        scores: dict[str, Any],
+        flags: dict[str, Any],
+        pattern_meta: dict[str, dict[str, Any]] | None = None,
+    ) -> dict[str, Any]:
+        """One leaderboard row from one group of claims sharing a connection."""
+        claim_ids = sorted(set(members))
+        # A pattern group is described by name where one is known; a customer or
+        # repair-shop group is already named by its key.
+        name = ((pattern_meta or {}).get(key) or {}).get("name")
+        described = f"{key} — {name}" if kind == "SHARED_PATTERN" and name else key
+        # An unscored claim contributes nothing to the average rather than
+        # counting as a zero, which would drag a cluster of one 11 and one
+        # unassessed claim below a cluster of two 6s and bury the real lead.
+        known = [scores[cid] for cid in claim_ids if scores.get(cid) is not None]
+        avg_score = round(sum(known) / len(known), 2) if known else 0.0
+        max_score = max(known) if known else 0.0
+
+        return {
+            "clusterId": f"{kind}:{key}",
+            "claimIds": claim_ids,
+            "sharedReason": f"{len(claim_ids)} {CLUSTER_REASONS[kind].format(key=described)}",
+            "linkType": kind,
+            "avgScore": avg_score,
+            "maxScore": max_score,
+            "claimCount": len(claim_ids),
+            "scoredCount": len(known),
+            "confirmedCount": sum(1 for cid in claim_ids if flags.get(cid) is True),
+            "priority": round(
+                avg_score + CLUSTER_SIZE_BONUS * (len(claim_ids) - 2), RATE_PRECISION
+            ),
+        }
+
+    @staticmethod
+    def _merge_identical_clusters(clusters: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        """Collapse clusters covering exactly the same claims into one row.
+
+        Two claims sharing both a customer and a repair shop produce two groups
+        with identical membership. As a graph those are two distinct edges and
+        worth drawing separately; as a triage list they are one thing to go and
+        look at, listed twice — so the reasons are joined and the row appears
+        once. Clusters that merely overlap are left alone: those genuinely are
+        different sets of claims.
+        """
+        by_members: dict[frozenset[str], dict[str, Any]] = {}
+        for cluster in clusters:
+            members = frozenset(cluster["claimIds"])
+            existing = by_members.get(members)
+            if existing is None:
+                by_members[members] = cluster
+                continue
+            existing["sharedReason"] += f"; also {cluster['sharedReason']}"
+            existing["linkType"] = "MULTIPLE"
+        return list(by_members.values())
+
+    # -------------------------------------------------------- fraud-rate breakdown
+
+    def get_fraud_rate_breakdown(self, dimension: str) -> dict[str, Any]:
+        """The literal correlation table: outcome counts and rate per dimension value.
+
+        Two code paths behind one response shape — a plain `$group` for
+        claim-level fields, a `$bucket` for the numeric ranges — because a caller
+        asking "does fraud correlate with claim size" wants the same table back
+        as one asking "does it correlate with complexity".
+        """
+        if dimension in BUCKETED_DIMENSIONS:
+            rows = [self._label_bucket_row(row) for row in self.claims.bucketed_fraud_rate(dimension)]
+        else:
+            rows = self.claims.fraud_rate_breakdown(dimension)
+
+        breakdown = [
+            {
+                "value": row["value"],
+                # Display text. For a bucketed dimension this is the formatted
+                # range and it is authored here on purpose: the boundaries are
+                # server-side and get recalibrated as the real distribution
+                # becomes clearer, so a client that formatted its own labels
+                # would start captioning the wrong ranges the moment they moved.
+                # For a category dimension it is the raw enum, which the client
+                # humanises the same way it does every other enum it renders.
+                "label": row.get("label", row["value"]),
+                "total": row.get("total", 0),
+                "flagged": row.get("flagged", 0),
+                "cleared": row.get("cleared", 0),
+                "pending": row.get("pending", 0),
+                "unprocessed": row.get("unprocessed", 0),
+                # Denominator is decided claims only. A group of 20 claims with
+                # one confirmed fraud and nineteen still unreviewed has a rate of
+                # 1.0, not 0.05 — the undecided claims are not evidence of
+                # legitimacy, and dividing by `total` would quietly assume they are.
+                "confirmedFraudRate": self._rate(row.get("flagged", 0), row.get("cleared", 0)),
+                "decidedCount": row.get("flagged", 0) + row.get("cleared", 0),
+            }
+            for row in rows
+        ]
+        return {"dimension": dimension, "breakdown": breakdown, "total": sum(
+            row["total"] for row in breakdown
+        )}
+
+    @staticmethod
+    def _rate(flagged: int, cleared: int) -> float:
+        """flagged / decided, or 0.0 when nothing has been decided yet."""
+        decided = flagged + cleared
+        return round(flagged / decided, RATE_PRECISION) if decided else 0.0
+
+    @staticmethod
+    def _label_bucket_row(row: dict[str, Any]) -> dict[str, Any]:
+        """Turn a `$bucket` lower bound into a stable key and a readable label.
+
+        `$bucket` keys each group by its lower edge, so both have to be rebuilt
+        from the boundary list the repository used. Two separate fields:
+
+        * `value` is the machine key ("2500-4999") and stays stable for
+          identity and sorting.
+        * `label` is what a person reads ("$2,500 – $5,000"). The top band is
+          open-ended because its real upper edge is infinity, and the bottom
+          band reads as "Under X" rather than "$0 – X", since a claim amount
+          starting at zero is not a fact worth stating.
+
+        Ranges are labelled by their boundaries rather than by
+        lower..upper-minus-one: "$2,500 – $5,000" is how the band would be
+        described out loud, where "$2,500 – $4,999" invites the question of
+        which bucket $4,999.50 landed in.
+        """
+        boundaries = row["_boundaries"]
+        unit = row.get("_unit")
+        low = row["_id"]
+
+        if low == "other":
+            # Out-of-range values, e.g. a negative claim amount.
+            return {**row, "value": "other", "label": "Other"}
+
+        index = boundaries.index(low)
+        is_top = index == len(boundaries) - 1
+        high = None if is_top else boundaries[index + 1]
+
+        key = f"{low}+" if is_top else f"{low}-{high - 1}"
+        return {**row, "value": key, "label": _range_label(low, high, unit)}
+
+    # ------------------------------------------------------ pattern co-occurrence
+
+    def get_pattern_cooccurrence_matrix(self, min_cooccurrence: int = 2) -> dict[str, Any]:
+        """Which patterns fire together, and whether that means they are redundant.
+
+        Built in application code for the same reason the relationship graph is:
+        "every pair within every claim's matched-pattern array, counted across
+        claims" is a handful of readable lines here and a nest of
+        `$unwind`/`$group` stages as a pipeline.
+
+        Two rates are returned, and the difference between them matters:
+
+        * `cooccurrenceRate` is the specified figure — co-occurrences over
+          `min(timesTriggeredA, timesTriggeredB)`, i.e. "when the rarer pattern
+          fires, how often does the other fire too". Near 1.0 suggests two rules
+          are genuinely redundant.
+        * `observedCooccurrenceRate` uses the same division over trigger counts
+          *within this sample* instead. It exists because `stats.timesTriggered`
+          is maintained independently of the claims currently in the collection,
+          so the specified rate reads as near-zero whenever the stats describe
+          far more history than the collection holds — which is exactly the case
+          on the seeded demo data. Prefer the specified rate in production and
+          the observed one when reading the demo.
+        """
+        pattern_sets = self.claims.matched_pattern_sets()
+
+        pair_counts: dict[tuple[str, str], int] = {}
+        observed_triggers: dict[str, int] = {}
+        for pattern_ids in pattern_sets:
+            for pattern_id in pattern_ids:
+                observed_triggers[pattern_id] = observed_triggers.get(pattern_id, 0) + 1
+            # Sorted so (A, B) and (B, A) are the same key regardless of the
+            # order the patterns happen to sit in on the claim.
+            for pair in combinations(sorted(pattern_ids), 2):
+                pair_counts[pair] = pair_counts.get(pair, 0) + 1
+
+        stats = self._pattern_trigger_stats(observed_triggers.keys())
+        pairs = [
+            {
+                "patternIdA": a,
+                "patternIdB": b,
+                "patternNameA": stats.get(a, {}).get("name"),
+                "patternNameB": stats.get(b, {}).get("name"),
+                "cooccurrenceCount": count,
+                "cooccurrenceRate": self._ratio(
+                    count,
+                    min(
+                        stats.get(a, {}).get("timesTriggered") or 0,
+                        stats.get(b, {}).get("timesTriggered") or 0,
+                    ),
+                ),
+                "observedCooccurrenceRate": self._ratio(
+                    count, min(observed_triggers[a], observed_triggers[b])
+                ),
+            }
+            for (a, b), count in pair_counts.items()
+            if count >= min_cooccurrence
+        ]
+        pairs.sort(key=lambda p: (-p["cooccurrenceCount"], p["patternIdA"], p["patternIdB"]))
+
+        top_patterns = self._matrix_axis(observed_triggers, stats, pairs)
+        return {
+            "pairs": pairs,
+            "total": len(pairs),
+            "minCooccurrence": min_cooccurrence,
+            "claimsAnalyzed": len(pattern_sets),
+            "topPatterns": top_patterns,
+            "matrix": self._build_matrix(top_patterns, pairs),
+            # Pre-sorted and pre-limited here rather than left to a client to
+            # find by scanning the grid: the notable cells are the point of the
+            # grid, and "notable" is a ranking decision.
+            "topPairs": self._top_pairs(pairs),
+        }
+
+    @staticmethod
+    def _matrix_axis(
+        observed_triggers: dict[str, int],
+        stats: dict[str, dict[str, Any]],
+        pairs: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        """The patterns that form both axes of the heatmap, at most MATRIX_AXIS_LIMIT.
+
+        Selected by how often each pattern fired *within the analysed claims*,
+        not by `stats.timesTriggered`. This matters and is a deliberate
+        departure from ranking the axis by catalogue volume:
+        `stats.timesTriggered` counts history that the claims collection no
+        longer holds, so the most-triggered patterns by that measure and the
+        patterns that actually co-occur in the data are nearly disjoint sets. An
+        axis chosen by catalogue volume produced a grid that was almost entirely
+        empty, which reads as "these patterns never fire together" when the
+        truth is "no analysed claim involved them".
+
+        Restricted further to patterns that appear in at least one surviving
+        pair, so no row or column is guaranteed blank before it is drawn.
+        """
+        in_a_pair = {pair["patternIdA"] for pair in pairs} | {pair["patternIdB"] for pair in pairs}
+        ranked = sorted(
+            in_a_pair,
+            key=lambda pid: (-observed_triggers.get(pid, 0), pid),
+        )[:MATRIX_AXIS_LIMIT]
+
+        return [
+            {
+                "patternId": pattern_id,
+                "patternName": stats.get(pattern_id, {}).get("name"),
+                "observedTriggerCount": observed_triggers.get(pattern_id, 0),
+                # Carried through so a client can show how much history sits
+                # behind a pattern that the analysed sample does not cover.
+                "timesTriggered": stats.get(pattern_id, {}).get("timesTriggered"),
+            }
+            for pattern_id in ranked
+        ]
+
+    @staticmethod
+    def _build_matrix(
+        top_patterns: list[dict[str, Any]],
+        pairs: list[dict[str, Any]],
+    ) -> dict[str, dict[str, dict[str, Any]]]:
+        """A symmetric lookup of cell -> figures, for the axis patterns only.
+
+        Written both ways round (`[a][b]` and `[b][a]`) because the grid is
+        rendered by iterating rows and columns independently, and a caller
+        should not have to know which of the two orderings the pair was stored
+        under. The diagonal is deliberately absent: a pattern cannot co-occur
+        with itself, and an entry there would invite it being coloured.
+        """
+        axis = {pattern["patternId"] for pattern in top_patterns}
+        matrix: dict[str, dict[str, dict[str, Any]]] = {pid: {} for pid in axis}
+
+        for pair in pairs:
+            a, b = pair["patternIdA"], pair["patternIdB"]
+            if a not in axis or b not in axis:
+                continue
+            cell = {
+                "count": pair["cooccurrenceCount"],
+                # The figure the heatmap colours by — see the note on
+                # `observedCooccurrenceRate` in get_pattern_cooccurrence_matrix
+                # for why the observed rate is the coherent one for a grid
+                # computed over the analysed claims.
+                "rate": pair["observedCooccurrenceRate"],
+                "catalogueRate": pair["cooccurrenceRate"],
+            }
+            matrix[a][b] = cell
+            matrix[b][a] = cell
+
+        return matrix
+
+    @staticmethod
+    def _top_pairs(pairs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        """The most notable pairs, highest rate first.
+
+        Ranked on the observed rate with the raw count as the tiebreak, so a
+        pair that always fires together outranks one that merely fires together
+        often — redundancy between two rules is the finding this list exists to
+        surface.
+        """
+        ranked = sorted(
+            pairs,
+            key=lambda p: (
+                -(p["observedCooccurrenceRate"] or 0),
+                -p["cooccurrenceCount"],
+                p["patternIdA"],
+                p["patternIdB"],
+            ),
+        )
+        return ranked[:TOP_PAIRS_LIMIT]
+
+    @staticmethod
+    def _ratio(numerator: int, denominator: int) -> float | None:
+        """A rate capped at 1.0, or None when there is no denominator to divide by.
+
+        Capped because the two inputs come from different places: a pair can be
+        observed co-occurring more often than `stats.timesTriggered` claims
+        either pattern ever fired, and a rate above 1.0 would be reported as if
+        it meant something. None rather than 0.0 for a zero denominator — "not
+        computable" and "never co-occurs" are different answers.
+        """
+        if not denominator:
+            return None
+        return round(min(numerator / denominator, 1.0), RATE_PRECISION)
+
+    def _pattern_trigger_stats(self, pattern_ids) -> dict[str, dict[str, Any]]:
+        ids = list(pattern_ids)
+        if not ids:
+            return {}
+        return {
+            p["patternId"]: {
+                "name": p.get("name"),
+                "timesTriggered": (p.get("stats") or {}).get("timesTriggered"),
+            }
+            for p in self.patterns.get_many(ids)
+        }
+
+    # ---------------------------------------------------------- repeat entities
+
+    def get_repeat_entity_analysis(
+        self,
+        entity_type: str,
+        min_appearances: int = 2,
+    ) -> dict[str, Any]:
+        """Entities appearing across several open or flagged claims.
+
+        Deliberately independent of the pattern catalogue: a repair shop can
+        surface here long before there is enough evidence to justify writing a
+        dedicated pattern for it, which is the whole point of the lens.
+        """
+        rows = self.claims.repeat_entities(entity_type, min_appearances=min_appearances)
+        entities = [
+            {
+                "entityValue": row["entityValue"],
+                "entityLabel": row.get("entityLabel") or row["entityValue"],
+                "claimCount": row["claimCount"],
+                "confirmedCount": row["confirmedCount"],
+                # Over the group's whole claim count, not just its decided ones:
+                # this is a concentration measure — "how much of what this shop
+                # touches has been confirmed fraud" — not a verdict accuracy rate.
+                "confirmedRate": round(
+                    row["confirmedCount"] / row["claimCount"], RATE_PRECISION
+                ) if row["claimCount"] else 0.0,
+                "claimIds": row["claimIds"],
+                "totalClaimAmount": round(row.get("totalClaimAmount") or 0, MONEY_PRECISION),
+            }
+            for row in rows
+        ]
+        entities.sort(key=lambda e: (-e["claimCount"], -e["confirmedRate"], e["entityLabel"]))
+
+        return {
+            "entityType": entity_type,
+            "entities": entities,
+            "total": len(entities),
+            "minAppearances": min_appearances,
+        }
+
+    # -------------------------------------------------------- financial impact
+
+    def get_financial_impact(self) -> dict[str, Any]:
+        """The money view, over decided claims only.
+
+        `potentialImpactWithoutTool` is returned even though it is exactly the
+        sum of the two figures above it. That redundancy is intentional: the
+        definition of "what this would have cost" lives here, so the frontend
+        never re-derives it and cannot drift out of step with a change to it.
+        """
+        row = self.claims.financial_impact()
+        current = round(row.get("currentFinancialImpact") or 0, MONEY_PRECISION)
+        avoided = round(row.get("fraudCostAvoided") or 0, MONEY_PRECISION)
+
+        return {
+            "currentFinancialImpact": current,
+            "fraudCostAvoided": avoided,
+            "potentialImpactWithoutTool": round(current + avoided, MONEY_PRECISION),
+            "avgClaimAmountFraud": round(row.get("avgClaimAmountFraud") or 0, MONEY_PRECISION),
+            "avgClaimAmountLegitimate": round(
+                row.get("avgClaimAmountLegitimate") or 0, MONEY_PRECISION
+            ),
+            "fraudClaimCount": row.get("fraudClaimCount", 0),
+            "legitimateClaimCount": row.get("legitimateClaimCount", 0),
+        }
+
+    # ------------------------------------------------------------ review queue
+
+    def get_review_queue_metrics(self) -> dict[str, Any]:
+        """Turnaround, backlog and the longest-waiting claim.
+
+        `timeToDecisionCoverage` is part of the answer, not diagnostics:
+        `fraud.processedAt` postdates the seed fixtures, so the average is over
+        whichever claims have it. A coverage of 0.14 says "this average describes
+        two of fourteen decisions" — without it the figure would read as though
+        it described all of them.
+        """
+        durations = self.claims.decision_durations()
+        decided = durations.get("decidedCount", 0)
+        covered = durations.get("coveredCount", 0)
+
+        backlog = self.claims.backlog_by_complexity()
+        oldest = self.claims.oldest_pending_claim()
+
+        return {
+            "avgHoursToDecision": round(durations.get("avgHoursToDecision") or 0, MONEY_PRECISION),
+            "maxHoursToDecision": durations.get("maxHoursToDecision"),
+            "decidedCount": decided,
+            "timeToDecisionSampleSize": covered,
+            "timeToDecisionCoverage": round(covered / decided, RATE_PRECISION) if decided else 0.0,
+            "backlogByComplexity": backlog,
+            "totalBacklog": sum(row["backlog"] for row in backlog),
+            "oldestPendingClaim": to_jsonable(oldest) if oldest else None,
+        }
+
+    def get_reviewer_activity_stats(self) -> dict[str, Any]:
+        """Confirm/dismiss split per reviewer.
+
+        `confirmRate` is not a quality score and should not be read as one: a
+        reviewer handed only high-scoring claims will confirm most of them. It
+        measures the mix of work someone was given as much as what they did
+        with it.
+        """
+        reviewers = [
+            {
+                "reviewer": row["reviewer"],
+                "totalDecided": row["totalDecided"],
+                "confirmedCount": row["confirmedCount"],
+                "dismissedCount": row["dismissedCount"],
+                "confirmRate": round(
+                    row["confirmedCount"] / row["totalDecided"], RATE_PRECISION
+                ) if row["totalDecided"] else 0.0,
+                "lastDecisionAt": row.get("lastDecisionAt"),
+            }
+            for row in self.claims.reviewer_activity()
+        ]
+        return {
+            "reviewers": to_jsonable(reviewers),
+            "total": len(reviewers),
+            "totalDecisions": sum(r["totalDecided"] for r in reviewers),
+        }

@@ -1,0 +1,23 @@
+/* Shared by every drill-in screen (claim, customer, policy) so the way back
+   looks and reads identically wherever you are in the stack. */
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 12.5px;
+  font-weight: var(--weight-light);
+}
+
+.back:hover {
+  color: var(--text);
+}
+
+.chevronLeft {
+  display: flex;
+  transform: rotate(90deg);
+}

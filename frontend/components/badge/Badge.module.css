@@ -1,0 +1,17 @@
+/* The neutral category badge: bordered, muted, no fill colour.
+   Used for complexity (Complex/Simple), policy status (Active/Expired/…) and
+   pattern type — anything that is a *category*, not a fraud state. It must
+   never be swapped for StatusPill, whose Light Green/Mist/Evergreen fills mean
+   fraud state and nothing else. */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: var(--weight-light);
+  white-space: nowrap;
+}

@@ -1,0 +1,63 @@
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.range {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.pages {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.page,
+.step {
+  min-width: 30px;
+  height: 30px;
+  padding: 0 10px;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  font-size: 12px;
+}
+
+.page {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-mono);
+}
+
+.page:hover:not(.current),
+.step:hover:not(:disabled) {
+  background: var(--surface-2);
+}
+
+/* The one solid fill: where you are. */
+.current {
+  background: var(--light-green);
+  border-color: var(--light-green);
+  color: var(--on-light-green);
+}
+
+.step:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.gap {
+  padding: 0 2px;
+  color: var(--text-muted);
+}
