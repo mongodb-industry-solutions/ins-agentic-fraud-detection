@@ -1,25 +1,32 @@
 .panel {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 18px 20px;
+  gap: 4px;
+  padding: 4px 4px 0;
 }
 
 .title {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: var(--weight-normal);
+}
+
+.subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
 }
 
 .body {
   display: flex;
   align-items: center;
-  gap: 22px;
+  flex-wrap: wrap;
+  gap: 16px 24px;
+  margin-top: 14px;
 }
 
 .donutWrap {
   position: relative;
-  width: 112px;
-  height: 112px;
+  width: 144px;
+  height: 144px;
   flex: none;
 }
 
@@ -40,29 +47,32 @@
 .total {
   font-family: var(--font-mono);
   font-weight: var(--weight-mono);
-  font-size: 20px;
+  font-size: 28px;
   text-transform: uppercase;
   line-height: 1;
 }
 
 .totalCaption {
-  font-size: 10.5px;
+  font-size: 11px;
   color: var(--text-muted);
 }
 
 .legend {
   display: flex;
   flex-direction: column;
-  gap: 9px;
+  gap: 11px;
   flex: 1;
-  min-width: 0;
+  min-width: 130px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .legendRow {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
+  font-size: 12.5px;
 }
 
 .legendLabel {
@@ -74,16 +84,16 @@
 .legendCount {
   font-family: var(--font-mono);
   font-weight: var(--weight-mono);
-  font-size: 12px;
+  font-size: 13px;
   text-transform: uppercase;
   text-align: right;
 }
 
 .swatch {
-  width: 9px;
-  height: 9px;
+  width: 10px;
+  height: 10px;
   flex: none;
-  border-radius: 2px;
+  border-radius: 3px;
 }
 
 /* The donut is a second reading of the same status data as the pills, so its
@@ -92,14 +102,18 @@
   background: var(--border-strong);
 }
 
-.pending {
-  background: var(--lavender);
-}
-
 .flagged {
   background: var(--evergreen);
+  box-shadow: inset 0 0 0 1px var(--forest-green);
 }
 
 .cleared {
-  background: var(--mist);
+  background: var(--spring-green);
+}
+
+.undecided {
+  margin-top: 12px;
+  color: var(--text-dim);
+  font-size: 11.5px;
+  line-height: 1.45;
 }

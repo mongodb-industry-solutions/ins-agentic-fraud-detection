@@ -5,6 +5,10 @@
   min-height: 100vh;
 }
 
+.withRightPanel {
+  grid-template-columns: var(--sidebar-width) 1fr auto;
+}
+
 /* Fixed, non-scrolling background effect behind everything: a fine dot grid
    plus one soft Spring-Green glow that breathes on a ~9s cycle. All depth in
    this UI comes from borders and this layer — there are zero box-shadows. */

@@ -7,7 +7,7 @@ method, and returns it.
 
 from fastapi import APIRouter, Path, Query
 
-from core.dependencies import ClaimsServiceDep, FraudDecisionServiceDep
+from core.dependencies import ClaimsServiceDep
 from schemas.claims import (
     BatchSelectRequest,
     BatchSelectResponse,
@@ -17,8 +17,6 @@ from schemas.claims import (
     ClaimUpdateRequest,
     ClaimWriteResponse,
     Complexity,
-    FraudDecisionRequest,
-    FraudDecisionResponse,
     LinkedClaimsResponse,
 )
 
@@ -83,21 +81,3 @@ def list_linked_claims(
     limit: int = Query(10, ge=1, le=50),
 ) -> LinkedClaimsResponse:
     return service.list_linked_claims(claim_id, limit=limit)
-
-
-@router.post(
-    "/{claim_id}/decision",
-    response_model=FraudDecisionResponse,
-    summary="Record a human fraud decision and update pattern reliability stats",
-)
-def record_fraud_decision(
-    payload: FraudDecisionRequest,
-    service: FraudDecisionServiceDep,
-    claim_id: str = ClaimIdPath,
-) -> FraudDecisionResponse:
-    return service.record_decision(
-        claim_id=claim_id,
-        decision=payload.decision,
-        reviewed_by=payload.reviewedBy,
-        dismiss_reason=payload.dismissReason,
-    )

@@ -5,15 +5,15 @@ import ClaimsTable from "@/components/claimsTable/ClaimsTable";
 import FilterRow from "@/components/filterRow/FilterRow";
 import InsightsZone from "@/components/insightsZone/InsightsZone";
 import PageHeader from "@/components/pageHeader/PageHeader";
-import PendingQueue from "@/components/pendingQueue/PendingQueue";
+import Pagination from "@/components/pagination/Pagination";
 import ReportDrawer from "@/components/reportDrawer/ReportDrawer";
 import SegmentedControl from "@/components/segmentedControl/SegmentedControl";
 import StatStrip from "@/components/statStrip/StatStrip";
 import styles from "./Dashboard.module.css";
 import useDashboard from "./useDashboard";
 
-export default function Dashboard({ onOpenClaim, onAnalyze }) {
-  const dashboard = useDashboard();
+export default function Dashboard({ queueJobs, onOpenClaim, onAnalyze }) {
+  const dashboard = useDashboard(queueJobs);
 
   return (
     <main className={styles.content}>
@@ -34,15 +34,14 @@ export default function Dashboard({ onOpenClaim, onAnalyze }) {
         <>
           <StatStrip stats={dashboard.stats} />
 
-          {/* Two actions, because the queue holds two kinds of work: a scored
-              claim opens for a decision, an unanalysed one runs the agent. */}
-          <PendingQueue
-            queue={dashboard.pendingQueue}
-            onReview={onOpenClaim}
+          {/* Unanalysed claims live beside the donut; the table below lists
+              only claims the agent has already assessed. */}
+          <InsightsZone
+            breakdown={dashboard.breakdown}
+            pendingAssessment={dashboard.pendingAssessment}
             onAnalyze={onAnalyze}
+            onViewDetails={onOpenClaim}
           />
-
-          <InsightsZone breakdown={dashboard.breakdown} events={dashboard.activityFeed} />
 
           <FilterRow
             controls={dashboard.filterControls}
@@ -69,18 +68,16 @@ export default function Dashboard({ onOpenClaim, onAnalyze }) {
             onToggleRow={dashboard.toggleRow}
             onViewReport={dashboard.openReport}
             onViewDetails={onOpenClaim}
-            // Runs the assessment right here. Navigating to the claim first
-            // made the person hunt for a second button to do what they had
-            // already asked for.
-            onAnalyze={onAnalyze}
           />
+
+          <Pagination pagination={dashboard.pagination} onChange={dashboard.changePage} />
         </>
       )}
 
       {dashboard.reportClaimId && (
         <ReportDrawer
           claimId={dashboard.reportClaimId}
-          row={dashboard.reportRow}
+          statusKey={dashboard.rowById[dashboard.reportClaimId]?.statusKey}
           onClose={dashboard.closeReport}
           onViewClaim={onOpenClaim}
         />

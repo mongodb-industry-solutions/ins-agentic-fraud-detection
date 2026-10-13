@@ -103,17 +103,3 @@
 .outlineButton:hover {
   background: var(--surface-2);
 }
-
-.solidButton {
-  padding: 5px 11px;
-  border: none;
-  border-radius: var(--radius);
-  background: var(--lavender);
-  color: var(--on-lavender);
-  font-size: 11.5px;
-  white-space: nowrap;
-}
-
-.solidButton:hover {
-  opacity: 0.88;
-}

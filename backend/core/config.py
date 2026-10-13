@@ -28,6 +28,9 @@ class Settings(BaseSettings):
     # `claim_fraud_reviews` was never created, so every audit read came back
     # empty against a collection that did not exist.
     REVIEWS_COLLECTION: str = "decision_traces"
+    # The Fraud Assessment Queue: one job per claim sent through it. Written only
+    # by the backend's queue worker; the agent never reads it.
+    ASSESSMENT_JOBS_COLLECTION: str = "assessment_jobs"
 
     # --- fraud assessment agent (MongoDB Agentic Platform) --------------------
     # Optional so the API still boots without them: every other route works

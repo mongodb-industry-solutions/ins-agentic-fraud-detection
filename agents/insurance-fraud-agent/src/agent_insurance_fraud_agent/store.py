@@ -155,6 +155,9 @@ class Claim(BaseModel):
             "computedScore": None,  # min(rawScore, 12) — agent-computed
             "rawScore": None,  # uncapped sum of matched pattern weights
             "matchedPatterns": [],  # [{patternId, patternName, weight}]
+            "similarClaims": [],  # [{claimId, similarity, fraudFlag, ...}] cited precedents
+            "processed": False,  # true once assessed or decided
+            "processedAt": None,  # when the claim entered the review queue
             "fraudFlag": None,  # human confirm/dismiss label
             "flagSource": None,
             "reviewedBy": None,
@@ -229,6 +232,9 @@ class DecisionTrace(BaseModel):
     matched_patterns: list[dict[str, Any]] = Field(
         default_factory=list, alias="matchedPatterns"
     )  # [{patternId, patternName, weight}]
+    similar_claims: list[dict[str, Any]] = Field(
+        default_factory=list, alias="similarClaims"
+    )  # claim-to-claim precedents cited in the assessment
     raw_score: int = Field(default=0, alias="rawScore")
     computed_score: int = Field(default=0, alias="computedScore")
     agent_summary: str | None = Field(default=None, alias="agentSummary")
@@ -493,23 +499,42 @@ class ClaimStore:
         computed_score: int,
         raw_score: int,
         matched_patterns: list[dict[str, Any]],
+        similar_claims: list[dict[str, Any]] | None = None,
+        trace_id: str | None = None,
     ) -> dict | None:
-        """Write the agent-computed fraud score and matched patterns onto the claim.
+        """Write the agent's complete assessment onto the claim.
 
         Persists `fraud.computedScore` (= min(rawScore, 12)), `fraud.rawScore`
-        (uncapped sum), and `fraud.matchedPatterns`. Does NOT touch `complexity`,
-        which is an independent triage dimension set by the batch, not the score.
+        (uncapped sum), `fraud.matchedPatterns`, `fraud.similarClaims` (the
+        claim-to-claim precedents cited in the assessment) and
+        `fraud.lastTraceId`, and marks the claim `fraud.processed=true`.
+        `processed` is what every reader keys the fraud status label on, so an
+        assessment run from any entry point (button, chat, batch) shows up.
+
+        `fraud.processedAt` is set only when absent: it records when the claim
+        entered the review queue, and re-assessing must not reset that clock.
+        Does NOT touch `complexity`, which is an independent triage dimension.
         """
+        now = datetime.now(UTC)
+        fields: dict[str, Any] = {
+            "fraud.computedScore": computed_score,
+            "fraud.rawScore": raw_score,
+            "fraud.matchedPatterns": matched_patterns,
+            "fraud.similarClaims": similar_claims or [],
+            "fraud.processed": True,
+            "fraud.assessedAt": now,
+            "updatedAt": now,
+        }
+        if trace_id:
+            fields["fraud.lastTraceId"] = trace_id
+        # Pipeline update so processedAt can be written only if absent, atomically.
+        # Values are $literal so a string starting with "$" is never read as a path.
         result = self._col.find_one_and_update(
             {"claimId": claim_id},
-            {
-                "$set": {
-                    "fraud.computedScore": computed_score,
-                    "fraud.rawScore": raw_score,
-                    "fraud.matchedPatterns": matched_patterns,
-                    "updatedAt": datetime.now(UTC),
-                }
-            },
+            [
+                {"$set": {k: {"$literal": v} for k, v in fields.items()}},
+                {"$set": {"fraud.processedAt": {"$ifNull": ["$fraud.processedAt", now]}}},
+            ],
             return_document=True,
         )
         return _strip_id(result)
@@ -523,21 +548,38 @@ class ClaimStore:
         reviewed_at: datetime | None = None,
         siu_referred: bool = False,
         dismiss_reason: str | None = None,
+        close_claim: bool = True,
     ) -> dict | None:
-        """Write the human confirm/dismiss decision onto the claim's fraud block."""
+        """Write the human confirm/dismiss decision onto the claim, and close it.
+
+        A human verdict means the claim has been through fraud review, so
+        `fraud.processed` is set too. `fraud.processedAt` is written only if
+        absent: a claim decided without an assessment starts and finishes now
+        (zero-hour turnaround). With `close_claim` the decision also ends the
+        claim's lifecycle: `claimStatus=CLOSED` and `closedAt`.
+        """
+        now = reviewed_at or datetime.now(UTC)
+        fields: dict[str, Any] = {
+            "fraud.fraudFlag": fraud_flag,
+            "fraud.flagSource": flag_source,
+            "fraud.reviewedBy": reviewed_by,
+            "fraud.reviewedAt": now,
+            "fraud.siuReferred": siu_referred,
+            "fraud.dismissReason": dismiss_reason,
+            "fraud.processed": True,
+            "updatedAt": now,
+        }
+        if close_claim:
+            fields["claimStatus"] = "CLOSED"
+            fields["closedAt"] = now
+        # Pipeline update so processedAt can be written only if absent, atomically.
+        # Values are $literal so a string starting with "$" is never read as a path.
         result = self._col.find_one_and_update(
             {"claimId": claim_id},
-            {
-                "$set": {
-                    "fraud.fraudFlag": fraud_flag,
-                    "fraud.flagSource": flag_source,
-                    "fraud.reviewedBy": reviewed_by,
-                    "fraud.reviewedAt": reviewed_at or datetime.now(UTC),
-                    "fraud.siuReferred": siu_referred,
-                    "fraud.dismissReason": dismiss_reason,
-                    "updatedAt": datetime.now(UTC),
-                }
-            },
+            [
+                {"$set": {k: {"$literal": v} for k, v in fields.items()}},
+                {"$set": {"fraud.processedAt": {"$ifNull": ["$fraud.processedAt", now]}}},
+            ],
             return_document=True,
         )
         return _strip_id(result)
@@ -548,6 +590,8 @@ class FraudPatternStore:
 
     def __init__(self, client: MongoClient, database: str) -> None:
         self._col = client[database][FRAUD_PATTERNS_COLLECTION]
+        # Read-only here: pattern stats are recounted from the claims they matched.
+        self._claims = client[database][CLAIMS_COLLECTION]
         self._col.create_index("patternId", unique=True)
         self._col.create_index("patternType")
         self._col.create_index("active")
@@ -611,16 +655,6 @@ class FraudPatternStore:
             for d in self._col.find({"patternType": "RULE", "active": True}, {"_id": 0})
         ]
 
-    def increment_triggered(self, pattern_id: str) -> None:
-        """Increment stats.timesTriggered when a pattern matches during assessment."""
-        self._col.update_one(
-            {"patternId": pattern_id},
-            {
-                "$inc": {"stats.timesTriggered": 1},
-                "$set": {"updatedAt": datetime.now(UTC)},
-            },
-        )
-
     def vector_search(self, embedding: list[float], k: int = 5) -> list[dict]:
         """Atlas $vectorSearch over active HISTORICAL_SIMILARITY patterns.
 
@@ -651,6 +685,37 @@ class FraudPatternStore:
 
     # ── Write ───────────────────────────────────────────────────────────────
 
+    def recompute_stats(self, pattern_ids: list[str]) -> list[dict]:
+        """Recount each pattern's stats from the claims it currently matches.
+
+        Called once when an assessment or a decision is recorded, for the patterns it
+        touched. Counting replaces incrementing, so the stats always equal the data:
+        re-assessing or re-deciding a claim never double-counts, and a pattern a
+        re-assessment dropped loses that claim.
+
+          timesTriggered     = claims whose fraud.matchedPatterns include the pattern
+          confirmedCount     = those claims confirmed as fraud (fraudFlag = true)
+          confirmedFraudRate = confirmedCount / timesTriggered
+        """
+        updated = []
+        for pattern_id in dict.fromkeys(p for p in pattern_ids if p):
+            matched = {"fraud.matchedPatterns.patternId": pattern_id}
+            times = self._claims.count_documents(matched)
+            confirmed = self._claims.count_documents({**matched, "fraud.fraudFlag": True})
+            stats = {
+                "timesTriggered": times,
+                "confirmedCount": confirmed,
+                "confirmedFraudRate": round(confirmed / times, 4) if times else 0.0,
+            }
+            result = self._col.update_one(
+                {"patternId": pattern_id},
+                {"$set": {**{f"stats.{k}": v for k, v in stats.items()},
+                          "updatedAt": datetime.now(UTC)}},
+            )
+            if result.matched_count:
+                updated.append({"patternId": pattern_id, **stats})
+        return updated
+
     def update(self, pattern_id: str, updates: dict) -> dict | None:
         updates["updatedAt"] = datetime.now(UTC)
         result = self._col.find_one_and_update(
@@ -659,37 +724,6 @@ class FraudPatternStore:
             return_document=True,
         )
         return _strip_id(result)
-
-    def bump_stats(self, pattern_id: str, confirmed: bool) -> dict | None:
-        """Recompute `confirmedFraudRate` after a human confirm/dismiss.
-
-        Does NOT touch `timesTriggered` — that is incremented at assessment time
-        by `increment_triggered`. Reconstructs the prior confirmed count from the
-        existing rate and re-derives the rate over the same trigger denominator.
-        """
-        doc = self._col.find_one({"patternId": pattern_id})
-        if not doc:
-            return None
-        stats = doc.get("stats") or {}
-        times = int(stats.get("timesTriggered", 0) or 0)
-        rate = float(stats.get("confirmedFraudRate", 0.0) or 0.0)
-        if times <= 0:
-            return _strip_id(doc)
-        prev_confirmed = round(rate * times)
-        new_confirmed = min(times, prev_confirmed + (1 if confirmed else 0))
-        new_rate = round(new_confirmed / times, 4)
-        result = self._col.find_one_and_update(
-            {"patternId": pattern_id},
-            {
-                "$set": {
-                    "stats.confirmedFraudRate": new_rate,
-                    "updatedAt": datetime.now(UTC),
-                }
-            },
-            return_document=True,
-        )
-        return _strip_id(result)
-
 
 class DecisionTraceStore:
     """Store for fraud decision traces — one document per claim assessment.

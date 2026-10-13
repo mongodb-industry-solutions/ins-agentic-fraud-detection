@@ -341,8 +341,20 @@ class PatternsService:
             raise NotFoundError("fraud pattern", pattern_id)
 
         matched = to_jsonable(self.claims.find_by_pattern(pattern_id))
+
+        # "Of every confirmed-fraud claim in the portfolio, how many had this
+        # pattern" — the pattern's recall. Distinct from `confirmedFraudRate`,
+        # whose denominator is the claims that matched. None, not 0.0, when the
+        # portfolio holds no confirmed fraud: there is nothing to take a share of.
+        total_fraud = self.claims.overall_decision_counts()["flagged"]
+        fraud_with_pattern = self.claims.count_confirmed_fraud_with_pattern(pattern_id)
+        share = round(fraud_with_pattern / total_fraud, 4) if total_fraud else None
+
         return {
             "pattern": self._public(pattern),
             "matchedClaims": matched,
             "matchedCount": len(matched),
+            "confirmedFraudWithPattern": fraud_with_pattern,
+            "confirmedFraudTotal": total_fraud,
+            "shareOfAllFraudClaims": share,
         }

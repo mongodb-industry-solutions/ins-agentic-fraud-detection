@@ -10,7 +10,6 @@ export default function ClaimsTable({
   selectedIds,
   onToggleRow,
   onViewDetails,
-  onAnalyze,
   onViewReport,
 }) {
   return (
@@ -34,7 +33,7 @@ export default function ClaimsTable({
           {rows.length === 0 && (
             <tr>
               <td className={styles.empty} colSpan={showCheckboxes ? 8 : 7}>
-                No claims match the current filters.
+                No analyzed claims match the current filters.
               </td>
             </tr>
           )}
@@ -74,23 +73,13 @@ export default function ClaimsTable({
                   >
                     View details
                   </button>
-                  {row.isUnprocessed ? (
-                    <button
-                      type="button"
-                      className={styles.solidButton}
-                      onClick={() => onAnalyze?.(row.claimId)}
-                    >
-                      Analyze for fraud
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      className={styles.outlineButton}
-                      onClick={() => onViewReport?.(row.claimId)}
-                    >
-                      View report
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    className={styles.outlineButton}
+                    onClick={() => onViewReport?.(row.claimId)}
+                  >
+                    View report
+                  </button>
                 </div>
               </td>
             </tr>

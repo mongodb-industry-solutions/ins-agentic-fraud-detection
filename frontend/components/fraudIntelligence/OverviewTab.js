@@ -3,16 +3,15 @@ import { toKpiStats } from "@/lib/fraudIntelligencePresenter";
 import FinancialImpactSection from "./FinancialImpactSection";
 import styles from "./FraudIntelligenceView.module.css";
 import ScoreDistributionHistogram from "./ScoreDistributionHistogram";
-import TrendChart from "./TrendChart";
 import { ErrorState, Skeleton } from "./Zone";
 import useOverviewTab from "./useOverviewTab";
 
 /**
- * Four blocks, four independent states.
+ * Three blocks, three independent states.
  *
- * `portfolio-stats` is fetched once by the hook and shared by the KPI strip, the
- * histogram and the trend chart. Each block still owns its own loading and error
- * rendering, so a failure in one endpoint leaves the others fully usable.
+ * `portfolio-stats` is fetched once by the hook and shared by the KPI strip and
+ * the histogram. Each block still owns its own loading and error rendering, so a
+ * failure in one endpoint leaves the others fully usable.
  */
 export default function OverviewTab() {
   const { financial, portfolio, reference, isKpiLoading, kpiError } = useOverviewTab();
@@ -45,15 +44,6 @@ export default function OverviewTab() {
 
       <ScoreDistributionHistogram
         distribution={stats?.scoreDistribution}
-        isLoading={portfolio.isLoading}
-        error={portfolio.error}
-      />
-
-      <TrendChart
-        trend={stats?.trend}
-        dateFrom={stats?.dateFrom}
-        dateTo={stats?.dateTo}
-        bucket={stats?.bucket}
         isLoading={portfolio.isLoading}
         error={portfolio.error}
       />

@@ -3,12 +3,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { listClaims } from "@/lib/api/claims";
-import { getPendingQueue, getPortfolioStats, getRecentActivity } from "@/lib/api/fraud";
+import { getFinancialImpact, getPortfolioStats } from "@/lib/api/fraud";
 
-import { toActivityFeed } from "@/lib/activityPresenter";
+import { QUEUE_STATUS } from "@/components/assessmentQueue/useAssessmentQueue";
 import {
   toClaimRows,
-  toPendingQueue,
+  toPortfolioCounts,
   toPortfolioSummary,
   toStatStrip,
   toStatusBreakdown,
@@ -35,6 +35,8 @@ const SEGMENTS = [
   { id: "simple", label: "Simple" },
 ];
 
+export const PAGE_SIZE = 10;
+
 const EMPTY_CLAIM_LIST = { stats: {}, claims: [], total: 0, page: 1, limit: 0 };
 
 /**
@@ -59,7 +61,7 @@ function toSparklines(portfolio) {
  * from one snapshot is what guarantees that. It would need to move server-side
  * before the claim count got large.
  */
-export default function useDashboard() {
+export default function useDashboard(queueJobs = []) {
   const [activeSegment, setActiveSegment] = useState("all");
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [sort, setSort] = useState(DEFAULT_SORT);
@@ -69,9 +71,9 @@ export default function useDashboard() {
   const [reportClaimId, setReportClaimId] = useState(null);
 
   const [claimList, setClaimList] = useState(EMPTY_CLAIM_LIST);
-  const [pendingRaw, setPendingRaw] = useState(null);
-  const [activityRaw, setActivityRaw] = useState(null);
+  const [page, setPage] = useState(1);
   const [trends, setTrends] = useState(null);
+  const [financial, setFinancial] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -80,19 +82,15 @@ export default function useDashboard() {
 
     (async () => {
       setIsLoading(true);
-      // `allSettled`, not `all`: the portfolio-stats sparkline and the activity
-      // feed are decorative next to the claims table, and one of them failing
-      // must not blank out the whole dashboard.
-      const [claims, pending, activity, portfolio] = await Promise.allSettled([
+      // `allSettled`, not `all`: the sparkline and the cost-avoided card are
+      // secondary to the claims table, and one failing must not blank out the
+      // whole dashboard.
+      const [claims, portfolio, impact] = await Promise.allSettled([
         // The table filters client-side, so it needs the whole portfolio rather
         // than a page of it.
         listClaims({ limit: 200 }),
-        getPendingQueue({ limit: 10 }),
-        // The zone shows the agent's five most recent actions from the past
-        // week — windowed server-side so the limit counts events inside the
-        // window rather than trimming a wider list down to five.
-        getRecentActivity({ limit: 5, days: 7, agentOnly: true }),
         getPortfolioStats(),
+        getFinancialImpact(),
       ]);
       if (controller.signal.aborted) return;
 
@@ -102,33 +100,81 @@ export default function useDashboard() {
       } else {
         setError(claims.reason?.message || "Could not load claims.");
       }
-      if (pending.status === "fulfilled") setPendingRaw(pending.value);
-      if (activity.status === "fulfilled") setActivityRaw(activity.value);
       if (portfolio.status === "fulfilled") setTrends(toSparklines(portfolio.value));
+      if (impact.status === "fulfilled") setFinancial(impact.value);
       setIsLoading(false);
     })();
 
     return () => controller.abort();
   }, []);
 
-  const stats = useMemo(() => toStatStrip(claimList, trends || {}), [claimList, trends]);
-  const breakdown = useMemo(() => toStatusBreakdown(claimList), [claimList]);
-  const summary = useMemo(() => toPortfolioSummary(claimList), [claimList]);
-  const allRows = useMemo(() => toClaimRows(claimList), [claimList]);
-  const pendingQueue = useMemo(() => toPendingQueue(pendingRaw), [pendingRaw]);
-  const activityFeed = useMemo(() => toActivityFeed(activityRaw), [activityRaw]);
+  // "Pending review" is a queue state the claims API cannot see: a claim is
+  // pending only while its job is ready for review in the Fraud Assessment Queue.
+  const queuedClaimIds = useMemo(
+    () =>
+      new Set(
+        queueJobs
+          .filter((job) => job.status === QUEUE_STATUS.READY_FOR_REVIEW)
+          .map((job) => job.claimId)
+      ),
+    [queueJobs]
+  );
+
+  const counts = useMemo(
+    () => toPortfolioCounts(claimList, queuedClaimIds.size),
+    [claimList, queuedClaimIds]
+  );
+  const portfolioRows = useMemo(
+    () => toClaimRows(claimList, queuedClaimIds),
+    [claimList, queuedClaimIds]
+  );
+  const dateSpan = useMemo(() => {
+    const dates = portfolioRows.map((row) => row.openedAt).filter((value) => value !== null);
+    return dates.length ? { from: Math.min(...dates), to: Math.max(...dates) } : null;
+  }, [portfolioRows]);
+  const stats = useMemo(
+    () => toStatStrip(counts, trends || {}, { financial, dateSpan }),
+    [counts, trends, financial, dateSpan]
+  );
+  const breakdown = useMemo(() => toStatusBreakdown(counts), [counts]);
+  const summary = useMemo(() => toPortfolioSummary(counts), [counts]);
+
+  // The two halves of the portfolio live in different places: claims nobody has
+  // analysed wait in the "Pending assessment" panel, and the table below it
+  // lists only claims the agent has already assessed.
+  const pendingAssessment = useMemo(
+    () => applySort(portfolioRows.filter((row) => row.isUnprocessed), "newest"),
+    [portfolioRows]
+  );
+  const allRows = useMemo(() => portfolioRows.filter((row) => !row.isUnprocessed), [portfolioRows]);
 
   // Filters and segment compose: the chips narrow the set, the segment then
   // splits it. Sorting is applied last so it survives both.
   const filteredRows = useMemo(() => applyFilters(allRows, filters), [allRows, filters]);
 
-  const rows = useMemo(() => {
+  const sortedRows = useMemo(() => {
     const segmented =
       activeSegment === "all"
         ? filteredRows
         : filteredRows.filter((row) => row.segment === activeSegment);
     return applySort(segmented, sort);
   }, [filteredRows, activeSegment, sort]);
+
+  const pageCount = Math.max(1, Math.ceil(sortedRows.length / PAGE_SIZE));
+  // Clamped rather than reset by an effect: a refetch can shrink the list under
+  // the reader without any of the controls that reset the page having fired.
+  const currentPage = Math.min(page, pageCount);
+  const rows = useMemo(
+    () => sortedRows.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+    [sortedRows, currentPage]
+  );
+  const pagination = {
+    page: currentPage,
+    pageCount,
+    total: sortedRows.length,
+    from: sortedRows.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1,
+    to: Math.min(currentPage * PAGE_SIZE, sortedRows.length),
+  };
 
   // Counts reflect what a click would actually show, so they can't contradict
   // the filters currently applied above them.
@@ -157,6 +203,7 @@ export default function useDashboard() {
   const changeSegment = useCallback((segmentId) => {
     setActiveSegment(segmentId);
     setSelectedIds([]);
+    setPage(1);
   }, []);
 
   // Any filter change can remove a checked row from view, so the selection is
@@ -164,11 +211,18 @@ export default function useDashboard() {
   const changeFilter = useCallback((filterId, optionId) => {
     setFilters((current) => ({ ...current, [filterId]: optionId }));
     setSelectedIds([]);
+    setPage(1);
   }, []);
 
   const clearFilters = useCallback(() => {
     setFilters(DEFAULT_FILTERS);
     setSelectedIds([]);
+    setPage(1);
+  }, []);
+
+  const changeSort = useCallback((sortId) => {
+    setSort(sortId);
+    setPage(1);
   }, []);
 
   const toggleRow = useCallback((rowId) => {
@@ -180,12 +234,6 @@ export default function useDashboard() {
   const openReport = useCallback((claimId) => setReportClaimId(claimId), []);
   const closeReport = useCallback(() => setReportClaimId(null), []);
 
-  // The drawer needs a fallback row for claims outside the current page.
-  const reportRow = useMemo(
-    () => allRows.find((row) => row.claimId === reportClaimId) || null,
-    [allRows, reportClaimId]
-  );
-
   return {
     isLoading,
     error,
@@ -195,20 +243,23 @@ export default function useDashboard() {
     summary,
     stats,
     breakdown,
-    pendingQueue,
-    activityFeed,
+    pendingAssessment,
     filterControls,
     sortControl,
     hasFilters: hasActiveFilters(filters),
     changeFilter,
-    changeSort: setSort,
+    changeSort,
     clearFilters,
     rows,
+    pagination,
+    changePage: setPage,
+    // Row status by claim, for the report drawer's pill: it cannot see the
+    // queue itself and must not contradict the table it was opened from.
+    rowById: Object.fromEntries(allRows.map((row) => [row.claimId, row])),
     showCheckboxes,
     selectedIds,
     toggleRow,
     reportClaimId,
-    reportRow,
     openReport,
     closeReport,
   };

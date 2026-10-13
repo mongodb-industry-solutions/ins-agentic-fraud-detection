@@ -111,6 +111,24 @@
   color: var(--text);
 }
 
+/* Leaving mid-assessment minimises rather than cancels, so the control says
+   so in words instead of a bare cross. */
+.laterBtn {
+  flex: none;
+  padding: 6px 13px;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 12.5px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.laterBtn:hover {
+  background: var(--surface-2);
+}
+
 /* --- two columns ---------------------------------------------------------- */
 
 /* Left: the conversation — report, transcript, composer, decision. Right: the
@@ -144,9 +162,52 @@
   background: var(--surface-2);
 }
 
+.asideCollapsed {
+  width: 44px;
+}
+
+/* The whole header row toggles the panel; collapsed, it becomes a narrow rail
+   with the title running vertically. */
+.asideToggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  width: 100%;
+  padding: 11px 18px 10px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.asideToggle:hover .asideTitle {
+  color: var(--text);
+}
+
+.asideChevron {
+  display: flex;
+  color: var(--text-dim);
+  transform: rotate(-90deg);
+  transition: transform 0.15s ease;
+}
+
+.asideCollapsed .asideChevron {
+  transform: rotate(90deg);
+}
+
+.asideCollapsed .asideToggle {
+  flex-direction: column;
+  height: 100%;
+  padding: 12px 0;
+}
+
+.asideCollapsed .asideTitle {
+  writing-mode: vertical-rl;
+}
+
 .asideTitle {
   flex: none;
-  padding: 13px 18px 10px;
   color: var(--text-dim);
   font-size: 11px;
   letter-spacing: 0.05em;
@@ -177,6 +238,17 @@
     max-height: 190px;
     border-left: none;
     border-top: 1px solid var(--border);
+  }
+
+  /* Stacked layout: collapsing leaves a one-line header, not a vertical rail. */
+  .asideCollapsed .asideToggle {
+    flex-direction: row;
+    height: auto;
+    padding: 11px 18px 10px;
+  }
+
+  .asideCollapsed .asideTitle {
+    writing-mode: horizontal-tb;
   }
 }
 
@@ -600,13 +672,48 @@
 
 /* --- closing the case ----------------------------------------------------- */
 
+/* The primary action once the report is in: filled, bold and sized up so it
+   reads as the obvious next step rather than another outline control. */
 .closeCaseTrigger {
-  padding: 7px 16px;
-  background: transparent;
-  border: 1px solid var(--border-strong);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  padding: 10px 20px;
+  border: none;
   border-radius: var(--radius);
+  /* Spring Green on Evergreen is the brand's primary button in both themes. */
+  background: var(--spring-green);
+  color: var(--evergreen);
+  font-size: 13.5px;
+  font-weight: 600;
+  box-shadow: 0 0 0 3px var(--accent-glow);
+  cursor: pointer;
+}
+
+.closeCaseTrigger:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+
+.closeCaseTrigger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.cancelDecision {
+  margin-left: auto;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-size: 12px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.cancelDecision:hover:not(:disabled) {
   color: var(--text);
-  font-size: 12.5px;
 }
 
 .verdictRow {

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Icon from "@/components/icons/Icons";
-import { SYSTEM_NAV, WORKSPACE_NAV, FRAUD_INTELLIGENCE_NAV } from "@/lib/const/nav";
+import { WORKSPACE_NAV, FRAUD_INTELLIGENCE_NAV } from "@/lib/const/nav";
 import styles from "./Sidebar.module.css";
 
 /**
@@ -59,21 +59,6 @@ export default function Sidebar({ activeSection, onNavigate }) {
       <p className={`${styles.groupLabel} ${styles.groupSpacing}`}>Fraud Intelligence</p>
       <div className={styles.group}>
         {FRAUD_INTELLIGENCE_NAV.map((item) => (
-          <NavItem
-            key={item.id}
-            item={item}
-            isActive={item.id === activeSection}
-            onNavigate={onNavigate}
-          />
-        ))}
-      </div>
-
-      {/* Flex spacer pins the System group to the bottom of the sidebar. */}
-      <div className={styles.spacer} />
-
-      <p className={styles.groupLabel}>System</p>
-      <div className={styles.group}>
-        {SYSTEM_NAV.map((item) => (
           <NavItem
             key={item.id}
             item={item}

@@ -6,22 +6,19 @@ rather than typed by a user. Keeping the wording server-side means every
 assessment in the demo asks for the same things in the same order, and the
 client cannot reshape what the agent is asked to do.
 
-Scoring lives in the agent, and so does persistence. An assessment writes
-nothing — it is a *recommendation*, and the instruction deliberately forbids
-saving. It becomes a record when the reviewer decides: `stream_decision` sends
-the verdict back on the SAME conversation and asks the agent to write the claim
-outcome and its own audit-trail entry. The agent produced the findings, so the
-agent records them.
+The agent is the only writer of fraud state. Once the reviewer starts an
+assessment the agent takes the lead: it gathers the context, scores the claim
+and records the assessment itself (`assess_claim_fraud` writes the score,
+matched patterns, linked similar claims and `processed=true` onto the claim,
+and opens the decision trace). When the reviewer decides, `stream_decision`
+hands the verdict to the agent, which merges it into that same trace
+(`record_fraud_decision`) and closes the claim. The same tools run whether the assessment starts
+here, in chat or in a batch, so the claim's status is right either way.
 
-This service still never parses the stream and never writes to MongoDB itself.
-Two consequences worth knowing:
-
-* It depends on the agent actually having write tools. Nothing here can grant
-  them, and an agent without them will happily *say* it recorded the decision.
-  The client reads the claim back afterwards for exactly that reason.
-* `POST /claims/{claim_id}/decision` still exists and writes the verdict
-  directly, without the agent. Both paths are live: the dashboard's report
-  drawer uses the deterministic one, the analysis modal uses this one.
+This service never parses the stream and never writes to MongoDB itself. It
+depends on the agent actually having those write tools; an agent without them
+will happily *say* it recorded something, so the client reads the claim back
+afterwards to check.
 """
 
 import logging
@@ -33,51 +30,38 @@ from services.agent_chat_service import AgentChatService
 
 logger = logging.getLogger(__name__)
 
+# Used when the caller does not say who started the assessment. The agent's
+# tools require an initiator, and in a non-interactive run the agent cannot ask.
+DEFAULT_INITIATOR = "analyst:claims-portal"
+
 # One instruction, one place to edit it. Phrased as a task rather than a
 # question so the agent runs its tools instead of describing what it would do.
-ASSESSMENT_INSTRUCTION = """Run a full fraud assessment on claim {claim_id}.
+ASSESSMENT_INSTRUCTION = """Run a full fraud assessment on claim {claim_id}, requested by {triggered_by}.
 
 Do all of the following, in order:
 1. Retrieve the claim, its policy and its customer, including the customer's claim history.
 2. Evaluate it against the fraud pattern catalogue and list every pattern that matches, with the points each contributes.
-3. Compare it against similar historical claims and say what that comparison implies.
-4. Compute the final fraud score and state which review band it falls into.
-5. Finish with a clear recommendation for the human reviewer — confirm as fraud, or dismiss — and the single strongest piece of evidence behind it.
+3. Find similar historical claims with find_similar_claims and say what that comparison implies.
+4. Record the assessment with assess_claim_fraud, passing triggered_by="{triggered_by}", your agent_summary, and similar_claim_ids with the IDs of the similar claims you cite. This persists the score, matched patterns, linked similar claims and processed status on the claim, and opens the decision trace.
+5. Report the final fraud score, its review band and the traceId.
+6. Finish with a clear recommendation for the human reviewer — confirm as fraud, or dismiss — and the single strongest piece of evidence behind it.
 
-Do not save or record anything: this assessment is a recommendation, and the human reviewer is the one who commits the decision.
+Do not record a fraud decision: the human reviewer makes that call.
 
 Explain your reasoning as you go, so a reviewer can audit how the score was reached."""
 
-# The closing turn of the same conversation. Sent on the assessment's session id,
-# so the agent still holds the analysis it produced and does not have to be told
-# what it found — only what the human concluded and what to do about it.
-#
-# This is the one instruction in the app that asks the agent to *write*. The
-# assessment above explicitly forbids it; here the human has committed, so there
-# is something worth persisting. Both live in this module so the pair can be read
-# together.
+# The closing turn. Sent on the assessment's session when there is one, so the
+# agent still holds the analysis in context. Without one the agent can still
+# record the verdict: the assessment trace it merges into is in MongoDB.
 DECISION_INSTRUCTION = """The human reviewer has made a decision on claim {claim_id}.
 
 Decision: {decision}
 Reviewer: {reviewed_by}
+SIU referral: {siu_referred}
 {reason_line}
-Now close the case. Do all of the following, in order:
-1. Record the decision on the claim document, setting every one of these fields:
-   - fraud.fraudFlag: {fraud_flag}
-   - fraud.processed: true
-   - fraud.flagSource: "HUMAN"
-   - fraud.reviewedBy: "{reviewed_by}"
-   - fraud.reviewedAt: the current timestamp
-   - fraud.processedAt: the current timestamp, but ONLY if the claim does not already have one. If fraud.processedAt is already set, leave it exactly as it is — it records when the claim entered the review queue, and overwriting it would erase how long the claim waited.
-   - fraud.computedScore and fraud.rawScore: the score you computed in this assessment
-   - fraud.matchedPatterns: the patterns you matched, each with its patternId, name and weight
-   fraud.processed must be true even though the score was not saved earlier in this
-   conversation — every read of this claim treats processed=false as "never analysed" and
-   would hide the decision you are recording.{reason_step}
-2. Write the audit-trail record for this review: the claim id, the score you computed, the patterns that matched, the decision, the reviewer, and a concise summary of how you reached your recommendation.
-3. Close the case.
+Record it by calling record_fraud_decision with claim_id="{claim_id}", decision="{decision}", reviewer="{reviewed_by}", siu_referred={siu_referred}{reason_arg}. Do not set any fraud fields by hand with update_claim: record_fraud_decision writes the verdict onto the claim, closes the claim, and merges the verdict into the claim's decision trace.
 
-Then reply with a short confirmation of exactly what you wrote and where — name each collection and field you changed, so the reviewer can verify it. If any write fails, say so plainly and state which parts did not persist; do not report success for a write that did not happen."""
+Then reply with a short confirmation of exactly what was written: the traceId, the claim fields set (including claimStatus), and the patterns whose stats were updated. If the tool returns an error, say so plainly; do not report success for a write that did not happen."""
 
 
 class FraudAssessmentService:
@@ -87,8 +71,11 @@ class FraudAssessmentService:
         self._claims_repo = claims_repo
         self._agent = agent
 
-    def _build_message(self, claim_id: str, focus: str | None) -> str:
-        message = ASSESSMENT_INSTRUCTION.format(claim_id=claim_id)
+    def _build_message(self, claim_id: str, focus: str | None, triggered_by: str | None) -> str:
+        message = ASSESSMENT_INSTRUCTION.format(
+            claim_id=claim_id,
+            triggered_by=(triggered_by or "").strip() or DEFAULT_INITIATOR,
+        )
         if focus and focus.strip():
             # Appended, never substituted: a caller can steer the emphasis but
             # cannot drop any of the required steps.
@@ -104,28 +91,18 @@ class FraudAssessmentService:
         siu_referred: bool,
     ) -> str:
         reason_line = f"Reason given: {dismiss_reason}\n" if dismiss_reason else ""
-        if siu_referred:
-            reason_line += "This claim is being referred to the SIU.\n"
-
-        # The reason is a required part of the record for a dismissal, so the
-        # instruction names it as a step rather than leaving the agent to infer
-        # that it matters.
-        reason_step = (
-            f" Store the reviewer's reason verbatim: \"{dismiss_reason}\"."
-            if dismiss_reason
-            else ""
-        )
-
+        # The reason is a required part of the record for a dismissal, so it is
+        # passed as a tool argument verbatim rather than left to the agent to infer.
+        quoted = (dismiss_reason or "").replace('"', "'")
+        reason_arg = f', dismiss_reason="{quoted}", notes="{quoted}"' if quoted else ""
         return DECISION_INSTRUCTION.format(
             claim_id=claim_id,
             decision=decision,
-            # Spelled out rather than left to the agent to infer from the verdict
-            # name: fraudFlag is a boolean and "DISMISSED" -> false is exactly
-            # the kind of mapping a model gets backwards under load.
-            fraud_flag="true" if decision == "CONFIRMED_FRAUD" else "false",
             reviewed_by=reviewed_by,
+            # Spelled out as the tool's boolean, not left to the model to map.
+            siu_referred="true" if siu_referred else "false",
             reason_line=reason_line,
-            reason_step=reason_step,
+            reason_arg=reason_arg,
         )
 
     async def stream_decision(
@@ -133,19 +110,18 @@ class FraudAssessmentService:
         claim_id: str,
         decision: str,
         reviewed_by: str,
-        session_id: str,
+        session_id: str | None = None,
         dismiss_reason: str | None = None,
         siu_referred: bool = False,
         user_id: str | None = None,
     ) -> tuple[AsyncIterator[bytes], str, str | None]:
-        """Hand the reviewer's verdict to the agent that ran the assessment.
+        """Hand the reviewer's verdict to the agent to record.
 
-        `session_id` is required, not optional: the point of this call is that
-        the agent still has the analysis in context. Starting a new conversation
-        would ask it to record findings it never made.
+        `session_id` is optional: on the assessment's session the agent can
+        reference its own analysis in the confirmation, but the write itself
+        only needs the claim's trace, which is already persisted.
 
-        A dismissal without a reason is refused here for the same reason the REST
-        decision endpoint refuses it — the reason IS the record.
+        A dismissal without a reason is refused here — the reason IS the record.
         """
         if decision not in {"CONFIRMED_FRAUD", "DISMISSED"}:
             raise ValidationError(
@@ -172,6 +148,7 @@ class FraudAssessmentService:
         session_id: str | None = None,
         user_id: str | None = None,
         focus: str | None = None,
+        triggered_by: str | None = None,
     ) -> tuple[AsyncIterator[bytes], str, str | None]:
         """Validate the claim, then stream the agent's assessment of it.
 
@@ -188,7 +165,7 @@ class FraudAssessmentService:
 
         logger.info("Starting fraud assessment for claim %s", claim_id)
         return await self._agent.invoke_stream(
-            message=self._build_message(claim_id, focus),
+            message=self._build_message(claim_id, focus, triggered_by),
             session_id=session_id,
             user_id=user_id,
         )

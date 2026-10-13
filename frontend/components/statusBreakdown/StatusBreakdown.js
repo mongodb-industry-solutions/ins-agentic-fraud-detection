@@ -4,20 +4,19 @@ import styles from "./StatusBreakdown.module.css";
    representations can never drift apart. */
 const SEGMENT_STROKE = {
   unprocessed: "var(--border-strong)",
-  pending: "var(--lavender)",
   flagged: "var(--evergreen)",
-  cleared: "var(--mist)",
+  cleared: "var(--spring-green)",
 };
 
-const SIZE = 112;
-const STROKE = 13;
+const SIZE = 144;
+const STROKE = 18;
 const RADIUS = (SIZE - STROKE) / 2;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 export default function StatusBreakdown({ breakdown }) {
-  const { total, segments } = breakdown;
+  const { total, segments, undecided } = breakdown;
 
-  // Four arcs drawn on one circle: each gets a dash the length of its share
+  // Three arcs drawn on one circle: each gets a dash the length of its share
   // and an offset equal to everything drawn before it.
   let consumed = 0;
   const arcs = segments.map((segment) => {
@@ -30,9 +29,19 @@ export default function StatusBreakdown({ breakdown }) {
   return (
     <div className={styles.panel}>
       <span className={styles.title}>Fraud status breakdown</span>
+      <span className={styles.subtitle}>Every claim in the portfolio, by where it stands</span>
       <div className={styles.body}>
         <div className={styles.donutWrap}>
           <svg className={styles.donut} width={SIZE} height={SIZE} aria-hidden="true">
+            {/* A faint track keeps the dark Evergreen arc legible on Slate. */}
+            <circle
+              cx={SIZE / 2}
+              cy={SIZE / 2}
+              r={RADIUS}
+              fill="none"
+              stroke="var(--surface-2)"
+              strokeWidth={STROKE}
+            />
             {arcs.map((arc) => (
               <circle
                 key={arc.statusKey}
@@ -63,6 +72,15 @@ export default function StatusBreakdown({ breakdown }) {
           ))}
         </ul>
       </div>
+
+      {/* Said rather than hidden: these claims are in the portfolio but in none
+          of the three outcomes, so the ring's total would otherwise look short. */}
+      {undecided > 0 && (
+        <span className={styles.undecided}>
+          {undecided} more {undecided === 1 ? "claim is" : "claims are"} assessed and awaiting a
+          decision.
+        </span>
+      )}
     </div>
   );
 }

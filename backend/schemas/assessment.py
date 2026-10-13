@@ -25,26 +25,25 @@ class AssessmentRequest(BaseModel):
     # Free-text steer appended to the instruction, e.g. "focus on the repair
     # shop relationship". Never replaces the instruction — see the service.
     focus: str | None = None
+    # Who started the assessment, recorded by the agent as the trace's
+    # triggeredBy (e.g. "analyst:Jane Doe"). Defaults server-side when omitted.
+    triggeredBy: str | None = None
 
 
 class DecisionInstructionRequest(BaseModel):
-    """The reviewer's verdict, to be committed by the agent itself.
+    """The reviewer's verdict, to be recorded by the agent.
 
-    Unlike `POST /claims/{id}/decision`, which writes to MongoDB directly, this
-    hands the verdict to the agent on the conversation where the assessment ran
-    and asks it to persist the outcome and its own audit record. The agent
-    already holds the analysis in that session's context, so the instruction
-    does not have to restate it.
+    The agent is the only writer of fraud state: it merges this verdict into
+    the decision trace its assessment opened, via record_fraud_decision.
     """
 
     decision: str  # CONFIRMED_FRAUD | DISMISSED
     reviewedBy: str
-    # Required by the instruction for a dismissal — the reason is the record of
-    # *why* a flagged claim was let go, which is the part an auditor reads.
+    # Required for a dismissal — the reason is the record of *why* a flagged
+    # claim was let go, which is the part an auditor reads.
     dismissReason: str | None = None
     siuReferred: bool = False
-    # The conversation the assessment ran in. Without it the agent is asked to
-    # close a case it has never seen, so the route refuses rather than starting
-    # a fresh session that would have no analysis to record.
-    sessionId: str
+    # The conversation the assessment ran in, when there is one. Optional: the
+    # assessment is persisted, so the agent can record a verdict without it.
+    sessionId: str | None = None
     userId: str | None = None

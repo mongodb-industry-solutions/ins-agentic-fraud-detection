@@ -1,13 +1,14 @@
-/* Donut and activity feed are one zone divided by a single hairline, not two
-   separate cards. */
+/* The donut sits open on the page; only the pending-assessment list is boxed.
+   Roughly a quarter / three quarters. */
 .zone {
   display: grid;
-  grid-template-columns: 40fr 60fr;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
+  gap: var(--section-gap);
+  align-items: start;
 }
 
 .divider {
-  border-left: 1px solid var(--border);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
   min-width: 0;
 }

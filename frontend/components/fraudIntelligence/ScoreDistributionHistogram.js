@@ -4,9 +4,9 @@ import { EmptyState, ErrorState, Skeleton, Zone } from "./Zone";
 
 /** Band -> bar colour. The band itself is always the backend's, never derived here. */
 const BAND_CLASS = {
-  LOW: "bandLow",
+  FAST_TRACK: "bandLow",
   REVIEW: "bandReview",
-  HIGH: "bandHigh",
+  PRIORITY: "bandHigh",
 };
 
 /**

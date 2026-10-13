@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 import styles from "./Overlay.module.css";
 
@@ -14,8 +15,17 @@ import styles from "./Overlay.module.css";
  * Unmounts when closed rather than sitting inert at opacity 0: callers already
  * mount conditionally, and a permanently-mounted fixed layer would swallow the
  * page's own keyboard handling.
+ *
+ * Rendered into <body> through a portal. Callers live inside the shell's main
+ * column, which is its own stacking context (position: relative; z-index: 1),
+ * so without the portal no z-index could lift the layer above a sibling column
+ * — the docked Fraud Assessment Queue drew on top of the report drawer.
  */
 export default function Overlay({ open, onClose, children, variant = "centered", label }) {
+  // The portal target only exists in the browser, after the first render.
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => setIsMounted(true), []);
+
   useEffect(() => {
     if (!open) return undefined;
 
@@ -34,11 +44,11 @@ export default function Overlay({ open, onClose, children, variant = "centered",
     };
   }, [open, onClose]);
 
-  if (!open) return null;
+  if (!open || !isMounted) return null;
 
   const variantClass = variant === "drawer" ? styles.drawerVariant : styles.centeredVariant;
 
-  return (
+  return createPortal(
     <div
       className={`${styles.backdrop} ${variantClass}`}
       role="dialog"
@@ -51,6 +61,7 @@ export default function Overlay({ open, onClose, children, variant = "centered",
       }}
     >
       {children}
-    </div>
+    </div>,
+    document.body
   );
 }

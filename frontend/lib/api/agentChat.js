@@ -173,31 +173,13 @@ export function streamAgentMessage({ message, sessionId, userId, signal }, handl
 }
 
 /**
- * Runs the agent's full fraud assessment of one claim.
+ * Hands the reviewer's verdict to the agent, the only writer of fraud state.
+ * It merges the verdict into the claim's decision trace and streams its
+ * confirmation of what it wrote.
  *
- * The instruction is composed server-side, so there is no `message` here — the
- * client chooses *which* claim to assess, never what the agent is asked to do.
- * Omit `sessionId` for the normal case: an assessment runs in its own fresh
- * conversation rather than inheriting unrelated chat context. The handle comes
- * back on `onSessionId`, so follow-up questions can join that same thread.
- */
-export function streamClaimAssessment({ claimId, sessionId, userId, focus, signal }, handlers = {}) {
-  return streamAgentEndpoint(
-    `/api/fraud-assessment/${encodeURIComponent(claimId)}`,
-    { ...(sessionId && { sessionId }), ...(userId && { userId }), ...(focus && { focus }) },
-    signal,
-    handlers
-  );
-}
-
-/**
- * Hands the reviewer's verdict to the agent so it can commit the outcome and
- * write its own audit record, then streams its confirmation of what it wrote.
- *
- * `sessionId` is REQUIRED here, unlike everywhere else: the whole point is that
- * the agent still holds the analysis it just produced. Without it the agent
- * would be asked to record findings it never made, so the route refuses rather
- * than quietly opening a fresh conversation.
+ * `sessionId` is optional: pass the assessment's session so the agent can refer
+ * to its own analysis. Without it the agent still records the verdict, because
+ * the assessment it merges into is already persisted.
  *
  * The instruction is composed server-side — the client sends the verdict, never
  * the wording of what the agent is asked to do.
@@ -211,7 +193,7 @@ export function streamClaimDecision(
     {
       decision,
       reviewedBy,
-      sessionId,
+      ...(sessionId && { sessionId }),
       ...(dismissReason && { dismissReason }),
       ...(siuReferred && { siuReferred }),
       ...(userId && { userId }),

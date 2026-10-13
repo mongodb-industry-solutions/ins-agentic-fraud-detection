@@ -291,3 +291,8 @@ class FraudPatternDetailResponse(BaseModel):
     pattern: dict[str, Any]
     matchedClaims: list[MatchedClaim]
     matchedCount: int
+    # Portfolio-wide: of all confirmed-fraud claims, how many carried this
+    # pattern. `shareOfAllFraudClaims` is null when there is no confirmed fraud.
+    confirmedFraudWithPattern: int = 0
+    confirmedFraudTotal: int = 0
+    shareOfAllFraudClaims: float | None = None

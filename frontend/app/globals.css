@@ -15,6 +15,10 @@
   --evergreen: #023430;
   --mist: #e3fcf7;
   --lavender: #f9ebff;
+  /* The mid step of the template's green ramp (Forest -> Leaf -> Spring ->
+     Chartreuse), sampled from the slide template. */
+  --leaf-green: #05b861;
+  --chartreuse: #b1ff05;
 
   /* --- chart-only reserved colors (data series only, never general UI) ---
      Legitimate wherever a series has no status pill it must visually match.

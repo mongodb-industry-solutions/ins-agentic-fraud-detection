@@ -15,9 +15,6 @@ const IDLE = { data: null, isLoading: true, error: null };
  * readable.
  *
  * Neither request is parameterised by UI state, so both run once on mount.
- * There is deliberately no third fetch: the reliability-trends section is a
- * static placeholder, because the endpoint behind it does not exist yet and
- * calling one that cannot answer would flash an error before settling.
  */
 export default function usePatternsTab() {
   const [leaderboard, setLeaderboard] = useState(IDLE);

@@ -1,12 +1,13 @@
 "use client";
 
 import Icon from "@/components/icons/Icons";
-import ToggleSwitch from "@/components/shared/ToggleSwitch";
 import { useToast } from "@/components/shared/ToastProvider";
+import { PATTERN_TYPE } from "@/lib/fraudPatternsPresenter";
 import styles from "./PatternCard.module.css";
 
 export default function PatternCard({ pattern, onClick, onSetActive }) {
   const showToast = useToast();
+  const isRule = pattern.patternType === PATTERN_TYPE.RULE;
 
   // The flip itself is optimistic and owned by useFraudPatterns, which also
   // rolls it back if the write fails. All this decides is what to say about it.
@@ -37,8 +38,16 @@ export default function PatternCard({ pattern, onClick, onSetActive }) {
       }}
     >
       <div className={styles.cardTop}>
-        <span className={styles.cardName}>{pattern.name}</span>
-        <span className={styles.weightChip}>{pattern.weightLabel}</span>
+        <span className={styles.typeChip} title={pattern.typeLabel}>
+          <Icon name={isRule ? "flag" : "sparkle"} size={14} />
+        </span>
+        <div className={styles.titleBlock}>
+          <span className={styles.cardName}>{pattern.name}</span>
+          <span className={styles.cardType}>{pattern.typeLabel}</span>
+        </div>
+        <span className={styles.weightChip} title="Points added to a claim's fraud score">
+          {pattern.weightLabel}
+        </span>
       </div>
 
       <div className={styles.cardMeta}>
@@ -48,7 +57,7 @@ export default function PatternCard({ pattern, onClick, onSetActive }) {
         </span>
         <span className={styles.metaItem}>
           <Icon name="checkCircle" size={12} />
-          Confirmed <span className={styles.metaValue}>{pattern.confirmedFraudRate}</span>
+          Confirmed <span className={styles.metaValue}>{pattern.confirmedCount}</span>
         </span>
       </div>
 
@@ -59,13 +68,25 @@ export default function PatternCard({ pattern, onClick, onSetActive }) {
             Not available — pending embedding procedure
           </span>
         ) : (
-          <span />
+          <span className={pattern.active ? styles.statusOn : styles.statusOff}>
+            {pattern.active ? "Active" : "Retired"}
+          </span>
         )}
-        <ToggleSwitch
-          checked={pattern.active}
-          onChange={handleToggle}
-          label={`${pattern.name} active`}
-        />
+        {/* A labelled action rather than a bare switch: it says what a click
+            will do. Click and key events are stopped so pressing it does not
+            also open the card underneath. */}
+        <button
+          type="button"
+          className={pattern.active ? styles.deactivateButton : styles.activateButton}
+          onClick={(event) => {
+            event.stopPropagation();
+            handleToggle(!pattern.active);
+          }}
+          onKeyDown={(event) => event.stopPropagation()}
+          aria-label={`${pattern.active ? "Deactivate" : "Activate"} ${pattern.name}`}
+        >
+          {pattern.active ? "Deactivate" : "Activate"}
+        </button>
       </div>
     </div>
   );

@@ -33,7 +33,17 @@ export async function apiFetch(path, { method = "GET", body, signal } = {}) {
   });
 
   const text = await response.text();
-  const payload = text ? JSON.parse(text) : null;
+  // Not every failure is JSON: an unhandled backend error, or a proxy, answers
+  // with plain text ("Internal Server Error"). Parsing that blindly turned a
+  // clear failure into "Unexpected token 'I'… is not valid JSON".
+  let payload = null;
+  if (text) {
+    try {
+      payload = JSON.parse(text);
+    } catch {
+      payload = response.ok ? text : { message: `The server answered ${response.status}: ${text.slice(0, 160)}` };
+    }
+  }
 
   if (!response.ok) {
     const error = new Error(toErrorMessage(payload, response.status));
