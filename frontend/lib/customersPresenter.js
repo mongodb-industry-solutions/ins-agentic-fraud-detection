@@ -97,7 +97,7 @@ export function toCustomerHeader(customer) {
  * Policies held. `statusLabel` feeds the neutral Badge component — never the
  * fraud StatusPill: policy status (Active/Expired/Cancelled) and fraud status
  * are unrelated semantic systems, and letting policy status borrow the
- * Lavender/Mist/Evergreen grammar would break what those colors mean.
+ * Light Green/Mist/Evergreen grammar would break what those colors mean.
  */
 export function toPolicyRows(policies) {
   return (policies || []).map((policy) => {

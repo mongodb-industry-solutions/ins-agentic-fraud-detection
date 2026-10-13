@@ -124,8 +124,8 @@
   flex: none;
   padding: 10px 16px;
   border-radius: var(--radius);
-  background: var(--lavender);
-  color: var(--on-lavender);
+  background: var(--light-green);
+  color: var(--on-light-green);
 }
 
 .scoreBigNum {
@@ -202,7 +202,7 @@
 }
 
 /* The pattern's configured weight — a neutral chip, deliberately not the solid
-   Lavender score chip, which means "a score the agent computed". */
+   Light Green score chip, which means "a score the agent computed". */
 .weightChip {
   padding: 1px 7px;
   border: 1px solid var(--border-strong);

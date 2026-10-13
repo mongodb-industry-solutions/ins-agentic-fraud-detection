@@ -223,7 +223,7 @@
 }
 
 .nodePending {
-  fill: var(--lavender);
+  fill: var(--light-green);
   stroke: var(--border-strong);
   stroke-width: 1.5;
 }

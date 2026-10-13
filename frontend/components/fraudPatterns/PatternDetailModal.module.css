@@ -276,6 +276,11 @@
   font-size: 12px;
 }
 
+.claimListScroll {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
 .viewAllLink {
   margin-top: 10px;
   padding: 0;

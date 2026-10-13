@@ -50,7 +50,7 @@ export default function TopPatternsLeaderboard({ data, isLoading, error }) {
                       {pattern.patternName}
                     </span>
                     {/* The catalogue's own outline weight chip — never the solid
-                        Lavender score chip, which means "the agent computed
+                        Light Green score chip, which means "the agent computed
                         this". A weight is static configuration. */}
                     <span className={cardStyles.weightChip}>{pattern.weightLabel}</span>
                   </div>

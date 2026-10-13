@@ -68,7 +68,7 @@
   text-transform: uppercase;
 }
 
-/* Deliberately NOT the solid-Lavender score chip: that chip means "the agent
+/* Deliberately NOT the solid-Light Green score chip: that chip means "the agent
    computed this". A pattern's weight is static configuration, so it gets the
    uncolored outline treatment instead. */
 .weightChip {

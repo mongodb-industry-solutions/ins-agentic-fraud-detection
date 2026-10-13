@@ -47,9 +47,9 @@
 
 /* The one solid fill: where you are. */
 .current {
-  background: var(--lavender);
-  border-color: var(--lavender);
-  color: var(--on-lavender);
+  background: var(--light-green);
+  border-color: var(--light-green);
+  color: var(--on-light-green);
 }
 
 .step:disabled {

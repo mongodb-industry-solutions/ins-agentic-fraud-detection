@@ -60,9 +60,13 @@ export default function PatternDetailModal({
   const { detail, isLoading, error, applyUpdate } = useFraudPatternDetail(open ? patternId : null);
   const showToast = useToast();
   const [isEditing, setIsEditing] = useState(false);
+  const [showAllClaims, setShowAllClaims] = useState(false);
 
   // Opening a different pattern must not land in the previous one's edit form.
-  useEffect(() => setIsEditing(false), [patternId]);
+  useEffect(() => {
+    setIsEditing(false);
+    setShowAllClaims(false);
+  }, [patternId]);
 
   const isRule = detail?.patternType === PATTERN_TYPE.RULE;
 
@@ -202,33 +206,31 @@ export default function PatternDetailModal({
               {detail.matchedClaims.length === 0 ? (
                 <div className={styles.emptyState}>No claims have matched this pattern yet.</div>
               ) : (
-                detail.matchedClaims.slice(0, CLAIM_PREVIEW_LIMIT).map((claim) => (
-                  <MatchedClaimRow
-                    key={claim.claimId}
-                    claim={claim}
-                    onClick={() => {
-                      onClose();
-                      onOpenClaim?.(claim.claimId);
-                    }}
-                  />
-                ))
+                <div className={showAllClaims ? styles.claimListScroll : undefined}>
+                  {(showAllClaims
+                    ? detail.matchedClaims
+                    : detail.matchedClaims.slice(0, CLAIM_PREVIEW_LIMIT)
+                  ).map((claim) => (
+                    <MatchedClaimRow
+                      key={claim.claimId}
+                      claim={claim}
+                      onClick={() => {
+                        onClose();
+                        onOpenClaim?.(claim.claimId);
+                      }}
+                    />
+                  ))}
+                </div>
               )}
-              {/* Placeholder for the unpaginated list view, which is not built
-                  yet — hence the cap above and the toast here. */}
               {detail.matchedClaims.length > CLAIM_PREVIEW_LIMIT && (
                 <button
                   type="button"
                   className={styles.viewAllLink}
-                  onClick={() =>
-                    showToast(
-                      <>
-                        The full match list isn&apos;t built yet — this modal shows the top{" "}
-                        {CLAIM_PREVIEW_LIMIT} by fraud score.
-                      </>
-                    )
-                  }
+                  onClick={() => setShowAllClaims((value) => !value)}
                 >
-                  View all {detail.matchedClaims.length} →
+                  {showAllClaims
+                    ? "Show top " + CLAIM_PREVIEW_LIMIT + " only"
+                    : "View all " + detail.matchedClaims.length + " →"}
                 </button>
               )}
             </div>

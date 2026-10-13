@@ -1,153 +1,225 @@
-# Demo Template: Python Backend with Next.js Frontend
+# Agentic Fraud Detection for Insurance Claims
 
-This repository provides a template for creating a web application with a Python backend and a Next.js frontend. The backend is managed using uv for dependency management, while the frontend is built with Next.js, offering a modern React-based user interface.
+An insurance claims review demo that brings together explicit fraud rules, semantic search over claims and fraud schemes, and human review. The agent gathers relevant evidence, explains its assessment, and recommends an outcome. A reviewer remains responsible for the final decision.
 
-## Table of Contents
+## The problem
 
-- [Demo Template: Python Backend with Next.js Frontend](#demo-template-python-backend-with-nextjs-frontend)
-  - [Table of Contents](#table-of-contents)
-  - [Features](#features)
-  - [Prerequisites](#prerequisites)
-  - [Getting Started](#getting-started)
-    - [Create a New Repository](#create-a-new-repository)
-    - [GitHub Desktop Setup](#github-desktop-setup)
-    - [Backend Setup](#backend-setup)
-  - [DEMO README](#demo-readme)
+Reviewers need to compare each claim with policy and customer context, known fraud indicators, and prior cases. Gathering that evidence manually takes time and makes it harder to apply expertise consistently and trace why a decision was made.
 
-## Features
+This solution helps assemble and explain the evidence in one workflow, while keeping the decision with the reviewer.
 
-- Python backend with a RESTful API powered by [FastAPI](https://fastapi.tiangolo.com/)
-- Next.js frontend for a responsive user interface
-- Dependency management with uv ([More info](https://docs.astral.sh/uv/))
-- Easy setup and configuration
+## What the solution does
 
-## Prerequisites
+* Brings claim, policy, customer, fraud-pattern, and review information into a claims-review workflow.
+* Applies weighted, constraint-based rules to explicit claim fields.
+* Uses MongoDB Atlas Vector Search to find semantically similar fraud schemes and resolved claims, even when their narratives use different wording.
+* Presents a score, matched evidence, and a recommendation for reviewer consideration. Similar resolved claims provide context; they do not change the score.
+* Records the assessment and the human decision, and uses reviewer outcomes to update the reliability statistics of matched patterns.
+* Provides a reviewer workspace for the claims queue, assessment, decisions, pattern management, fraud intelligence, and audit history.
 
-Before you begin, ensure you have met the following requirements:
+## Architecture
 
-- Python >=3.13,<3.14 - If you are Mac user, you can install Python 3.13 using this [link](https://www.python.org/downloads/).
-- Node.js 22 or higher
-- uv (install via [uv's official documentation](https://docs.astral.sh/uv/getting-started/installation/))
+The solution has five main components:
 
-## Getting Started
+* **Reviewer workspace — Next.js:** Supports claim review, decisions, pattern management, and portfolio-level fraud intelligence.
+* **Application backend — Python FastAPI:** Coordinates requests between the reviewer experience, the agent, and the data layer. It also supports decision recording, pattern feedback, and analytics.
+* **Fraud agent — Atlas Agent Engine:** Runs claim assessments and responds to reviewer questions using tools connected to MongoDB Atlas.
+* **Embedding service — Voyage AI:** Converts claim narratives and fraud-scheme descriptions into vectors for semantic retrieval.
+* **Data layer — MongoDB Atlas:** Stores claims, policies, customers, fraud patterns, embeddings, and decision traces. MongoDB Atlas Vector Search indexes vectors alongside the related documents.
 
-Follow these steps to set up the project locally.
+```mermaid
+flowchart LR
+  Reviewer[Reviewer workspace\nNext.js] --> Backend[Application backend\nPython FastAPI]
+  Backend --> Agent[Fraud agent\nAtlas Agent Engine]
+  Backend --> Atlas[(MongoDB Atlas)]
+  Agent --> Atlas
+  Voyage[Voyage AI\nEmbeddings] --> Atlas
+```
 
-### Create a New Repository
+### Assessment flow
 
-1. Navigate to the repository template on GitHub and click on **Use this template**.
-2. Create a new repository.
-3. **Do not** check the "Include all branches" option.
-4. Define a repository name following the naming convention: `<industry>-<project_name>-<highlighted_feature>`. For example, `fsi-leafybank-ai-personal-assistant` (use hyphens to separate words).
-   - The **industry** and **project name** are required; you can be creative with the highlighted feature.
-5. Provide a clear description for the repository, such as: "A repository template to easily create new demos by following the same structure."
-6. Set the visibility to **Internal**.
-7. Click **Create repository**.
+1. A reviewer selects a claim for assessment. The backend supplies the agent with the required checks; the reviewer can add a focus area without replacing those checks.
+2. The agent gathers the claim, policy, and customer context, evaluates applicable rules, and searches for relevant fraud schemes and resolved claims.
+3. The solution totals the weights of fired rules and qualifying schemes, caps the score at 12, and presents the calculation and supporting evidence. Similar resolved claims are evidence, not score inputs.
+4. The reviewer can ask follow-up questions, then confirms or dismisses the claim.
+5. The application records the human decision and assessment trace. Reviewer outcomes update the reliability statistics for matched patterns.
 
-### GitHub Desktop Setup
+MongoDB Atlas is both the operational data store and semantic memory for the solution. Vector Search operates on embeddings stored with claims and fraud patterns, so the agent can retrieve relevant context from the same data layer used by the rest of the application.
 
-1. Install GitHub Desktop if you haven't already. You can download it from [GitHub Desktop's official website](https://desktop.github.com/).
-2. Open GitHub Desktop and sign in to your GitHub account.
-3. Clone the newly created repository:
-   - Click on **File** > **Clone Repository**.
-   - Select your repository from the list and click **Clone**.
-4. Create your first branch:
-   - In the GitHub Desktop interface, click on the **Current Branch** dropdown.
-   - Select **New Branch** and name it `feature/branch01`.
-   - Click **Create Branch**.
+## Atlas Agent Engine foundation
 
-### Backend Setup
+Atlas Agent Engine provides the managed platform layer for the fraud agent: agent execution, memory and retrieval, and governance. This lets the solution focus on its insurance-specific assessment workflow—what evidence to gather, how to evaluate it, and what recommendation to present—rather than assembling those platform capabilities itself.
 
-1. (Optional) Set your project description and author information in the `pyproject.toml` file:
-   ```toml
-   description = "Your Description"
-   authors = ["Your Name <you@example.com>"]
-2. Open the project in your preferred IDE (the standard for the team is Visual Studio Code).
-3. Open the Terminal within Visual Studio Code.
-4. Ensure you are in the root project directory where the `makefile` is located.
-5. Execute the following commands:
-  - uv initialization
-    ````bash
-    make uv_init
-    ````
-  - uv sync
-    ````bash
-    make uv_sync
-    ````
-6. Verify that the `.venv` folder has been generated within the `/backend` directory.
+The Engine also supports isolated execution, least-privilege authorization for tool calls, and traces of model calls, tool calls, and memory access. These platform traces complement the application's decision record: Engine traces describe agent execution, while the application records the assessment and the reviewer's verdict.
 
-### Running Backend Locally
+The Engine runs and governs the agent; it does not replace the insurer's fraud policy or the reviewer's authority. The agent recommends, and the reviewer makes the final claim decision. Atlas Agent Engine also supports pause-and-resume human review checkpoints for workflows that need them; those platform checkpoints are distinct from the claim decision recorded by this demo.
 
-After setting up the backend dependencies, you can run the development server:
+## Set up the solution
 
-1. Navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
+### Time and readiness
 
-2. Start the FastAPI development server:
-   ```bash
-   uv run uvicorn main:app --host 0.0.0.0 --port 8000
-   ```
+**Target: about 25–30 minutes once prerequisites and access are ready.** This estimate assumes you already have an Atlas cluster, an Atlas Agent Engine organization and project, the required accounts and credentials, and access to the demo data. First-time account setup, access approvals, cluster provisioning, index building, or a large embedding backfill can take longer.
 
-3. The backend API will be accessible at http://localhost:8000
+The setup deploys the agent first, then prepares and starts the backend, and finally starts the frontend. Use a demo database only: the seed step clears and reloads the demo collections.
 
-**Note**: If port 8000 is already in use (e.g., by Docker containers), either stop the containers with `make clean` or use a different port like `--port 8001`.
+### Prerequisites
 
-### Frontend Setup
+Have these ready before starting:
 
-1. Navigate to the `frontend` folder.
-2. Install dependencies by running:
+* A MongoDB Atlas project and cluster, with permission to configure database access and network access.
+* Access to an Atlas Agent Engine organization and project, plus the `agentengine` CLI installed and authenticated.
+* Git and Docker running locally.
+* Python 3.13 and `uv` for the backend.
+* Node.js 22 or newer and npm for the frontend.
+* A Voyage AI account and access to an LLM provider configured for the agent (Anthropic, OpenAI, or Google Gemini).
+* Network access from the agent to the Atlas cluster and selected LLM provider.
+
+### 1. Clone the repository
+
 ```bash
+git clone https://github.com/mongodb-industry-solutions/ins-agentic-fraud-detection.git
+cd ins-agentic-fraud-detection
+```
+
+### 2. Configure and deploy the agent
+
+Move into the agent workspace and create a local configuration file from its example:
+
+```bash
+cd agents/insurance-fraud-agent
+cp env.example .env
+```
+
+Open the new file and fill it with your own values. Use the same business database that the backend will use, and keep the Agent Engine runtime-store database separate. Add your chosen LLM provider and Voyage AI credentials. Do not commit the local file or copy its contents into documentation.
+
+Review the agent configuration before deployment. Confirm its entry point, memory and guardrail settings, available tools, and outbound network policy. Allow the agent to reach the selected LLM provider and Atlas cluster. If you change the agent configuration, regenerate the local platform configuration:
+
+```bash
+agentengine init --force
+```
+
+Authenticate, initialize the workspace, and connect it to Atlas:
+
+```bash
+agentengine auth login
+agentengine init
+agentengine atlas setup
+```
+
+Add the selected LLM provider credential as an Atlas Agent Engine platform secret, using the secret name expected by the agent, then synchronize platform secrets:
+
+```bash
+agentengine secret set <secret-name>
+agentengine secret sync
+```
+
+Deploy the agent:
+
+```bash
+agentengine deploy --auto
+```
+
+After deployment, keep the project and workspace identifiers and invocation address available for the backend's local configuration. Treat credentials and deployment details as private; do not commit them.
+
+### 3. Prepare and start the backend
+
+Open a terminal at the repository root. Create the backend's local configuration file from its example:
+
+```bash
+cp backend/.env.example backend/.env
+```
+
+Fill it with your own Atlas connection and database details, Voyage AI credentials, and the credentials and deployment details for the agent you just deployed. Use the same business database configured for the agent.
+
+Install the backend dependencies and load the demo data:
+
+```bash
+make uv_init
+make uv_sync
+make seed
+```
+
+Make sure the approved demo data is available before seeding. If the seed command reports missing input data, obtain the demo data through the approved project process before continuing. Seeding clears and reloads the demo collections; do not run it against data you need to preserve, and keep the confirmation step enabled.
+
+### 4. Create vector indexes and embeddings
+
+Create two MongoDB Atlas Vector Search indexes on the `embedding` field:
+
+* `claim_vector_index` on the `claims` collection.
+* `fraud_pattern_vector_index` on the `fraud_patterns` collection.
+
+Use **1,024 dimensions** and **cosine similarity**. The backend includes a helper for creating these indexes at `backend/_vector_search_idx_creator.py`.
+
+Generate embeddings for the fraud-pattern descriptions and claim narratives:
+
+```bash
+cd backend
+uv run python scripts/backfill_embeddings.py
+uv run python scripts/backfill_embeddings.py --collection claims
+cd ..
+```
+
+Wait for the indexes to become available before testing similarity-based retrieval. The Atlas indexes and generated embeddings must use the same vector dimensions.
+
+### 5. Start the backend
+
+From the repository root, start the FastAPI service in its own terminal:
+
+```bash
+make run-backend
+```
+
+The backend health check is available at `http://localhost:8000/health`; interactive API documentation is at `http://localhost:8000/docs`.
+
+### 6. Configure and start the frontend
+
+In another terminal at the repository root, create a local frontend configuration file from its example:
+
+```bash
+cp frontend/EXAMPLE.env frontend/.env.local
+```
+
+Fill in your own values, using the same Atlas connection and database as the backend. Install the frontend dependencies and start the app:
+
+```bash
+cd frontend
 npm install
-```
-3. Start the frontend development server with:
-````bash
-npm run dev
-````
-4. The frontend will now be accessible at http://localhost:3000 by default, providing a user interface.
-
-### Git Hooks Setup (Recommended)
-
-This repository includes a pre-commit hook that automatically scans for secrets and credentials before each commit, preventing accidental exposure of sensitive data.
-
-**Setup (run once after cloning):**
-
-```bash
-chmod +x setup-hooks.sh
-./setup-hooks.sh
+cd ..
+make run-frontend
 ```
 
-This configures Git to use the `.githooks` directory and enables the pre-commit security scanner.
+Open the demo at `http://localhost:3000`.
 
-**What it does:**
+### 7. Verify the end-to-end workflow
 
-- Runs `security_check.sh` before every commit
-- Scans staged files for potential secrets (API keys, passwords, tokens, etc.)
-- Blocks the commit if security issues are detected
+1. Open the demo and confirm that the claims workspace loads.
+2. Select a claim and start an assessment. Confirm that the agent returns a score, matched evidence, and a recommendation.
+3. Ask a follow-up question if needed, then record a reviewer decision.
+4. Confirm that the claim reflects the decision and that the review has an audit record.
 
-**If a commit is blocked:**
 
-1. Review the security issues listed in the output
-2. Remove or properly secure the flagged credentials
-3. Re-stage your changes and commit again
+## Run each part again
 
-**Bypass (not recommended):**
+After completing setup, use these commands from the repository root:
 
-```bash
-git commit --no-verify
-```
+* **Backend:** `make run-backend`
+* **Frontend:** `make run-frontend`
+* **Agent deployment:** from `agents/insurance-fraud-agent`, run `agentengine deploy --auto` after making and validating agent changes.
 
-### Kanopy Deployment
+Keep the backend and frontend running in separate terminals while using the demo.
 
-For deploying your demo to Kanopy (MongoDB's internal Kubernetes platform), see the [KANOPY_DEPLOYMENT_README.md](KANOPY_DEPLOYMENT_README.md) for detailed instructions on:
+## Troubleshooting
 
-- Setting up Drone CI/CD pipeline
-- Configuring Kubernetes secrets
-- Choosing between separate pods vs multi-container deployments
-- Environment variables and secrets configuration
-- Resource management and troubleshooting
+| Symptom | What to check |
+|---|---|
+| The agent cannot connect to Atlas or its model provider | Confirm Atlas network access and that outbound access is allowed for the selected provider. Review the agent's local configuration and platform secret setup. |
+| Agent deployment fails | Confirm CLI authentication, organization/project access, workspace initialization, and Atlas setup. If the agent configuration changed, run `agentengine init --force` before deploying again. |
+| The backend cannot reach Atlas | Confirm that the Atlas cluster is reachable from your network and that the backend and agent use the same business database. |
+| Seeding reports that input data is missing | Obtain the approved demo data before retrying. Do not proceed with an empty or unintended database. |
+| Similar claims or schemes are not returned | Confirm that both vector indexes are active, embeddings were generated for both collections, and the index dimensions and similarity metric match the setup above. |
+| The assessment cannot reach the deployed agent | Recheck the backend's local agent connection details and credentials against the deployed workspace. Keep these values private. |
+| The frontend does not load data | Confirm that the backend is running and that the frontend's local configuration points to the intended demo database. |
 
-## DEMO README
+## Security and data handling
 
-<h1 style="color:red">REPLACE THE CONTENT OF THIS README WITH `README-demo.md` and DELETE THE `README-demo.md` FILE!!!!!!!!! </h1>
+Keep local configuration files and credentials out of version control. Use a demo database for seed and assessment workflows, and do not store confidential customer data in the demo environment.

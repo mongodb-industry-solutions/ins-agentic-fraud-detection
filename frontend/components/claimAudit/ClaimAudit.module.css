@@ -25,10 +25,10 @@
   border-radius: var(--radius-pill);
 }
 
-/* Lavender = an actual agent fraud-analysis run; neutral = lifecycle event. */
+/* Light Green = an actual agent fraud-analysis run; neutral = lifecycle event. */
 .agentDot {
   composes: dot;
-  background: var(--lavender);
+  background: var(--light-green);
 }
 
 .eventDot {
@@ -222,7 +222,7 @@
   padding-top: 0;
 }
 
-/* Points contributed by this pattern — agent output, so the same solid Lavender
+/* Points contributed by this pattern — agent output, so the same solid Light Green
    as every other agent-computed number. */
 .weight {
   display: flex;
@@ -232,8 +232,8 @@
   flex: none;
   padding: 2px 6px;
   border-radius: var(--radius);
-  background: var(--lavender);
-  color: var(--on-lavender);
+  background: var(--light-green);
+  color: var(--on-light-green);
   font-family: var(--font-mono);
   font-weight: var(--weight-mono);
   font-size: 11px;

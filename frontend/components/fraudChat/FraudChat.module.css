@@ -271,8 +271,8 @@
   padding: 10px 12px;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius);
-  background: var(--lavender);
-  color: var(--on-lavender);
+  background: var(--light-green);
+  color: var(--on-light-green);
   font-size: 11.5px;
 }
 

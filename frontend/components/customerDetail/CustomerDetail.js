@@ -21,7 +21,7 @@ export default function CustomerDetail({ customerId, backLabel, onBack, onOpenPo
       id: "statusLabel",
       label: "Status",
       // Neutral Badge, never StatusPill: policy status and fraud status are
-      // unrelated systems, and Lavender/Mist/Evergreen mean fraud state only.
+      // unrelated systems, and Light Green/Mist/Evergreen mean fraud state only.
       render: (row) => <Badge label={row.statusLabel} />,
     },
     { id: "periodLabel", label: "Effective period", cellClass: "mono" },
