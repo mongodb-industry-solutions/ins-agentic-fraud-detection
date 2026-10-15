@@ -35,6 +35,11 @@ class Settings(BaseSettings):
     # --- fraud assessment agent (MongoDB Agentic Platform) --------------------
     # Optional so the API still boots without them: every other route works
     # without an agent, and /api/chat answers 503 instead of crashing at import.
+    # Service-account credentials, exchanged for a short-lived access token
+    # (client_credentials grant). Preferred over the static API key below.
+    FRAUD_AGENT_CLIENT_ID: str | None = None
+    FRAUD_AGENT_CLIENT_SECRET: str | None = None
+    # Legacy static key, used only when no client id/secret pair is configured.
     FRAUD_AGENT_API_KEY: str | None = None
     FRAUD_AGENT_PROJECT_ID: str | None = None
     FRAUD_AGENT_WORKSPACE_ID: str | None = None
@@ -42,6 +47,8 @@ class Settings(BaseSettings):
     # hardcoded anywhere, so pointing the demo at staging is an .env change.
     # Expected to already include the platform's version prefix.
     AGENT_BASE_URL: str | None = None
+    # Defaults to `{AGENT_BASE_URL}/oauth/token` when unset.
+    AGENT_TOKEN_URL: str | None = None
 
     # --- Voyage embeddings ----------------------------------------------------
     # Optional, like the agent credentials: without a key the embedding routes

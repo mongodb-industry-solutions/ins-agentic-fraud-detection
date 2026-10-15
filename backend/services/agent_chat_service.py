@@ -10,7 +10,9 @@ Two rules shape this module:
    `chunk_type` never requires a backend change.
 """
 
+import asyncio
 import logging
+import time
 from collections.abc import AsyncIterator
 
 import httpx
@@ -24,6 +26,10 @@ logger = logging.getLogger(__name__)
 # read timeout — only a bound on establishing the connection.
 STREAM_TIMEOUT = httpx.Timeout(connect=15.0, read=None, write=30.0, pool=15.0)
 REQUEST_TIMEOUT = httpx.Timeout(30.0)
+
+# Access tokens last an hour; refresh this many seconds early so a token never
+# expires mid-request.
+TOKEN_REFRESH_MARGIN = 60.0
 
 # Magenta returns the conversation handle in a response *header*, not in the
 # body. The body's `execution_id` identifies a single run and must never be used
@@ -44,44 +50,103 @@ class AgentChatService:
 
     def __init__(self, settings: Settings):
         self._settings = settings
+        # Cached service-account access token and its monotonic expiry time.
+        self._token: str | None = None
+        self._token_expires_at: float = 0.0
+        self._token_lock = asyncio.Lock()
 
     # ---------------------------------------------------------------- helpers
 
-    def _credentials(self) -> tuple[str, str, str]:
-        """Return (api_key, project_id, workspace_id) or explain what is missing.
+    def _credentials(self) -> tuple[str, str]:
+        """Return (project_id, workspace_id) or explain what is missing.
 
         Checked per request rather than at import so the rest of the API still
         boots — and still serves claims — on a machine with no agent configured.
         """
         settings = self._settings
-        missing = [
-            name
-            for name, value in (
-                ("FRAUD_AGENT_API_KEY", settings.FRAUD_AGENT_API_KEY),
-                ("FRAUD_AGENT_PROJECT_ID", settings.FRAUD_AGENT_PROJECT_ID),
-                ("FRAUD_AGENT_WORKSPACE_ID", settings.FRAUD_AGENT_WORKSPACE_ID),
-                ("AGENT_BASE_URL", settings.AGENT_BASE_URL),
-            )
-            if not value
+        has_service_account = bool(
+            settings.FRAUD_AGENT_CLIENT_ID and settings.FRAUD_AGENT_CLIENT_SECRET
+        )
+        required = [
+            ("FRAUD_AGENT_PROJECT_ID", settings.FRAUD_AGENT_PROJECT_ID),
+            ("FRAUD_AGENT_WORKSPACE_ID", settings.FRAUD_AGENT_WORKSPACE_ID),
+            ("AGENT_BASE_URL", settings.AGENT_BASE_URL),
         ]
+        if not has_service_account and not settings.FRAUD_AGENT_API_KEY:
+            required[:0] = [
+                ("FRAUD_AGENT_CLIENT_ID", settings.FRAUD_AGENT_CLIENT_ID),
+                ("FRAUD_AGENT_CLIENT_SECRET", settings.FRAUD_AGENT_CLIENT_SECRET),
+            ]
+        missing = [name for name, value in required if not value]
         if missing:
             raise AgentNotConfiguredError(
                 f"Fraud agent is not configured — missing: {', '.join(missing)}",
                 details={"missing": missing},
             )
-        return (
-            settings.FRAUD_AGENT_API_KEY,
-            settings.FRAUD_AGENT_PROJECT_ID,
-            settings.FRAUD_AGENT_WORKSPACE_ID,
-        )
+        return settings.FRAUD_AGENT_PROJECT_ID, settings.FRAUD_AGENT_WORKSPACE_ID
 
     @property
     def _base_url(self) -> str:
         """Only ever read after `_credentials()` has confirmed it is set."""
         return (self._settings.AGENT_BASE_URL or "").rstrip("/")
 
-    def _headers(self, api_key: str) -> dict[str, str]:
-        return {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+    @property
+    def _token_url(self) -> str:
+        return self._settings.AGENT_TOKEN_URL or f"{self._base_url}/oauth/token"
+
+    async def _access_token(self) -> str:
+        """Bearer credential for the platform.
+
+        With a service account, exchanges the client id/secret for an access
+        token (client_credentials grant) and caches it until shortly before it
+        expires. Without one, falls back to the static API key.
+        """
+        settings = self._settings
+        client_id = settings.FRAUD_AGENT_CLIENT_ID
+        client_secret = settings.FRAUD_AGENT_CLIENT_SECRET
+        if not (client_id and client_secret):
+            return settings.FRAUD_AGENT_API_KEY or ""
+
+        if self._token and time.monotonic() < self._token_expires_at:
+            return self._token
+
+        async with self._token_lock:
+            # Another request may have refreshed while this one waited.
+            if self._token and time.monotonic() < self._token_expires_at:
+                return self._token
+            try:
+                async with httpx.AsyncClient(timeout=REQUEST_TIMEOUT) as client:
+                    response = await client.post(
+                        self._token_url,
+                        auth=(client_id, client_secret),
+                        data={"grant_type": "client_credentials"},
+                    )
+            except httpx.HTTPError as error:
+                logger.error("Agent token request failed: %s", error)
+                raise AgentUpstreamError(
+                    f"Could not reach the agent token endpoint: {error}"
+                ) from error
+            if response.status_code >= 400:
+                logger.error(
+                    "Agent token endpoint %s: %s", response.status_code, response.text
+                )
+                raise AgentUpstreamError(
+                    f"Agent token request returned HTTP {response.status_code}",
+                    status_code=response.status_code,
+                )
+            body = response.json()
+            self._token = body["access_token"]
+            lifetime = float(body.get("expires_in", 3600))
+            self._token_expires_at = time.monotonic() + max(lifetime - TOKEN_REFRESH_MARGIN, 0)
+            return self._token
+
+    def _invalidate_token(self) -> None:
+        self._token = None
+        self._token_expires_at = 0.0
+
+    async def _headers(self) -> dict[str, str]:
+        token = await self._access_token()
+        return {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
 
     # ----------------------------------------------------------------- invoke
 
@@ -102,7 +167,7 @@ class AgentChatService:
         Starlette, so an upstream 401/404 becomes that same status on our own
         response instead of a 200 whose body happens to contain an error.
         """
-        api_key, project_id, workspace_id = self._credentials()
+        project_id, workspace_id = self._credentials()
         url = (
             f"{self._base_url}/projects/{project_id}"
             f"/workspaces/{workspace_id}/invokeStream"
@@ -121,14 +186,23 @@ class AgentChatService:
         # matches. Without it the agent runs as the key's owner. Re-add
         # `payload["user_id"] = user_id` once delegation is enabled.
 
-        headers = self._headers(api_key)
-        if session_id:
-            headers[SESSION_REQUEST_HEADER] = session_id
-
         client = httpx.AsyncClient(timeout=STREAM_TIMEOUT)
         try:
-            request = client.build_request("POST", url, json=payload, headers=headers)
-            response = await client.send(request, stream=True)
+            # A 401 on a service-account token means it was revoked or expired
+            # early: drop it and retry once with a fresh one.
+            for attempt in (1, 2):
+                headers = await self._headers()
+                if session_id:
+                    headers[SESSION_REQUEST_HEADER] = session_id
+                request = client.build_request("POST", url, json=payload, headers=headers)
+                response = await client.send(request, stream=True)
+                if response.status_code != 401 or attempt == 2 or not self._token:
+                    break
+                await response.aclose()
+                self._invalidate_token()
+        except AgentUpstreamError:
+            await client.aclose()
+            raise
         except httpx.HTTPError as error:
             await client.aclose()
             logger.error("Agent stream could not be opened: %s", error)
@@ -173,29 +247,27 @@ class AgentChatService:
 
     async def resume(self, execution_id: str, decision: str) -> tuple[int, bytes, str]:
         """Submit an approve/deny decision. Returns the upstream reply verbatim."""
-        api_key, project_id, workspace_id = self._credentials()
+        project_id, workspace_id = self._credentials()
         url = f"{self._base_url}/projects/{project_id}/executions/{execution_id}/resume"
         return await self._passthrough(
             "POST",
             url,
-            api_key,
             params={"workspace_id": workspace_id},
             json={"decision": decision},
         )
 
     async def status(self, execution_id: str) -> tuple[int, bytes, str]:
         """Read an execution's current state. Returns the upstream reply verbatim."""
-        api_key, project_id, workspace_id = self._credentials()
+        project_id, workspace_id = self._credentials()
         url = f"{self._base_url}/projects/{project_id}/executions/{execution_id}"
         return await self._passthrough(
-            "GET", url, api_key, params={"workspace_id": workspace_id}
+            "GET", url, params={"workspace_id": workspace_id}
         )
 
     async def _passthrough(
         self,
         method: str,
         url: str,
-        api_key: str,
         *,
         params: dict | None = None,
         json: dict | None = None,
@@ -207,9 +279,13 @@ class AgentChatService:
         """
         try:
             async with httpx.AsyncClient(timeout=REQUEST_TIMEOUT) as client:
-                response = await client.request(
-                    method, url, params=params, json=json, headers=self._headers(api_key)
-                )
+                for attempt in (1, 2):
+                    response = await client.request(
+                        method, url, params=params, json=json, headers=await self._headers()
+                    )
+                    if response.status_code != 401 or attempt == 2 or not self._token:
+                        break
+                    self._invalidate_token()
         except httpx.HTTPError as error:
             logger.error("Agent %s %s failed: %s", method, url, error)
             raise AgentUpstreamError(f"Could not reach the fraud agent: {error}") from error
