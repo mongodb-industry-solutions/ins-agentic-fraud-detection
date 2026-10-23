@@ -18,7 +18,7 @@
     "@leafygreen-ui/tabs": "^14.2.5",
     "@leafygreen-ui/typography": "^20.1.9",
     "dotenv": "^17.2.2",
-    "next": "^16.3.1",
+    "next": "^16.4.1",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-markdown": "^9.1.0",
