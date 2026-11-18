@@ -20,7 +20,8 @@ envSecrets:
   DATABASE_NAME: ins-agentic-fraud-detection-secrets
 
   AGENT_BASE_URL: ins-agentic-fraud-detection-secrets
-  FRAUD_AGENT_API_KEY: ins-agentic-fraud-detection-secrets
+  FRAUD_AGENT_CLIENT_ID: ins-agentic-fraud-detection-secrets
+  FRAUD_AGENT_CLIENT_SECRET: ins-agentic-fraud-detection-secrets
   FRAUD_AGENT_WORKSPACE_ID: ins-agentic-fraud-detection-secrets
   FRAUD_AGENT_PROJECT_ID: ins-agentic-fraud-detection-secrets
 

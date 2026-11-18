@@ -36,11 +36,10 @@ class Settings(BaseSettings):
     # Optional so the API still boots without them: every other route works
     # without an agent, and /api/chat answers 503 instead of crashing at import.
     # Service-account credentials, exchanged for a short-lived access token
-    # (client_credentials grant). Preferred over the static API key below.
+    # (client_credentials grant). The project-scoped account needs PROJECT_OWNER
+    # to invoke agents.
     FRAUD_AGENT_CLIENT_ID: str | None = None
     FRAUD_AGENT_CLIENT_SECRET: str | None = None
-    # Legacy static key, used only when no client id/secret pair is configured.
-    FRAUD_AGENT_API_KEY: str | None = None
     FRAUD_AGENT_PROJECT_ID: str | None = None
     FRAUD_AGENT_WORKSPACE_ID: str | None = None
     # Read from the environment with no default: the platform host is not

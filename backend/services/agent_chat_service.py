@@ -31,18 +31,19 @@ REQUEST_TIMEOUT = httpx.Timeout(30.0)
 # expires mid-request.
 TOKEN_REFRESH_MARGIN = 60.0
 
-# Magenta returns the conversation handle in a response *header*, not in the
-# body. The body's `execution_id` identifies a single run and must never be used
-# to continue a conversation — doing so opens a new one on every turn.
+# Atlas Agent Engine returns the conversation handle in a response *header*, not
+# in the body. The body's `execution_id` identifies a single run and must never
+# be used to continue a conversation — doing so opens a new one on every turn.
 SESSION_HEADER = "x-session-id"
 
-# ...and it must be sent back the same way. Measured against this deployment:
-# passing the id in the request *body* as `session_id` is silently ignored — the
-# response comes back with a brand-new session id and the agent has no history.
-# Sent as this request header, the same id is echoed back and the conversation
-# continues. Both are sent, since the body field is the documented contract and
-# doing both is confirmed to work; the header is what actually carries it today.
+# ...and it is sent back the same way, as this request header. Omitting it starts
+# a new session. Never put it in the request body.
 SESSION_REQUEST_HEADER = "X-Session-ID"
+
+# Pins the request/response contract so a newly published default cannot silently
+# change the API shape. Sent on every versioned call (invoke, resume, status);
+# the OAuth token endpoint ignores it.
+API_ACCEPT = "application/vnd.agent-engine-2026-09-20-preview+json"
 
 
 class AgentChatService:
@@ -64,19 +65,13 @@ class AgentChatService:
         boots — and still serves claims — on a machine with no agent configured.
         """
         settings = self._settings
-        has_service_account = bool(
-            settings.FRAUD_AGENT_CLIENT_ID and settings.FRAUD_AGENT_CLIENT_SECRET
-        )
         required = [
+            ("FRAUD_AGENT_CLIENT_ID", settings.FRAUD_AGENT_CLIENT_ID),
+            ("FRAUD_AGENT_CLIENT_SECRET", settings.FRAUD_AGENT_CLIENT_SECRET),
             ("FRAUD_AGENT_PROJECT_ID", settings.FRAUD_AGENT_PROJECT_ID),
             ("FRAUD_AGENT_WORKSPACE_ID", settings.FRAUD_AGENT_WORKSPACE_ID),
             ("AGENT_BASE_URL", settings.AGENT_BASE_URL),
         ]
-        if not has_service_account and not settings.FRAUD_AGENT_API_KEY:
-            required[:0] = [
-                ("FRAUD_AGENT_CLIENT_ID", settings.FRAUD_AGENT_CLIENT_ID),
-                ("FRAUD_AGENT_CLIENT_SECRET", settings.FRAUD_AGENT_CLIENT_SECRET),
-            ]
         missing = [name for name, value in required if not value]
         if missing:
             raise AgentNotConfiguredError(
@@ -97,15 +92,12 @@ class AgentChatService:
     async def _access_token(self) -> str:
         """Bearer credential for the platform.
 
-        With a service account, exchanges the client id/secret for an access
-        token (client_credentials grant) and caches it until shortly before it
-        expires. Without one, falls back to the static API key.
+        Exchanges the service-account client id/secret for an access token
+        (client_credentials grant) and caches it until shortly before it expires.
         """
         settings = self._settings
-        client_id = settings.FRAUD_AGENT_CLIENT_ID
-        client_secret = settings.FRAUD_AGENT_CLIENT_SECRET
-        if not (client_id and client_secret):
-            return settings.FRAUD_AGENT_API_KEY or ""
+        client_id = settings.FRAUD_AGENT_CLIENT_ID or ""
+        client_secret = settings.FRAUD_AGENT_CLIENT_SECRET or ""
 
         if self._token and time.monotonic() < self._token_expires_at:
             return self._token
@@ -146,7 +138,11 @@ class AgentChatService:
 
     async def _headers(self) -> dict[str, str]:
         token = await self._access_token()
-        return {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+        return {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+            "Accept": API_ACCEPT,
+        }
 
     # ----------------------------------------------------------------- invoke
 
@@ -174,12 +170,10 @@ class AgentChatService:
         )
 
         payload: dict[str, str] = {"message": message}
-        # Sent only when present: absent is how Magenta is told "start a new
-        # conversation", which is not the same as an explicit null. The value
-        # must be one Magenta itself issued via `x-session-id` — an id we invent,
-        # or an `execution_id` from a response body, opens a new conversation.
-        if session_id:
-            payload["session_id"] = session_id
+        # The session id travels in the `X-Session-ID` header (set below), never
+        # in the body. Absent means "start a new conversation". The value must be
+        # one the platform itself issued — an id we invent, or an `execution_id`
+        # from a response body, opens a new conversation.
         # `user_id` is deliberately not forwarded. The gateway rejects (403) any
         # `user_id` that differs from the API key's owner unless the project has
         # end-user delegation enabled, and the browser's anonymous id never
