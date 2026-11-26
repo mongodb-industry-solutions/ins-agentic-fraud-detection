@@ -1,0 +1,265 @@
+/* Light red, local to this feature: the app palette has no red token, and a reset
+   is the one destructive action in the topbar. Dark theme is the default; the
+   light theme swaps in a darker red so text keeps its contrast on a pale surface. */
+.dialog,
+.loading {
+  --reset-red: #ff9a9a;
+  --reset-red-strong: #ff6b6b;
+  --reset-red-soft: rgba(255, 107, 107, 0.12);
+  --reset-red-line: rgba(255, 107, 107, 0.45);
+  --reset-on-red: #3a0707;
+}
+
+:global([data-theme="light"]) .dialog,
+:global([data-theme="light"]) .loading {
+  --reset-red: #b3261e;
+  --reset-red-strong: #d93a31;
+  --reset-red-soft: rgba(217, 58, 49, 0.09);
+  --reset-red-line: rgba(179, 38, 30, 0.4);
+  --reset-on-red: #ffffff;
+}
+
+/* ------------------------------------------------------------ confirm dialog */
+
+.dialog {
+  width: 540px;
+  max-width: 100%;
+  max-height: 100%;
+  overflow-y: auto;
+  padding: 28px 30px 24px;
+  border: 1px solid var(--reset-red-line);
+  border-radius: calc(var(--radius) * 2);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--reset-red-soft);
+  border: 1px solid var(--reset-red-line);
+  color: var(--reset-red);
+}
+
+.title {
+  margin: 0;
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.lead {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.database {
+  padding: 1px 7px;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.groups {
+  display: grid;
+  gap: 12px;
+  margin: 22px 0 18px;
+}
+
+.group {
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+}
+
+.groupDeleted {
+  border-color: var(--reset-red-line);
+  background: var(--reset-red-soft);
+}
+
+.groupTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.groupDeleted .groupTitle {
+  color: var(--reset-red);
+}
+
+.groupKept .groupTitle {
+  color: var(--text-muted);
+}
+
+.list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.list li {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.listIcon {
+  flex: none;
+  color: var(--reset-red);
+}
+
+.groupKept .listIcon {
+  color: var(--text-muted);
+}
+
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0 0 22px;
+  color: var(--text-muted);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.noticeIcon {
+  flex: none;
+  margin-top: 2px;
+  color: var(--reset-red);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.cancel,
+.confirm {
+  padding: 10px 20px;
+  border-radius: var(--radius);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.cancel {
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  color: var(--text);
+}
+
+.cancel:hover {
+  background: var(--surface-2);
+}
+
+.confirm {
+  border: none;
+  background: var(--reset-red-strong);
+  color: var(--reset-on-red);
+  font-weight: 600;
+}
+
+.confirm:hover {
+  filter: brightness(1.08);
+}
+
+@media (max-width: 560px) {
+  .list {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ------------------------------------------------------------ loading screen */
+
+/* Greyer than the app's usual dark backdrop on purpose: the whole app reads as
+   paused while the database is being rewritten. Blocks every click beneath it. */
+.loading {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  background: rgba(70, 76, 80, 0.62);
+  backdrop-filter: blur(4px) grayscale(0.6);
+  -webkit-backdrop-filter: blur(4px) grayscale(0.6);
+  animation: fadeIn 0.2s ease;
+  cursor: progress;
+}
+
+.spinner {
+  width: 54px;
+  height: 54px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+.loadingTitle {
+  margin: 0;
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 600;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
+}
+
+.loadingHint {
+  margin: -8px 0 0;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 3s;
+  }
+  .loading {
+    animation-duration: 0.01s;
+  }
+}

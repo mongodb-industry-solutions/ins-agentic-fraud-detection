@@ -1,6 +1,8 @@
 "use client";
 
 import AnalyzeButton from "@/components/assessmentQueue/AnalyzeButton";
+import { useDemoResetControl } from "@/components/demoReset/DemoResetProvider";
+import Icon from "@/components/icons/Icons";
 import styles from "./PendingAssessment.module.css";
 
 /**
@@ -9,6 +11,10 @@ import styles from "./PendingAssessment.module.css";
  * runs the assessment (or reflects that it is already queued or running).
  */
 export default function PendingAssessment({ rows, onAnalyze, onViewDetails }) {
+  // With nothing left to assess, offer the way back to a full backlog. Opens the
+  // same confirmation as the profile menu's reset.
+  const { available, isResetting, requestReset } = useDemoResetControl();
+
   return (
     <div className={styles.panel}>
       <div className={styles.header}>
@@ -23,6 +29,26 @@ export default function PendingAssessment({ rows, onAnalyze, onViewDetails }) {
           ? "Every claim in the portfolio has been analyzed."
           : "Claims the agent has not analyzed yet."}
       </p>
+
+      {rows.length === 0 && available && (
+        <div className={styles.empty}>
+          <Icon name="reset" size={18} className={styles.emptyIcon} />
+          <div className={styles.emptyText}>
+            <span className={styles.emptyTitle}>Out of claims to assess?</span>
+            <span className={styles.emptyHint}>
+              Reset the demo to bring back the original claims and start again.
+            </span>
+          </div>
+          <button
+            type="button"
+            className={styles.resetButton}
+            onClick={requestReset}
+            disabled={isResetting}
+          >
+            Reset demo data
+          </button>
+        </div>
+      )}
 
       {rows.length > 0 && (
         <ul className={styles.list}>

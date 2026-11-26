@@ -16,6 +16,7 @@ from repositories.reviews_repo import ReviewsRepository
 from services.agent_chat_service import AgentChatService
 from services.assessment_queue_service import AssessmentQueueService
 from services.claims_service import ClaimsService
+from services.demo_reset_service import DemoResetService
 from services.directory_service import DirectoryService
 from services.embeddings_service import EmbeddingsService
 from services.fraud_analytics_service import FraudAnalyticsService
@@ -97,6 +98,11 @@ def get_embeddings_service(
     return EmbeddingsService(embeddings_repo, settings)
 
 
+def get_demo_reset_service(db: DbDep) -> DemoResetService:
+    return DemoResetService(db)
+
+
+DemoResetServiceDep = Annotated[DemoResetService, Depends(get_demo_reset_service)]
 ClaimsServiceDep = Annotated[ClaimsService, Depends(get_claims_service)]
 DirectoryServiceDep = Annotated[DirectoryService, Depends(get_directory_service)]
 PatternsServiceDep = Annotated[PatternsService, Depends(get_patterns_service)]

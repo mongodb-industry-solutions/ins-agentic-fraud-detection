@@ -16,6 +16,7 @@ from core.db import create_connector
 from core.exceptions import DomainError
 from repositories.assessment_jobs_repo import AssessmentJobsRepository
 from repositories.claims_repo import ClaimsRepository
+from routers.admin import router as admin_router
 from routers.assessment_queue import router as assessment_queue_router
 from routers.audit import router as audit_router
 from routers.chat import router as chat_router
@@ -111,6 +112,7 @@ def create_app() -> FastAPI:
     app.include_router(fraud_assessment_router, prefix="/api")
     app.include_router(embeddings_router, prefix="/api")
     app.include_router(assessment_queue_router, prefix="/api")
+    app.include_router(admin_router, prefix="/api")
 
     return app
 

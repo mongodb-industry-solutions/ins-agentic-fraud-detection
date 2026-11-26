@@ -142,6 +142,79 @@
   text-transform: uppercase;
 }
 
+/* --- empty state: nothing left to assess ---------------------------------- */
+
+/* Light red, matching the reset item in the profile menu. */
+.empty {
+  --reset-red: #ff9a9a;
+  --reset-red-strong: #ff6b6b;
+  --reset-red-soft: rgba(255, 107, 107, 0.12);
+  --reset-red-line: rgba(255, 107, 107, 0.45);
+  --reset-on-red: #3a0707;
+
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px dashed var(--reset-red-line);
+  border-radius: var(--radius);
+  background: var(--reset-red-soft);
+}
+
+:global([data-theme="light"]) .empty {
+  --reset-red: #b3261e;
+  --reset-red-strong: #d93a31;
+  --reset-red-soft: rgba(217, 58, 49, 0.09);
+  --reset-red-line: rgba(179, 38, 30, 0.4);
+  --reset-on-red: #ffffff;
+}
+
+.emptyIcon {
+  flex: none;
+  color: var(--reset-red);
+}
+
+.emptyText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.emptyTitle {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.emptyHint {
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
+.resetButton {
+  flex: none;
+  padding: 6px 14px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--reset-red-strong);
+  color: var(--reset-on-red);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.resetButton:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.resetButton:disabled {
+  cursor: progress;
+  opacity: 0.7;
+}
+
 .analyzeButton {
   flex: none;
   padding: 6px 14px;
