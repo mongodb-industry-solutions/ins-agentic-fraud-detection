@@ -2,7 +2,7 @@
 
 import { useTheme } from "@/app/providers";
 import Icon from "@/components/icons/Icons";
-import { PROFILE } from "@/lib/const/nav";
+import ProfileMenu from "./ProfileMenu";
 import styles from "./Topbar.module.css";
 
 export default function Topbar() {
@@ -20,13 +20,7 @@ export default function Topbar() {
         >
           <Icon name={theme === "dark" ? "sun" : "moon"} size={20} />
         </button>
-        <button type="button" className={styles.profile}>
-          <span className={styles.avatar}>{PROFILE.initials}</span>
-          <span className={styles.profileText}>
-            <span className={styles.profileName}>{PROFILE.name}</span>
-            <span className={styles.profileTeam}>{PROFILE.team}</span>
-          </span>
-        </button>
+        <ProfileMenu />
       </div>
     </header>
   );

@@ -1,0 +1,109 @@
+/* Light red for the one destructive item. The app palette has no red token; the
+   light theme swaps in a darker red so the text keeps its contrast. */
+.resetItem {
+  --reset-red: #ff9a9a;
+  --reset-red-soft: rgba(255, 107, 107, 0.12);
+  --reset-red-line: rgba(255, 107, 107, 0.45);
+}
+
+:global([data-theme="light"]) .resetItem {
+  --reset-red: #b3261e;
+  --reset-red-soft: rgba(217, 58, 49, 0.09);
+  --reset-red-line: rgba(179, 38, 30, 0.4);
+}
+
+.root {
+  position: relative;
+}
+
+.chevron {
+  flex: none;
+  margin-left: 2px;
+  color: var(--text-dim);
+  transition: transform 0.15s ease;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 30;
+  width: 270px;
+  padding: 6px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+  animation: menuIn 0.12s ease;
+}
+
+.resetItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  background: var(--reset-red-soft);
+  color: var(--reset-red);
+  text-align: left;
+  cursor: pointer;
+}
+
+.resetItem:hover:not(:disabled),
+.resetItem:focus-visible {
+  border-color: var(--reset-red-line);
+  outline: none;
+}
+
+.resetItem:disabled {
+  cursor: progress;
+  opacity: 0.7;
+}
+
+.resetIcon {
+  flex: none;
+  margin-top: 1px;
+}
+
+.resetText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.resetLabel {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.resetHint {
+  color: var(--text-muted);
+  font-size: 11.5px;
+  line-height: 1.35;
+}
+
+@keyframes menuIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu {
+    animation: none;
+  }
+  .chevron {
+    transition: none;
+  }
+}

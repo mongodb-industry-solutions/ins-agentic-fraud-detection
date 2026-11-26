@@ -11,6 +11,7 @@ import ClaimView from "@/components/claimView/ClaimView";
 import CustomerDetail from "@/components/customerDetail/CustomerDetail";
 import CustomersList from "@/components/customersList/CustomersList";
 import Dashboard from "@/components/dashboard/Dashboard";
+import DemoResetProvider from "@/components/demoReset/DemoResetProvider";
 import FraudChat from "@/components/fraudChat/FraudChat";
 import FraudIntelligenceView from "@/components/fraudIntelligence/FraudIntelligenceView";
 import FraudPatternsView from "@/components/fraudPatterns/FraudPatternsView";
@@ -180,6 +181,21 @@ export default function Home() {
     setNudgeAnalyze(false);
   }, []);
 
+  /**
+   * After the demo data is reset, whatever is on screen may point at records that
+   * no longer exist (an open claim, an assessment window, queue cards). Close
+   * all of it, land on the Dashboard and refetch.
+   */
+  const refreshQueue = queue.refresh;
+  const onDemoReset = useCallback(() => {
+    setOpenJob(null);
+    setPendingClaimId(null);
+    setIsQueueOpen(false);
+    navigate("dashboard");
+    refreshViews();
+    refreshQueue();
+  }, [navigate, refreshViews, refreshQueue]);
+
   const current = detailStack[detailStack.length - 1] || null;
   const previous = detailStack[detailStack.length - 2] || null;
 
@@ -256,7 +272,7 @@ export default function Home() {
   }
 
   return (
-    <>
+    <DemoResetProvider onReset={onDemoReset}>
       <AppShell
         activeSection={activeSection}
         onNavigate={navigate}
@@ -303,6 +319,6 @@ export default function Home() {
       {/* Outside AppShell: the launcher and its modal are fixed to the viewport
           and must not sit inside the shell's blurred/scrolling layers. */}
       <FraudChat />
-    </>
+    </DemoResetProvider>
   );
 }
