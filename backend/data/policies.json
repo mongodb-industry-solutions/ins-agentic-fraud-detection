@@ -1,0 +1,3321 @@
+[
+  {
+    "policyId": "POL-2001",
+    "customerId": "CUST-2001",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "CO",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2024-06-01",
+      "endDate": "2025-06-01",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2001",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Rachel",
+        "lastName": "Nguyen",
+        "dateOfBirth": "1990-03-12",
+        "licenseYears": 16
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "JM3KFBCM0N0111001",
+      "brand": "Mazda",
+      "model": "CX-5",
+      "year": 2022,
+      "value": 28000,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": true
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 100000,
+        "deductible": 0,
+        "annualPremium": 340.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 28000,
+        "deductible": 500,
+        "annualPremium": 610.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 1450.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "CHECK",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2025-10-01",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00801",
+    "agencyId": "AGY-0091",
+    "channel": "AGENT_PORTAL",
+    "traceAnchor": {
+      "lastTraceId": "TR-2001",
+      "lastDecisionType": "CLAIM_DENIAL",
+      "lastDecisionAt": {
+        "$date": "2024-06-01T00:00:00Z"
+      },
+      "traceCount": 1
+    },
+    "createdAt": {
+      "$date": "2024-06-01T00:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-06-01T00:00:00Z"
+    }
+  },
+  {
+    "policyId": "POL-2002",
+    "customerId": "CUST-2002",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "FL",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2024-01-01",
+      "endDate": "2025-01-01",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2002",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Marcus",
+        "lastName": "Webb",
+        "dateOfBirth": "1978-11-02",
+        "licenseYears": 20
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "1FMCU9GD5JUA22002",
+      "brand": "Ford",
+      "model": "Explorer",
+      "year": 2021,
+      "value": 20000,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": false
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 100000,
+        "deductible": 0,
+        "annualPremium": 300.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 20000,
+        "deductible": 500,
+        "annualPremium": 480.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 1180.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "ACH",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2025-10-01",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00802",
+    "agencyId": "AGY-0092",
+    "channel": "AGENT_PORTAL",
+    "traceAnchor": {
+      "lastTraceId": "TR-2002",
+      "lastDecisionType": "CLAIM_DENIAL",
+      "lastDecisionAt": {
+        "$date": "2024-09-15T00:00:00Z"
+      },
+      "traceCount": 1
+    },
+    "createdAt": {
+      "$date": "2024-01-01T00:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-01-01T00:00:00Z"
+    }
+  },
+  {
+    "policyId": "POL-2003",
+    "customerId": "CUST-2003",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "FL",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2024-03-01",
+      "endDate": "2025-03-01",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2003",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Priya",
+        "lastName": "Shah",
+        "dateOfBirth": "1995-06-18",
+        "licenseYears": 8
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "KNDPMCAC5N7113003",
+      "brand": "Kia",
+      "model": "Sportage",
+      "year": 2022,
+      "value": 19000,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": true
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 100000,
+        "deductible": 0,
+        "annualPremium": 280.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 19000,
+        "deductible": 500,
+        "annualPremium": 410.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 990.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "ACH",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2025-10-01",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00803",
+    "agencyId": "AGY-0092",
+    "channel": "MOBILE_APP",
+    "traceAnchor": {
+      "lastTraceId": "TR-2003",
+      "lastDecisionType": null,
+      "lastDecisionAt": null,
+      "traceCount": 0
+    },
+    "createdAt": {
+      "$date": "2024-03-01T00:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-03-01T00:00:00Z"
+    }
+  },
+  {
+    "policyId": "POL-2004",
+    "customerId": "CUST-2004",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "NC",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2024-07-01",
+      "endDate": "2025-07-01",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2004",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Daniel",
+        "lastName": "Osei",
+        "dateOfBirth": "1985-09-25",
+        "licenseYears": 18
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "WA1BNAFY5J2114004",
+      "brand": "Audi",
+      "model": "Q5",
+      "year": 2023,
+      "value": 34000,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": true
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 100000,
+        "deductible": 0,
+        "annualPremium": 380.0
+      },
+      {
+        "coverageCode": "COMP",
+        "coverageType": "COMPREHENSIVE",
+        "limit": 34000,
+        "deductible": 500,
+        "annualPremium": 720.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 1620.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "AUTO_EFT",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2025-10-01",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00804",
+    "agencyId": "AGY-0093",
+    "channel": "AGENT_PORTAL",
+    "traceAnchor": {
+      "lastTraceId": "TR-2004",
+      "lastDecisionType": "CLAIM_DENIAL",
+      "lastDecisionAt": {
+        "$date": "2024-08-30T00:00:00Z"
+      },
+      "traceCount": 1
+    },
+    "createdAt": {
+      "$date": "2024-07-01T00:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-07-01T00:00:00Z"
+    }
+  },
+  {
+    "policyId": "POL-2005",
+    "customerId": "CUST-2005",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "OR",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2024-09-01",
+      "endDate": "2025-09-01",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2005",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Helen",
+        "lastName": "Fischer",
+        "dateOfBirth": "1982-02-14",
+        "licenseYears": 10
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "4S3GTAA65J3115005",
+      "brand": "Subaru",
+      "model": "Impreza",
+      "year": 2020,
+      "value": 15000,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": false
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 50000,
+        "deductible": 0,
+        "annualPremium": 220.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 15000,
+        "deductible": 500,
+        "annualPremium": 310.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 760.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "ACH",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2025-10-01",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00805",
+    "agencyId": "AGY-0094",
+    "channel": "MOBILE_APP",
+    "traceAnchor": {
+      "lastTraceId": "TR-2005",
+      "lastDecisionType": "CLAIM_DISMISSAL",
+      "lastDecisionAt": {
+        "$date": "2024-11-25T00:00:00Z"
+      },
+      "traceCount": 1
+    },
+    "createdAt": {
+      "$date": "2024-09-01T00:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-09-01T00:00:00Z"
+    }
+  },
+  {
+    "policyId": "POL-2006",
+    "customerId": "CUST-2006",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "TX",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2024-04-01",
+      "endDate": "2025-04-01",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2006",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Grace",
+        "lastName": "Kim",
+        "dateOfBirth": "1988-12-01",
+        "licenseYears": 22
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "5YFBURHE1JP116006",
+      "brand": "Toyota",
+      "model": "Corolla",
+      "year": 2019,
+      "value": 12000,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": false
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 50000,
+        "deductible": 0,
+        "annualPremium": 200.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 12000,
+        "deductible": 500,
+        "annualPremium": 260.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 700.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "ACH",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2025-10-01",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00806",
+    "agencyId": "AGY-0091",
+    "channel": "MOBILE_APP",
+    "traceAnchor": {
+      "lastTraceId": null,
+      "lastDecisionType": null,
+      "lastDecisionAt": null,
+      "traceCount": 0
+    },
+    "createdAt": {
+      "$date": "2024-04-01T00:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-04-01T00:00:00Z"
+    }
+  },
+  {
+    "policyId": "POL-2007",
+    "customerId": "CUST-2007",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "MN",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2024-10-01",
+      "endDate": "2025-10-01",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2007",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Omar",
+        "lastName": "Farouk",
+        "dateOfBirth": "1991-05-30",
+        "licenseYears": 14
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "1N4AL3AP1JC117007",
+      "brand": "Nissan",
+      "model": "Altima",
+      "year": 2020,
+      "value": 16000,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": true
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 50000,
+        "deductible": 0,
+        "annualPremium": 210.0
+      },
+      {
+        "coverageCode": "COMP",
+        "coverageType": "COMPREHENSIVE",
+        "limit": 16000,
+        "deductible": 250,
+        "annualPremium": 180.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 650.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "ACH",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2025-10-01",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00807",
+    "agencyId": "AGY-0095",
+    "channel": "MOBILE_APP",
+    "traceAnchor": {
+      "lastTraceId": null,
+      "lastDecisionType": null,
+      "lastDecisionAt": null,
+      "traceCount": 0
+    },
+    "createdAt": {
+      "$date": "2024-10-01T00:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-10-01T00:00:00Z"
+    }
+  },
+  {
+    "policyId": "POL-2008",
+    "customerId": "CUST-2008",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "CA",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2024-02-01",
+      "endDate": "2025-02-01",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2008",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Natalie",
+        "lastName": "Brooks",
+        "dateOfBirth": "1993-08-09",
+        "licenseYears": 11
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "2GNAXUEV1J6118008",
+      "brand": "Chevrolet",
+      "model": "Equinox",
+      "year": 2021,
+      "value": 17000,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": false
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 50000,
+        "deductible": 0,
+        "annualPremium": 230.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 17000,
+        "deductible": 500,
+        "annualPremium": 330.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 820.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "ACH",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2025-10-01",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00808",
+    "agencyId": "AGY-0096",
+    "channel": "MOBILE_APP",
+    "traceAnchor": {
+      "lastTraceId": null,
+      "lastDecisionType": null,
+      "lastDecisionAt": null,
+      "traceCount": 0
+    },
+    "createdAt": {
+      "$date": "2024-02-01T00:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-02-01T00:00:00Z"
+    }
+  },
+  {
+    "policyId": "POL-2009",
+    "customerId": "CUST-2009",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "AZ",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2024-12-01",
+      "endDate": "2025-12-01",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2009",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Victor",
+        "lastName": "Alonso",
+        "dateOfBirth": "1987-04-22",
+        "licenseYears": 9
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "WBA5A5C50FD119009",
+      "brand": "BMW",
+      "model": "3 Series",
+      "year": 2022,
+      "value": 30000,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": true
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 100000,
+        "deductible": 0,
+        "annualPremium": 360.0
+      },
+      {
+        "coverageCode": "COMP",
+        "coverageType": "COMPREHENSIVE",
+        "limit": 30000,
+        "deductible": 500,
+        "annualPremium": 650.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 1500.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "AUTO_EFT",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2025-10-01",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00809",
+    "agencyId": "AGY-0097",
+    "channel": "AGENT_PORTAL",
+    "traceAnchor": {
+      "lastTraceId": null,
+      "lastDecisionType": null,
+      "lastDecisionAt": null,
+      "traceCount": 0
+    },
+    "createdAt": {
+      "$date": "2024-12-01T00:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-12-01T00:00:00Z"
+    }
+  },
+  {
+    "policyId": "POL-2010",
+    "customerId": "CUST-2010",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "NC",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2024-05-01",
+      "endDate": "2025-05-01",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2010",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Ben",
+        "lastName": "Coleman",
+        "dateOfBirth": "1980-01-17",
+        "licenseYears": 20
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "5J6RM4H79JL120010",
+      "brand": "Honda",
+      "model": "CR-V",
+      "year": 2021,
+      "value": 18000,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": true
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 50000,
+        "deductible": 0,
+        "annualPremium": 240.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 18000,
+        "deductible": 500,
+        "annualPremium": 350.0
+      },
+      {
+        "coverageCode": "COMP",
+        "coverageType": "COMPREHENSIVE",
+        "limit": 18000,
+        "deductible": 250,
+        "annualPremium": 190.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 900.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "ACH",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2025-10-01",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00810",
+    "agencyId": "AGY-0091",
+    "channel": "MOBILE_APP",
+    "traceAnchor": {
+      "lastTraceId": "TR-2010",
+      "lastDecisionType": "CLAIM_REVIEW",
+      "lastDecisionAt": {
+        "$date": "2024-07-01T00:00:00Z"
+      },
+      "traceCount": 1
+    },
+    "createdAt": {
+      "$date": "2024-05-01T00:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-05-01T00:00:00Z"
+    }
+  },
+  {
+    "policyId": "POL-2011",
+    "customerId": "CUST-2011",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "UT",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2025-01-20",
+      "endDate": "2026-01-20",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2011",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Lauren",
+        "lastName": "Pierce",
+        "dateOfBirth": "1997-10-05",
+        "licenseYears": 6
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "5NPD84LF1JH121011",
+      "brand": "Hyundai",
+      "model": "Elantra",
+      "year": 2021,
+      "value": 14000,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": false
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 50000,
+        "deductible": 0,
+        "annualPremium": 200.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 14000,
+        "deductible": 500,
+        "annualPremium": 290.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 720.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "ACH",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2025-10-01",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00811",
+    "agencyId": "AGY-0098",
+    "channel": "MOBILE_APP",
+    "traceAnchor": {
+      "lastTraceId": null,
+      "lastDecisionType": null,
+      "lastDecisionAt": null,
+      "traceCount": 0
+    },
+    "createdAt": {
+      "$date": "2025-01-20T00:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2026-01-20T00:00:00Z"
+    }
+  },
+  {
+    "policyId": "POL-2012",
+    "customerId": "CUST-2012",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "MO",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2024-04-01",
+      "endDate": "2025-04-01",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2012",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Adrian",
+        "lastName": "Voss",
+        "dateOfBirth": "2006-09-01",
+        "licenseYears": 1
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "1G4HP54K85U122012",
+      "brand": "Buick",
+      "model": "LeSabre",
+      "year": 2016,
+      "value": 7800,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": false
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 50000,
+        "deductible": 0,
+        "annualPremium": 190.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 7800,
+        "deductible": 500,
+        "annualPremium": 240.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 610.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "ACH",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2025-10-01",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00812",
+    "agencyId": "AGY-0095",
+    "channel": "MOBILE_APP",
+    "traceAnchor": {
+      "lastTraceId": null,
+      "lastDecisionType": null,
+      "lastDecisionAt": null,
+      "traceCount": 0
+    },
+    "createdAt": {
+      "$date": "2024-04-01T00:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-04-01T00:00:00Z"
+    }
+  },
+  {
+    "policyId": "POL-2013",
+    "customerId": "CUST-2013",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "MA",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2026-02-01",
+      "endDate": "2027-02-01",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2013",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Sofia",
+        "lastName": "Marino",
+        "dateOfBirth": "1984-07-21",
+        "licenseYears": 20
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "4S4BTAAC5N3123013",
+      "brand": "Subaru",
+      "model": "Outback",
+      "year": 2022,
+      "value": 26000,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": true
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 100000,
+        "deductible": 0,
+        "annualPremium": 360.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 26000,
+        "deductible": 500,
+        "annualPremium": 590.0
+      },
+      {
+        "coverageCode": "COMP",
+        "coverageType": "COMPREHENSIVE",
+        "limit": 26000,
+        "deductible": 250,
+        "annualPremium": 240.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 1380.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "ACH",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2026-03-01",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00813",
+    "agencyId": "AGY-0099",
+    "channel": "AGENT_PORTAL",
+    "traceAnchor": {
+      "lastTraceId": null,
+      "lastDecisionType": null,
+      "lastDecisionAt": null,
+      "traceCount": 0
+    },
+    "createdAt": {
+      "$date": "2026-02-01T00:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-02-01T00:00:00.000Z"
+    }
+  },
+  {
+    "policyId": "POL-2014",
+    "customerId": "CUST-2014",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "GA",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2025-11-01",
+      "endDate": "2026-11-01",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2014",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Jamal",
+        "lastName": "Whitfield",
+        "dateOfBirth": "1975-04-09",
+        "licenseYears": 28
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "1FTEW1EP5LKF24014",
+      "brand": "Ford",
+      "model": "F-150",
+      "year": 2020,
+      "value": 31000,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": false
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 100000,
+        "deductible": 0,
+        "annualPremium": 380.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 31000,
+        "deductible": 500,
+        "annualPremium": 640.0
+      },
+      {
+        "coverageCode": "COMP",
+        "coverageType": "COMPREHENSIVE",
+        "limit": 31000,
+        "deductible": 250,
+        "annualPremium": 310.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 1690.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "AUTO_EFT",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2025-12-01",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00814",
+    "agencyId": "AGY-0093",
+    "channel": "MOBILE_APP",
+    "traceAnchor": {
+      "lastTraceId": null,
+      "lastDecisionType": null,
+      "lastDecisionAt": null,
+      "traceCount": 0
+    },
+    "createdAt": {
+      "$date": "2025-11-01T00:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2025-11-01T00:00:00.000Z"
+    }
+  },
+  {
+    "policyId": "POL-2015",
+    "customerId": "CUST-2015",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "IL",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2026-03-01",
+      "endDate": "2027-03-01",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2015",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Elena",
+        "lastName": "Petrova",
+        "dateOfBirth": "1999-12-14",
+        "licenseYears": 7
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "2HGFC2F69KH125015",
+      "brand": "Honda",
+      "model": "Civic",
+      "year": 2019,
+      "value": 15500,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": false
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 50000,
+        "deductible": 0,
+        "annualPremium": 260.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 15500,
+        "deductible": 500,
+        "annualPremium": 380.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 1020.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "ACH",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2026-04-01",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00815",
+    "agencyId": "AGY-0094",
+    "channel": "MOBILE_APP",
+    "traceAnchor": {
+      "lastTraceId": null,
+      "lastDecisionType": null,
+      "lastDecisionAt": null,
+      "traceCount": 0
+    },
+    "createdAt": {
+      "$date": "2026-03-01T00:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-01T00:00:00.000Z"
+    }
+  },
+  {
+    "policyId": "POL-2016",
+    "customerId": "CUST-2016",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "TX",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2025-10-15",
+      "endDate": "2026-10-15",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2016",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Tyler",
+        "lastName": "Brandt",
+        "dateOfBirth": "1992-02-27",
+        "licenseYears": 12
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "3GCUKREC8JG126016",
+      "brand": "Chevrolet",
+      "model": "Silverado 1500",
+      "year": 2018,
+      "value": 24000,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": false
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 100000,
+        "deductible": 0,
+        "annualPremium": 330.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 24000,
+        "deductible": 500,
+        "annualPremium": 520.0
+      },
+      {
+        "coverageCode": "COMP",
+        "coverageType": "COMPREHENSIVE",
+        "limit": 24000,
+        "deductible": 250,
+        "annualPremium": 260.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 1310.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "ACH",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2025-11-15",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00816",
+    "agencyId": "AGY-0092",
+    "channel": "AGENT_PORTAL",
+    "traceAnchor": {
+      "lastTraceId": null,
+      "lastDecisionType": null,
+      "lastDecisionAt": null,
+      "traceCount": 0
+    },
+    "createdAt": {
+      "$date": "2025-10-15T00:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2025-10-15T00:00:00.000Z"
+    }
+  },
+  {
+    "policyId": "POL-2017",
+    "customerId": "CUST-2017",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "WA",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2026-01-15",
+      "endDate": "2027-01-15",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2017",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Amara",
+        "lastName": "Okafor",
+        "dateOfBirth": "1989-09-03",
+        "licenseYears": 15
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "5YJ3E1EA7MF127017",
+      "brand": "Tesla",
+      "model": "Model 3",
+      "year": 2021,
+      "value": 27000,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": true
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 100000,
+        "deductible": 0,
+        "annualPremium": 350.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 27000,
+        "deductible": 500,
+        "annualPremium": 640.0
+      },
+      {
+        "coverageCode": "COMP",
+        "coverageType": "COMPREHENSIVE",
+        "limit": 27000,
+        "deductible": 250,
+        "annualPremium": 330.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 1520.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "AUTO_EFT",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2026-02-15",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00817",
+    "agencyId": "AGY-0096",
+    "channel": "MOBILE_APP",
+    "traceAnchor": {
+      "lastTraceId": null,
+      "lastDecisionType": null,
+      "lastDecisionAt": null,
+      "traceCount": 0
+    },
+    "createdAt": {
+      "$date": "2026-01-15T00:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-01-15T00:00:00.000Z"
+    }
+  },
+  {
+    "policyId": "POL-2018",
+    "customerId": "CUST-2018",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "FL",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2025-12-01",
+      "endDate": "2026-12-01",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2018",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Dwayne",
+        "lastName": "Holloway",
+        "dateOfBirth": "1968-06-30",
+        "licenseYears": 33
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "4T1BF1FK5CU128018",
+      "brand": "Toyota",
+      "model": "Camry",
+      "year": 2012,
+      "value": 6500,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": false
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 50000,
+        "deductible": 0,
+        "annualPremium": 240.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 6500,
+        "deductible": 500,
+        "annualPremium": 210.0
+      },
+      {
+        "coverageCode": "COMP",
+        "coverageType": "COMPREHENSIVE",
+        "limit": 6500,
+        "deductible": 250,
+        "annualPremium": 150.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 910.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "CHECK",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2026-01-01",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00818",
+    "agencyId": "AGY-0098",
+    "channel": "AGENT_PORTAL",
+    "traceAnchor": {
+      "lastTraceId": null,
+      "lastDecisionType": null,
+      "lastDecisionAt": null,
+      "traceCount": 0
+    },
+    "createdAt": {
+      "$date": "2025-12-01T00:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2025-12-01T00:00:00.000Z"
+    }
+  },
+  {
+    "policyId": "POL-2019",
+    "customerId": "CUST-2019",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "MN",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2026-01-10",
+      "endDate": "2027-01-10",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2019",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Hannah",
+        "lastName": "Lindqvist",
+        "dateOfBirth": "1996-03-08",
+        "licenseYears": 10
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "JM1BPBCM6L1129019",
+      "brand": "Mazda",
+      "model": "Mazda3",
+      "year": 2020,
+      "value": 17500,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": false
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 100000,
+        "deductible": 0,
+        "annualPremium": 300.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 17500,
+        "deductible": 500,
+        "annualPremium": 470.0
+      },
+      {
+        "coverageCode": "COMP",
+        "coverageType": "COMPREHENSIVE",
+        "limit": 17500,
+        "deductible": 250,
+        "annualPremium": 230.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 1180.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "ACH",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2026-02-10",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00819",
+    "agencyId": "AGY-0095",
+    "channel": "MOBILE_APP",
+    "traceAnchor": {
+      "lastTraceId": null,
+      "lastDecisionType": null,
+      "lastDecisionAt": null,
+      "traceCount": 0
+    },
+    "createdAt": {
+      "$date": "2026-01-10T00:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-01-10T00:00:00.000Z"
+    }
+  },
+  {
+    "policyId": "POL-2020",
+    "customerId": "CUST-2020",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "AZ",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2025-12-15",
+      "endDate": "2026-12-15",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2020",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Rafael",
+        "lastName": "Mendes",
+        "dateOfBirth": "1983-10-19",
+        "licenseYears": 22
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "1C6SRFFT5KN130020",
+      "brand": "Ram",
+      "model": "1500",
+      "year": 2019,
+      "value": 28000,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": false
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 100000,
+        "deductible": 0,
+        "annualPremium": 360.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 28000,
+        "deductible": 500,
+        "annualPremium": 600.0
+      },
+      {
+        "coverageCode": "COMP",
+        "coverageType": "COMPREHENSIVE",
+        "limit": 28000,
+        "deductible": 250,
+        "annualPremium": 290.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 1560.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "AUTO_EFT",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2026-01-15",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00820",
+    "agencyId": "AGY-0097",
+    "channel": "AGENT_PORTAL",
+    "traceAnchor": {
+      "lastTraceId": null,
+      "lastDecisionType": null,
+      "lastDecisionAt": null,
+      "traceCount": 0
+    },
+    "createdAt": {
+      "$date": "2025-12-15T00:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2025-12-15T00:00:00.000Z"
+    }
+  },
+  {
+    "policyId": "POL-2021",
+    "customerId": "CUST-2021",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "FL",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2026-04-01",
+      "endDate": "2027-04-01",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2021",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Chloe",
+        "lastName": "Bennett",
+        "dateOfBirth": "2003-05-26",
+        "licenseYears": 4
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "3N1AB7AP4HY131021",
+      "brand": "Nissan",
+      "model": "Sentra",
+      "year": 2017,
+      "value": 9000,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": false
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 100000,
+        "deductible": 0,
+        "annualPremium": 320.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 9000,
+        "deductible": 500,
+        "annualPremium": 260.0
+      },
+      {
+        "coverageCode": "COMP",
+        "coverageType": "COMPREHENSIVE",
+        "limit": 9000,
+        "deductible": 250,
+        "annualPremium": 170.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 1340.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "ACH",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2026-05-01",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00821",
+    "agencyId": "AGY-0098",
+    "channel": "MOBILE_APP",
+    "traceAnchor": {
+      "lastTraceId": null,
+      "lastDecisionType": null,
+      "lastDecisionAt": null,
+      "traceCount": 0
+    },
+    "createdAt": {
+      "$date": "2026-04-01T00:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-04-01T00:00:00.000Z"
+    }
+  },
+  {
+    "policyId": "POL-2022",
+    "customerId": "CUST-2022",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "TX",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2025-09-01",
+      "endDate": "2026-09-01",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2022",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Samuel",
+        "lastName": "Adeyemi",
+        "dateOfBirth": "1979-01-30",
+        "licenseYears": 25
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "5UX53DP08M9F32022",
+      "brand": "BMW",
+      "model": "X3",
+      "year": 2021,
+      "value": 36000,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": true
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 100000,
+        "deductible": 0,
+        "annualPremium": 380.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 36000,
+        "deductible": 500,
+        "annualPremium": 720.0
+      },
+      {
+        "coverageCode": "COMP",
+        "coverageType": "COMPREHENSIVE",
+        "limit": 36000,
+        "deductible": 250,
+        "annualPremium": 360.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 1880.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "ACH",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2025-10-01",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00822",
+    "agencyId": "AGY-0092",
+    "channel": "AGENT_PORTAL",
+    "traceAnchor": {
+      "lastTraceId": null,
+      "lastDecisionType": null,
+      "lastDecisionAt": null,
+      "traceCount": 0
+    },
+    "createdAt": {
+      "$date": "2025-09-01T00:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2025-09-01T00:00:00.000Z"
+    }
+  },
+  {
+    "policyId": "POL-2023",
+    "customerId": "CUST-2023",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "PA",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2026-02-15",
+      "endDate": "2027-02-15",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2023",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Nina",
+        "lastName": "Kowalski",
+        "dateOfBirth": "1990-08-12",
+        "licenseYears": 14
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "3VV2B7AX5LM133023",
+      "brand": "Volkswagen",
+      "model": "Tiguan",
+      "year": 2020,
+      "value": 21000,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": false
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 100000,
+        "deductible": 0,
+        "annualPremium": 350.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 21000,
+        "deductible": 500,
+        "annualPremium": 530.0
+      },
+      {
+        "coverageCode": "COMP",
+        "coverageType": "COMPREHENSIVE",
+        "limit": 21000,
+        "deductible": 250,
+        "annualPremium": 260.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 1440.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "CHECK",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2026-03-15",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00823",
+    "agencyId": "AGY-0099",
+    "channel": "AGENT_PORTAL",
+    "traceAnchor": {
+      "lastTraceId": null,
+      "lastDecisionType": null,
+      "lastDecisionAt": null,
+      "traceCount": 0
+    },
+    "createdAt": {
+      "$date": "2026-02-15T00:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-02-15T00:00:00.000Z"
+    }
+  },
+  {
+    "policyId": "POL-2024",
+    "customerId": "CUST-2024",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "CA",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2025-11-20",
+      "endDate": "2026-11-20",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2024",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Paul",
+        "lastName": "Duarte",
+        "dateOfBirth": "1971-12-03",
+        "licenseYears": 30
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "3TMCZ5AN2GM134024",
+      "brand": "Toyota",
+      "model": "Tacoma",
+      "year": 2016,
+      "value": 19000,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": false
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 100000,
+        "deductible": 0,
+        "annualPremium": 340.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 19000,
+        "deductible": 500,
+        "annualPremium": 450.0
+      },
+      {
+        "coverageCode": "COMP",
+        "coverageType": "COMPREHENSIVE",
+        "limit": 19000,
+        "deductible": 250,
+        "annualPremium": 240.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 1290.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "ACH",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2025-12-20",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00824",
+    "agencyId": "AGY-0091",
+    "channel": "AGENT_PORTAL",
+    "traceAnchor": {
+      "lastTraceId": null,
+      "lastDecisionType": null,
+      "lastDecisionAt": null,
+      "traceCount": 0
+    },
+    "createdAt": {
+      "$date": "2025-11-20T00:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2025-11-20T00:00:00.000Z"
+    }
+  },
+  {
+    "policyId": "POL-2025",
+    "customerId": "CUST-2025",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "TX",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2026-05-01",
+      "endDate": "2027-05-01",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2025",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Isabel",
+        "lastName": "Torres",
+        "dateOfBirth": "1987-06-17",
+        "licenseYears": 18
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "KM8J3CAL5NU135025",
+      "brand": "Hyundai",
+      "model": "Tucson",
+      "year": 2022,
+      "value": 23000,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": true
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 100000,
+        "deductible": 0,
+        "annualPremium": 330.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 23000,
+        "deductible": 500,
+        "annualPremium": 500.0
+      },
+      {
+        "coverageCode": "COMP",
+        "coverageType": "COMPREHENSIVE",
+        "limit": 23000,
+        "deductible": 250,
+        "annualPremium": 250.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 1270.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "AUTO_EFT",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2026-06-01",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00825",
+    "agencyId": "AGY-0092",
+    "channel": "MOBILE_APP",
+    "traceAnchor": {
+      "lastTraceId": null,
+      "lastDecisionType": null,
+      "lastDecisionAt": null,
+      "traceCount": 0
+    },
+    "createdAt": {
+      "$date": "2026-05-01T00:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-05-01T00:00:00.000Z"
+    }
+  },
+  {
+    "policyId": "POL-2026",
+    "customerId": "CUST-2026",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "TN",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2025-10-20",
+      "endDate": "2026-10-20",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2026",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Kevin",
+        "lastName": "O'Brien",
+        "dateOfBirth": "1994-09-09",
+        "licenseYears": 11
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "1C4HJXDG3MW136026",
+      "brand": "Jeep",
+      "model": "Wrangler",
+      "year": 2021,
+      "value": 33000,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": false
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 100000,
+        "deductible": 0,
+        "annualPremium": 370.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 33000,
+        "deductible": 500,
+        "annualPremium": 680.0
+      },
+      {
+        "coverageCode": "COMP",
+        "coverageType": "COMPREHENSIVE",
+        "limit": 33000,
+        "deductible": 250,
+        "annualPremium": 340.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 1790.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "ACH",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2025-11-20",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00826",
+    "agencyId": "AGY-0094",
+    "channel": "MOBILE_APP",
+    "traceAnchor": {
+      "lastTraceId": null,
+      "lastDecisionType": null,
+      "lastDecisionAt": null,
+      "traceCount": 0
+    },
+    "createdAt": {
+      "$date": "2025-10-20T00:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2025-10-20T00:00:00.000Z"
+    }
+  },
+  {
+    "policyId": "POL-2027",
+    "customerId": "CUST-2027",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "OH",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2026-01-05",
+      "endDate": "2027-01-05",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2027",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Olivia",
+        "lastName": "Grant",
+        "dateOfBirth": "1992-11-11",
+        "licenseYears": 13
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "1FMCU9H61MUA37027",
+      "brand": "Ford",
+      "model": "Escape",
+      "year": 2021,
+      "value": 21500,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": false
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 100000,
+        "deductible": 0,
+        "annualPremium": 310.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 21500,
+        "deductible": 500,
+        "annualPremium": 520.0
+      },
+      {
+        "coverageCode": "COMP",
+        "coverageType": "COMPREHENSIVE",
+        "limit": 21500,
+        "deductible": 250,
+        "annualPremium": 250.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 1210.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "ACH",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2026-02-05",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00827",
+    "agencyId": "AGY-0096",
+    "channel": "MOBILE_APP",
+    "traceAnchor": {
+      "lastTraceId": null,
+      "lastDecisionType": null,
+      "lastDecisionAt": null,
+      "traceCount": 0
+    },
+    "createdAt": {
+      "$date": "2026-01-05T00:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-01-05T00:00:00.000Z"
+    }
+  },
+  {
+    "policyId": "POL-2028",
+    "customerId": "CUST-2028",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "LA",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2025-11-10",
+      "endDate": "2026-11-10",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2028",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Andre",
+        "lastName": "Baptiste",
+        "dateOfBirth": "1986-04-02",
+        "licenseYears": 20
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "1GNSKBKC5KR138028",
+      "brand": "Chevrolet",
+      "model": "Tahoe",
+      "year": 2019,
+      "value": 38000,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": false
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 100000,
+        "deductible": 0,
+        "annualPremium": 390.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 38000,
+        "deductible": 500,
+        "annualPremium": 760.0
+      },
+      {
+        "coverageCode": "COMP",
+        "coverageType": "COMPREHENSIVE",
+        "limit": 38000,
+        "deductible": 250,
+        "annualPremium": 370.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 1950.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "ACH",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2025-12-10",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00828",
+    "agencyId": "AGY-0092",
+    "channel": "AGENT_PORTAL",
+    "traceAnchor": {
+      "lastTraceId": null,
+      "lastDecisionType": null,
+      "lastDecisionAt": null,
+      "traceCount": 0
+    },
+    "createdAt": {
+      "$date": "2025-11-10T00:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2025-11-10T00:00:00.000Z"
+    }
+  },
+  {
+    "policyId": "POL-2029",
+    "customerId": "CUST-2029",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "CA",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2026-06-01",
+      "endDate": "2027-06-01",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2029",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Mei",
+        "lastName": "Tanaka",
+        "dateOfBirth": "2000-02-19",
+        "licenseYears": 5
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "1HGCV1F34JA139029",
+      "brand": "Honda",
+      "model": "Accord",
+      "year": 2018,
+      "value": 16500,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": false
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 100000,
+        "deductible": 0,
+        "annualPremium": 340.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 16500,
+        "deductible": 500,
+        "annualPremium": 430.0
+      },
+      {
+        "coverageCode": "COMP",
+        "coverageType": "COMPREHENSIVE",
+        "limit": 16500,
+        "deductible": 250,
+        "annualPremium": 220.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 1480.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "AUTO_EFT",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2026-07-01",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00829",
+    "agencyId": "AGY-0091",
+    "channel": "MOBILE_APP",
+    "traceAnchor": {
+      "lastTraceId": null,
+      "lastDecisionType": null,
+      "lastDecisionAt": null,
+      "traceCount": 0
+    },
+    "createdAt": {
+      "$date": "2026-06-01T00:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-01T00:00:00.000Z"
+    }
+  },
+  {
+    "policyId": "POL-2030",
+    "customerId": "CUST-2030",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "MD",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2025-10-05",
+      "endDate": "2026-10-05",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2030",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Gregory",
+        "lastName": "Sloan",
+        "dateOfBirth": "1964-08-25",
+        "licenseYears": 38
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "5GAEVBKW7LJ140030",
+      "brand": "Buick",
+      "model": "Enclave",
+      "year": 2020,
+      "value": 29000,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": true
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 100000,
+        "deductible": 0,
+        "annualPremium": 360.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 29000,
+        "deductible": 500,
+        "annualPremium": 620.0
+      },
+      {
+        "coverageCode": "COMP",
+        "coverageType": "COMPREHENSIVE",
+        "limit": 29000,
+        "deductible": 250,
+        "annualPremium": 310.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 1520.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "CHECK",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2025-11-05",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00830",
+    "agencyId": "AGY-0093",
+    "channel": "AGENT_PORTAL",
+    "traceAnchor": {
+      "lastTraceId": null,
+      "lastDecisionType": null,
+      "lastDecisionAt": null,
+      "traceCount": 0
+    },
+    "createdAt": {
+      "$date": "2025-10-05T00:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2025-10-05T00:00:00.000Z"
+    }
+  },
+  {
+    "policyId": "POL-2031",
+    "customerId": "CUST-2031",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "MI",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2026-03-20",
+      "endDate": "2027-03-20",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2031",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Fatima",
+        "lastName": "Rahman",
+        "dateOfBirth": "1985-12-28",
+        "licenseYears": 19
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "2C4RC1GG5NR141031",
+      "brand": "Chrysler",
+      "model": "Pacifica",
+      "year": 2022,
+      "value": 33500,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": true
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 100000,
+        "deductible": 0,
+        "annualPremium": 350.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 33500,
+        "deductible": 500,
+        "annualPremium": 690.0
+      },
+      {
+        "coverageCode": "COMP",
+        "coverageType": "COMPREHENSIVE",
+        "limit": 33500,
+        "deductible": 250,
+        "annualPremium": 330.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 1690.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "ACH",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2026-04-20",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00831",
+    "agencyId": "AGY-0095",
+    "channel": "AGENT_PORTAL",
+    "traceAnchor": {
+      "lastTraceId": null,
+      "lastDecisionType": null,
+      "lastDecisionAt": null,
+      "traceCount": 0
+    },
+    "createdAt": {
+      "$date": "2026-03-20T00:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-20T00:00:00.000Z"
+    }
+  },
+  {
+    "policyId": "POL-2032",
+    "customerId": "CUST-2032",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "NV",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2026-02-01",
+      "endDate": "2027-02-01",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2032",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Luis",
+        "lastName": "Herrera",
+        "dateOfBirth": "1998-07-07",
+        "licenseYears": 8
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "3KPF24AD9KE142032",
+      "brand": "Kia",
+      "model": "Forte",
+      "year": 2019,
+      "value": 12500,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": false
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 100000,
+        "deductible": 0,
+        "annualPremium": 330.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 12500,
+        "deductible": 500,
+        "annualPremium": 330.0
+      },
+      {
+        "coverageCode": "COMP",
+        "coverageType": "COMPREHENSIVE",
+        "limit": 12500,
+        "deductible": 250,
+        "annualPremium": 190.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 1390.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "AUTO_EFT",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2026-03-01",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00832",
+    "agencyId": "AGY-0097",
+    "channel": "MOBILE_APP",
+    "traceAnchor": {
+      "lastTraceId": null,
+      "lastDecisionType": null,
+      "lastDecisionAt": null,
+      "traceCount": 0
+    },
+    "createdAt": {
+      "$date": "2026-02-01T00:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-02-01T00:00:00.000Z"
+    }
+  },
+  {
+    "policyId": "POL-2033",
+    "customerId": "CUST-2033",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "SC",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2025-12-01",
+      "endDate": "2026-12-01",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2033",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Beth",
+        "lastName": "Callahan",
+        "dateOfBirth": "1977-05-14",
+        "licenseYears": 28
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "55SWF8DB7LU143033",
+      "brand": "Mercedes-Benz",
+      "model": "C300",
+      "year": 2020,
+      "value": 31000,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": true
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 100000,
+        "deductible": 0,
+        "annualPremium": 370.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 31000,
+        "deductible": 500,
+        "annualPremium": 660.0
+      },
+      {
+        "coverageCode": "COMP",
+        "coverageType": "COMPREHENSIVE",
+        "limit": 31000,
+        "deductible": 250,
+        "annualPremium": 320.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 1740.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "ACH",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2026-01-01",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00833",
+    "agencyId": "AGY-0094",
+    "channel": "AGENT_PORTAL",
+    "traceAnchor": {
+      "lastTraceId": null,
+      "lastDecisionType": null,
+      "lastDecisionAt": null,
+      "traceCount": 0
+    },
+    "createdAt": {
+      "$date": "2025-12-01T00:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2025-12-01T00:00:00.000Z"
+    }
+  },
+  {
+    "policyId": "POL-2034",
+    "customerId": "CUST-2034",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "OH",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2026-04-15",
+      "endDate": "2027-04-15",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2034",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Tomas",
+        "lastName": "Novak",
+        "dateOfBirth": "1989-03-30",
+        "licenseYears": 15
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "JF2SKAGC4MH144034",
+      "brand": "Subaru",
+      "model": "Forester",
+      "year": 2021,
+      "value": 25000,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": false
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 100000,
+        "deductible": 0,
+        "annualPremium": 320.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 25000,
+        "deductible": 500,
+        "annualPremium": 560.0
+      },
+      {
+        "coverageCode": "COMP",
+        "coverageType": "COMPREHENSIVE",
+        "limit": 25000,
+        "deductible": 250,
+        "annualPremium": 270.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 1260.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "ACH",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2026-05-15",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00834",
+    "agencyId": "AGY-0099",
+    "channel": "MOBILE_APP",
+    "traceAnchor": {
+      "lastTraceId": null,
+      "lastDecisionType": null,
+      "lastDecisionAt": null,
+      "traceCount": 0
+    },
+    "createdAt": {
+      "$date": "2026-04-15T00:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-04-15T00:00:00.000Z"
+    }
+  },
+  {
+    "policyId": "POL-2035",
+    "customerId": "CUST-2035",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "NM",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2026-07-01",
+      "endDate": "2027-07-01",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2035",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Diana",
+        "lastName": "Reyes",
+        "dateOfBirth": "1991-01-23",
+        "licenseYears": 14
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "2T3P1RFV5LC145035",
+      "brand": "Toyota",
+      "model": "RAV4",
+      "year": 2020,
+      "value": 24500,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": false
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 100000,
+        "deductible": 0,
+        "annualPremium": 320.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 24500,
+        "deductible": 500,
+        "annualPremium": 540.0
+      },
+      {
+        "coverageCode": "COMP",
+        "coverageType": "COMPREHENSIVE",
+        "limit": 24500,
+        "deductible": 250,
+        "annualPremium": 260.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 1230.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "ACH",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2026-08-01",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00835",
+    "agencyId": "AGY-0097",
+    "channel": "MOBILE_APP",
+    "traceAnchor": {
+      "lastTraceId": null,
+      "lastDecisionType": null,
+      "lastDecisionAt": null,
+      "traceCount": 0
+    },
+    "createdAt": {
+      "$date": "2026-07-01T00:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-07-01T00:00:00.000Z"
+    }
+  },
+  {
+    "policyId": "POL-2036",
+    "customerId": "CUST-2036",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "AZ",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2025-12-10",
+      "endDate": "2026-12-10",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2036",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Harold",
+        "lastName": "Whitaker",
+        "dateOfBirth": "1958-09-14",
+        "licenseYears": 45
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "1GYS4CKJ8KR146036",
+      "brand": "Cadillac",
+      "model": "Escalade",
+      "year": 2019,
+      "value": 42000,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": true
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 100000,
+        "deductible": 0,
+        "annualPremium": 400.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 42000,
+        "deductible": 500,
+        "annualPremium": 820.0
+      },
+      {
+        "coverageCode": "COMP",
+        "coverageType": "COMPREHENSIVE",
+        "limit": 42000,
+        "deductible": 250,
+        "annualPremium": 400.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 2010.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "CHECK",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2026-01-10",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00836",
+    "agencyId": "AGY-0091",
+    "channel": "AGENT_PORTAL",
+    "traceAnchor": {
+      "lastTraceId": null,
+      "lastDecisionType": null,
+      "lastDecisionAt": null,
+      "traceCount": 0
+    },
+    "createdAt": {
+      "$date": "2025-12-10T00:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2025-12-10T00:00:00.000Z"
+    }
+  },
+  {
+    "policyId": "POL-2037",
+    "customerId": "CUST-2037",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "RI",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2026-08-15",
+      "endDate": "2027-08-15",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2037",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Zoe",
+        "lastName": "Marchetti",
+        "dateOfBirth": "2002-04-04",
+        "licenseYears": 3
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "WMWXP5C54G2D47037",
+      "brand": "Mini",
+      "model": "Cooper",
+      "year": 2016,
+      "value": 10500,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": false
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 100000,
+        "deductible": 0,
+        "annualPremium": 360.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 10500,
+        "deductible": 500,
+        "annualPremium": 290.0
+      },
+      {
+        "coverageCode": "COMP",
+        "coverageType": "COMPREHENSIVE",
+        "limit": 10500,
+        "deductible": 250,
+        "annualPremium": 180.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 1520.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "ACH",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2026-09-15",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00837",
+    "agencyId": "AGY-0099",
+    "channel": "MOBILE_APP",
+    "traceAnchor": {
+      "lastTraceId": null,
+      "lastDecisionType": null,
+      "lastDecisionAt": null,
+      "traceCount": 0
+    },
+    "createdAt": {
+      "$date": "2026-08-15T00:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-15T00:00:00.000Z"
+    }
+  },
+  {
+    "policyId": "POL-2038",
+    "customerId": "CUST-2038",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "CO",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2025-11-20",
+      "endDate": "2026-11-20",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2038",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Victor",
+        "lastName": "Lang",
+        "dateOfBirth": "1982-06-29",
+        "licenseYears": 24
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "1C4RJFAG3JC148038",
+      "brand": "Jeep",
+      "model": "Grand Cherokee",
+      "year": 2018,
+      "value": 22000,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": false
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 100000,
+        "deductible": 0,
+        "annualPremium": 340.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 22000,
+        "deductible": 500,
+        "annualPremium": 500.0
+      },
+      {
+        "coverageCode": "COMP",
+        "coverageType": "COMPREHENSIVE",
+        "limit": 22000,
+        "deductible": 250,
+        "annualPremium": 250.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 1330.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "AUTO_EFT",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2025-12-20",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00838",
+    "agencyId": "AGY-0095",
+    "channel": "AGENT_PORTAL",
+    "traceAnchor": {
+      "lastTraceId": null,
+      "lastDecisionType": null,
+      "lastDecisionAt": null,
+      "traceCount": 0
+    },
+    "createdAt": {
+      "$date": "2025-11-20T00:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2025-11-20T00:00:00.000Z"
+    }
+  },
+  {
+    "policyId": "POL-2039",
+    "customerId": "CUST-2039",
+    "policyType": "PERSONAL_AUTO",
+    "productCode": "PAP-2024",
+    "status": "ACTIVE",
+    "jurisdiction": {
+      "state": "KY",
+      "country": "US"
+    },
+    "effectivePeriod": {
+      "startDate": "2026-05-10",
+      "endDate": "2027-05-10",
+      "termMonths": 12
+    },
+    "parties": [
+      {
+        "partyId": "CUST-2039",
+        "role": "POLICYHOLDER",
+        "isPrimary": true,
+        "firstName": "Priscilla",
+        "lastName": "Obi",
+        "dateOfBirth": "1986-10-02",
+        "licenseYears": 19
+      }
+    ],
+    "vehicle": {
+      "vehicleId": "5FNRL6H78MB149039",
+      "brand": "Honda",
+      "model": "Odyssey",
+      "year": 2021,
+      "value": 29500,
+      "primaryUse": "COMMUTE",
+      "antiTheftDevice": false
+    },
+    "coverages": [
+      {
+        "coverageCode": "LIAB_BI",
+        "coverageType": "LIABILITY_BODILY_INJURY",
+        "limit": 100000,
+        "deductible": 0,
+        "annualPremium": 350.0
+      },
+      {
+        "coverageCode": "COLL",
+        "coverageType": "COLLISION",
+        "limit": 29500,
+        "deductible": 500,
+        "annualPremium": 610.0
+      },
+      {
+        "coverageCode": "COMP",
+        "coverageType": "COMPREHENSIVE",
+        "limit": 29500,
+        "deductible": 250,
+        "annualPremium": 300.0
+      }
+    ],
+    "premium": {
+      "annualPremium": 1480.0,
+      "paymentFrequency": "MONTHLY",
+      "paymentMethod": "ACH",
+      "outstandingBalance": 0.0,
+      "discounts": [],
+      "surcharges": []
+    },
+    "billing": {
+      "nextDueDate": "2026-06-10",
+      "gracePeriodDays": 15,
+      "lapsedAt": null
+    },
+    "agentId": "A00839",
+    "agencyId": "AGY-0098",
+    "channel": "MOBILE_APP",
+    "traceAnchor": {
+      "lastTraceId": null,
+      "lastDecisionType": null,
+      "lastDecisionAt": null,
+      "traceCount": 0
+    },
+    "createdAt": {
+      "$date": "2026-05-10T00:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-05-10T00:00:00.000Z"
+    }
+  }
+]

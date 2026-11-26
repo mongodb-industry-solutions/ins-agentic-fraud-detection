@@ -1,0 +1,860 @@
+[
+  {
+    "customerId": "CUST-2001",
+    "firstName": "Rachel",
+    "lastName": "Nguyen",
+    "dateOfBirth": "1990-03-12",
+    "gender": "F",
+    "licenseYears": 16,
+    "address": {
+      "city": "Denver",
+      "state": "CO",
+      "region": "WEST"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 2,
+    "customerSince": "2023-06-01",
+    "createdAt": {
+      "$date": "2023-06-01T09:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-01-20T09:00:00Z"
+    }
+  },
+  {
+    "customerId": "CUST-2002",
+    "firstName": "Marcus",
+    "lastName": "Webb",
+    "dateOfBirth": "1978-11-02",
+    "gender": "M",
+    "licenseYears": 20,
+    "address": {
+      "city": "Tampa",
+      "state": "FL",
+      "region": "SOUTHEAST"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 1,
+    "customerSince": "2024-01-01",
+    "createdAt": {
+      "$date": "2024-01-01T09:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2024-09-15T09:00:00Z"
+    }
+  },
+  {
+    "customerId": "CUST-2003",
+    "firstName": "Priya",
+    "lastName": "Shah",
+    "dateOfBirth": "1995-06-18",
+    "gender": "F",
+    "licenseYears": 8,
+    "address": {
+      "city": "Tampa",
+      "state": "FL",
+      "region": "SOUTHEAST"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 1,
+    "customerSince": "2024-03-01",
+    "createdAt": {
+      "$date": "2024-03-01T09:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-02-11T09:00:00Z"
+    }
+  },
+  {
+    "customerId": "CUST-2004",
+    "firstName": "Daniel",
+    "lastName": "Osei",
+    "dateOfBirth": "1985-09-25",
+    "gender": "M",
+    "licenseYears": 18,
+    "address": {
+      "city": "Charlotte",
+      "state": "NC",
+      "region": "SOUTHEAST"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 1,
+    "customerSince": "2024-07-01",
+    "createdAt": {
+      "$date": "2024-07-01T09:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2024-08-30T09:00:00Z"
+    }
+  },
+  {
+    "customerId": "CUST-2005",
+    "firstName": "Helen",
+    "lastName": "Fischer",
+    "dateOfBirth": "1982-02-14",
+    "gender": "F",
+    "licenseYears": 10,
+    "address": {
+      "city": "Portland",
+      "state": "OR",
+      "region": "WEST"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 1,
+    "customerSince": "2023-09-01",
+    "createdAt": {
+      "$date": "2023-09-01T09:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2024-11-20T09:00:00Z"
+    }
+  },
+  {
+    "customerId": "CUST-2006",
+    "firstName": "Grace",
+    "lastName": "Kim",
+    "dateOfBirth": "1988-12-01",
+    "gender": "F",
+    "licenseYears": 22,
+    "address": {
+      "city": "Austin",
+      "state": "TX",
+      "region": "SOUTH"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 1,
+    "customerSince": "2023-04-01",
+    "createdAt": {
+      "$date": "2023-04-01T09:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-01-05T09:00:00Z"
+    }
+  },
+  {
+    "customerId": "CUST-2007",
+    "firstName": "Omar",
+    "lastName": "Farouk",
+    "dateOfBirth": "1991-05-30",
+    "gender": "M",
+    "licenseYears": 14,
+    "address": {
+      "city": "Minneapolis",
+      "state": "MN",
+      "region": "MIDWEST"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 1,
+    "customerSince": "2022-10-01",
+    "createdAt": {
+      "$date": "2022-10-01T09:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-03-12T09:00:00Z"
+    }
+  },
+  {
+    "customerId": "CUST-2008",
+    "firstName": "Natalie",
+    "lastName": "Brooks",
+    "dateOfBirth": "1993-08-09",
+    "gender": "F",
+    "licenseYears": 11,
+    "address": {
+      "city": "San Diego",
+      "state": "CA",
+      "region": "WEST"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 1,
+    "customerSince": "2024-02-01",
+    "createdAt": {
+      "$date": "2024-02-01T09:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-01-21T09:00:00Z"
+    }
+  },
+  {
+    "customerId": "CUST-2009",
+    "firstName": "Victor",
+    "lastName": "Alonso",
+    "dateOfBirth": "1987-04-22",
+    "gender": "M",
+    "licenseYears": 9,
+    "address": {
+      "city": "Phoenix",
+      "state": "AZ",
+      "region": "WEST"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 1,
+    "customerSince": "2024-12-01",
+    "createdAt": {
+      "$date": "2024-12-01T09:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-01-12T09:00:00Z"
+    }
+  },
+  {
+    "customerId": "CUST-2010",
+    "firstName": "Ben",
+    "lastName": "Coleman",
+    "dateOfBirth": "1980-01-17",
+    "gender": "M",
+    "licenseYears": 20,
+    "address": {
+      "city": "Raleigh",
+      "state": "NC",
+      "region": "SOUTHEAST"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 2,
+    "customerSince": "2023-05-01",
+    "createdAt": {
+      "$date": "2023-05-01T09:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-02-15T09:00:00Z"
+    }
+  },
+  {
+    "customerId": "CUST-2011",
+    "firstName": "Lauren",
+    "lastName": "Pierce",
+    "dateOfBirth": "1997-10-05",
+    "gender": "F",
+    "licenseYears": 6,
+    "address": {
+      "city": "Salt Lake City",
+      "state": "UT",
+      "region": "WEST"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 1,
+    "customerSince": "2025-01-20",
+    "createdAt": {
+      "$date": "2025-01-20T09:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-01-28T09:00:00Z"
+    }
+  },
+  {
+    "customerId": "CUST-2012",
+    "firstName": "Adrian",
+    "lastName": "Voss",
+    "dateOfBirth": "2006-09-01",
+    "gender": "M",
+    "licenseYears": 1,
+    "address": {
+      "city": "Kansas City",
+      "state": "MO",
+      "region": "MIDWEST"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 1,
+    "customerSince": "2024-04-01",
+    "createdAt": {
+      "$date": "2024-04-01T09:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-01-07T09:00:00Z"
+    }
+  },
+  {
+    "customerId": "CUST-2013",
+    "firstName": "Sofia",
+    "lastName": "Marino",
+    "dateOfBirth": "1984-07-21",
+    "gender": "F",
+    "licenseYears": 20,
+    "address": {
+      "city": "Boston",
+      "state": "MA",
+      "region": "NORTHEAST"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 1,
+    "customerSince": "2026-02-01",
+    "createdAt": {
+      "$date": "2026-02-01T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-13T10:00:00.000Z"
+    }
+  },
+  {
+    "customerId": "CUST-2014",
+    "firstName": "Jamal",
+    "lastName": "Whitfield",
+    "dateOfBirth": "1975-04-09",
+    "gender": "M",
+    "licenseYears": 28,
+    "address": {
+      "city": "Atlanta",
+      "state": "GA",
+      "region": "SOUTHEAST"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 2,
+    "customerSince": "2025-11-01",
+    "createdAt": {
+      "$date": "2025-11-01T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-03T09:00:00.000Z"
+    }
+  },
+  {
+    "customerId": "CUST-2015",
+    "firstName": "Elena",
+    "lastName": "Petrova",
+    "dateOfBirth": "1999-12-14",
+    "gender": "F",
+    "licenseYears": 7,
+    "address": {
+      "city": "Chicago",
+      "state": "IL",
+      "region": "MIDWEST"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 1,
+    "customerSince": "2026-03-01",
+    "createdAt": {
+      "$date": "2026-03-01T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-15T11:00:00.000Z"
+    }
+  },
+  {
+    "customerId": "CUST-2016",
+    "firstName": "Tyler",
+    "lastName": "Brandt",
+    "dateOfBirth": "1992-02-27",
+    "gender": "M",
+    "licenseYears": 12,
+    "address": {
+      "city": "Dallas",
+      "state": "TX",
+      "region": "SOUTH"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 2,
+    "customerSince": "2025-10-15",
+    "createdAt": {
+      "$date": "2025-10-15T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-11T10:00:00.000Z"
+    }
+  },
+  {
+    "customerId": "CUST-2017",
+    "firstName": "Amara",
+    "lastName": "Okafor",
+    "dateOfBirth": "1989-09-03",
+    "gender": "F",
+    "licenseYears": 15,
+    "address": {
+      "city": "Seattle",
+      "state": "WA",
+      "region": "WEST"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 2,
+    "customerSince": "2026-01-15",
+    "createdAt": {
+      "$date": "2026-01-15T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-14T13:00:00.000Z"
+    }
+  },
+  {
+    "customerId": "CUST-2018",
+    "firstName": "Dwayne",
+    "lastName": "Holloway",
+    "dateOfBirth": "1968-06-30",
+    "gender": "M",
+    "licenseYears": 33,
+    "address": {
+      "city": "Miami",
+      "state": "FL",
+      "region": "SOUTHEAST"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 2,
+    "customerSince": "2025-12-01",
+    "createdAt": {
+      "$date": "2025-12-01T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-09-27T09:00:00.000Z"
+    }
+  },
+  {
+    "customerId": "CUST-2019",
+    "firstName": "Hannah",
+    "lastName": "Lindqvist",
+    "dateOfBirth": "1996-03-08",
+    "gender": "F",
+    "licenseYears": 10,
+    "address": {
+      "city": "Minneapolis",
+      "state": "MN",
+      "region": "MIDWEST"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 3,
+    "customerSince": "2026-01-10",
+    "createdAt": {
+      "$date": "2026-01-10T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-09-20T09:00:00.000Z"
+    }
+  },
+  {
+    "customerId": "CUST-2020",
+    "firstName": "Rafael",
+    "lastName": "Mendes",
+    "dateOfBirth": "1983-10-19",
+    "gender": "M",
+    "licenseYears": 22,
+    "address": {
+      "city": "Phoenix",
+      "state": "AZ",
+      "region": "WEST"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 3,
+    "customerSince": "2025-12-15",
+    "createdAt": {
+      "$date": "2025-12-15T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-09T11:30:00.000Z"
+    }
+  },
+  {
+    "customerId": "CUST-2021",
+    "firstName": "Chloe",
+    "lastName": "Bennett",
+    "dateOfBirth": "2003-05-26",
+    "gender": "F",
+    "licenseYears": 4,
+    "address": {
+      "city": "Orlando",
+      "state": "FL",
+      "region": "SOUTHEAST"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 2,
+    "customerSince": "2026-04-01",
+    "createdAt": {
+      "$date": "2026-04-01T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-31T09:00:00.000Z"
+    }
+  },
+  {
+    "customerId": "CUST-2022",
+    "firstName": "Samuel",
+    "lastName": "Adeyemi",
+    "dateOfBirth": "1979-01-30",
+    "gender": "M",
+    "licenseYears": 25,
+    "address": {
+      "city": "Houston",
+      "state": "TX",
+      "region": "SOUTH"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 3,
+    "customerSince": "2025-09-01",
+    "createdAt": {
+      "$date": "2025-09-01T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-31T10:00:00.000Z"
+    }
+  },
+  {
+    "customerId": "CUST-2023",
+    "firstName": "Nina",
+    "lastName": "Kowalski",
+    "dateOfBirth": "1990-08-12",
+    "gender": "F",
+    "licenseYears": 14,
+    "address": {
+      "city": "Philadelphia",
+      "state": "PA",
+      "region": "NORTHEAST"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 2,
+    "customerSince": "2026-02-15",
+    "createdAt": {
+      "$date": "2026-02-15T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-09-05T13:50:00.000Z"
+    }
+  },
+  {
+    "customerId": "CUST-2024",
+    "firstName": "Paul",
+    "lastName": "Duarte",
+    "dateOfBirth": "1971-12-03",
+    "gender": "M",
+    "licenseYears": 30,
+    "address": {
+      "city": "Sacramento",
+      "state": "CA",
+      "region": "WEST"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 2,
+    "customerSince": "2025-11-20",
+    "createdAt": {
+      "$date": "2025-11-20T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-07-15T09:00:00.000Z"
+    }
+  },
+  {
+    "customerId": "CUST-2025",
+    "firstName": "Isabel",
+    "lastName": "Torres",
+    "dateOfBirth": "1987-06-17",
+    "gender": "F",
+    "licenseYears": 18,
+    "address": {
+      "city": "San Antonio",
+      "state": "TX",
+      "region": "SOUTH"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 2,
+    "customerSince": "2026-05-01",
+    "createdAt": {
+      "$date": "2026-05-01T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-12T10:00:00.000Z"
+    }
+  },
+  {
+    "customerId": "CUST-2026",
+    "firstName": "Kevin",
+    "lastName": "O'Brien",
+    "dateOfBirth": "1994-09-09",
+    "gender": "M",
+    "licenseYears": 11,
+    "address": {
+      "city": "Nashville",
+      "state": "TN",
+      "region": "SOUTHEAST"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 3,
+    "customerSince": "2025-10-20",
+    "createdAt": {
+      "$date": "2025-10-20T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T09:00:00.000Z"
+    }
+  },
+  {
+    "customerId": "CUST-2027",
+    "firstName": "Olivia",
+    "lastName": "Grant",
+    "dateOfBirth": "1992-11-11",
+    "gender": "F",
+    "licenseYears": 13,
+    "address": {
+      "city": "Columbus",
+      "state": "OH",
+      "region": "MIDWEST"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 3,
+    "customerSince": "2026-01-05",
+    "createdAt": {
+      "$date": "2026-01-05T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-05T09:00:00.000Z"
+    }
+  },
+  {
+    "customerId": "CUST-2028",
+    "firstName": "Andre",
+    "lastName": "Baptiste",
+    "dateOfBirth": "1986-04-02",
+    "gender": "M",
+    "licenseYears": 20,
+    "address": {
+      "city": "New Orleans",
+      "state": "LA",
+      "region": "SOUTH"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 3,
+    "customerSince": "2025-11-10",
+    "createdAt": {
+      "$date": "2025-11-10T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-01T08:00:00.000Z"
+    }
+  },
+  {
+    "customerId": "CUST-2029",
+    "firstName": "Mei",
+    "lastName": "Tanaka",
+    "dateOfBirth": "2000-02-19",
+    "gender": "F",
+    "licenseYears": 5,
+    "address": {
+      "city": "San Jose",
+      "state": "CA",
+      "region": "WEST"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 3,
+    "customerSince": "2026-06-01",
+    "createdAt": {
+      "$date": "2026-06-01T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-10T09:00:00.000Z"
+    }
+  },
+  {
+    "customerId": "CUST-2030",
+    "firstName": "Gregory",
+    "lastName": "Sloan",
+    "dateOfBirth": "1964-08-25",
+    "gender": "M",
+    "licenseYears": 38,
+    "address": {
+      "city": "Baltimore",
+      "state": "MD",
+      "region": "NORTHEAST"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 2,
+    "customerSince": "2025-10-05",
+    "createdAt": {
+      "$date": "2025-10-05T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-09-29T09:00:00.000Z"
+    }
+  },
+  {
+    "customerId": "CUST-2031",
+    "firstName": "Fatima",
+    "lastName": "Rahman",
+    "dateOfBirth": "1985-12-28",
+    "gender": "F",
+    "licenseYears": 19,
+    "address": {
+      "city": "Dearborn",
+      "state": "MI",
+      "region": "MIDWEST"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 2,
+    "customerSince": "2026-03-20",
+    "createdAt": {
+      "$date": "2026-03-20T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-09-17T09:00:00.000Z"
+    }
+  },
+  {
+    "customerId": "CUST-2032",
+    "firstName": "Luis",
+    "lastName": "Herrera",
+    "dateOfBirth": "1998-07-07",
+    "gender": "M",
+    "licenseYears": 8,
+    "address": {
+      "city": "Las Vegas",
+      "state": "NV",
+      "region": "WEST"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 2,
+    "customerSince": "2026-02-01",
+    "createdAt": {
+      "$date": "2026-02-01T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-24T10:00:00.000Z"
+    }
+  },
+  {
+    "customerId": "CUST-2033",
+    "firstName": "Beth",
+    "lastName": "Callahan",
+    "dateOfBirth": "1977-05-14",
+    "gender": "F",
+    "licenseYears": 28,
+    "address": {
+      "city": "Charleston",
+      "state": "SC",
+      "region": "SOUTHEAST"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 2,
+    "customerSince": "2025-12-01",
+    "createdAt": {
+      "$date": "2025-12-01T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-12T09:00:00.000Z"
+    }
+  },
+  {
+    "customerId": "CUST-2034",
+    "firstName": "Tomas",
+    "lastName": "Novak",
+    "dateOfBirth": "1989-03-30",
+    "gender": "M",
+    "licenseYears": 15,
+    "address": {
+      "city": "Cleveland",
+      "state": "OH",
+      "region": "MIDWEST"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 3,
+    "customerSince": "2026-04-15",
+    "createdAt": {
+      "$date": "2026-04-15T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    }
+  },
+  {
+    "customerId": "CUST-2035",
+    "firstName": "Diana",
+    "lastName": "Reyes",
+    "dateOfBirth": "1991-01-23",
+    "gender": "F",
+    "licenseYears": 14,
+    "address": {
+      "city": "Albuquerque",
+      "state": "NM",
+      "region": "WEST"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 2,
+    "customerSince": "2026-07-01",
+    "createdAt": {
+      "$date": "2026-07-01T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-11-04T09:00:00.000Z"
+    }
+  },
+  {
+    "customerId": "CUST-2036",
+    "firstName": "Harold",
+    "lastName": "Whitaker",
+    "dateOfBirth": "1958-09-14",
+    "gender": "M",
+    "licenseYears": 45,
+    "address": {
+      "city": "Tucson",
+      "state": "AZ",
+      "region": "WEST"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 2,
+    "customerSince": "2025-12-10",
+    "createdAt": {
+      "$date": "2025-12-10T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-11-09T09:00:00.000Z"
+    }
+  },
+  {
+    "customerId": "CUST-2037",
+    "firstName": "Zoe",
+    "lastName": "Marchetti",
+    "dateOfBirth": "2002-04-04",
+    "gender": "F",
+    "licenseYears": 3,
+    "address": {
+      "city": "Providence",
+      "state": "RI",
+      "region": "NORTHEAST"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 2,
+    "customerSince": "2026-08-15",
+    "createdAt": {
+      "$date": "2026-08-15T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-21T09:00:00.000Z"
+    }
+  },
+  {
+    "customerId": "CUST-2038",
+    "firstName": "Victor",
+    "lastName": "Lang",
+    "dateOfBirth": "1982-06-29",
+    "gender": "M",
+    "licenseYears": 24,
+    "address": {
+      "city": "Denver",
+      "state": "CO",
+      "region": "WEST"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 2,
+    "customerSince": "2025-11-20",
+    "createdAt": {
+      "$date": "2025-11-20T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-11-12T09:00:00.000Z"
+    }
+  },
+  {
+    "customerId": "CUST-2039",
+    "firstName": "Priscilla",
+    "lastName": "Obi",
+    "dateOfBirth": "1986-10-02",
+    "gender": "F",
+    "licenseYears": 19,
+    "address": {
+      "city": "Louisville",
+      "state": "KY",
+      "region": "SOUTHEAST"
+    },
+    "numPolicies": 1,
+    "numPreviousClaims": 2,
+    "customerSince": "2026-05-10",
+    "createdAt": {
+      "$date": "2026-05-10T09:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-28T09:00:00.000Z"
+    }
+  }
+]

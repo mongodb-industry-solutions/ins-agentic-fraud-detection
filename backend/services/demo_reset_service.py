@@ -26,7 +26,7 @@ from repositories.assessment_jobs_repo import DECISION_RECORDING, PROCESSING
 logger = logging.getLogger(__name__)
 
 DATA_DIR = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "final"
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data"
 )
 
 TRACE_COUNTER_ID = "traceId"
@@ -35,10 +35,10 @@ TRACE_COUNTER_ID = "traceId"
 # references. Mongo does not enforce this, but validation or logging added
 # later may assume it. A None fixture means "empty on reset, nothing to reload".
 COLLECTIONS: list[tuple[str, str | None]] = [
-    ("customers", "customers_all.json"),
-    ("policies", "policies_all.json"),
-    ("claims", "claims_all.json"),
-    ("decision_traces", "decision_traces_all.json"),
+    ("customers", "customers.json"),
+    ("policies", "policies.json"),
+    ("claims", "claims.json"),
+    ("decision_traces", "decision_traces.json"),
     # Runtime state written by the app.
     ("assessment_jobs", None),
     # Trace-ID sequence: emptied, then re-seeded from the loaded traces.
