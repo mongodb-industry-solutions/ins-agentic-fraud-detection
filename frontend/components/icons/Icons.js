@@ -28,6 +28,7 @@ const PATHS = {
   info: "M9 16a7 7 0 100-14 7 7 0 000 14zM9 8.3v4.2M9 5.5v.7",
   plus: "M9 4v10M4 9h10",
   close: "M4.8 4.8l8.4 8.4M13.2 4.8l-8.4 8.4",
+  reset: "M14.8 9a5.8 5.8 0 11-1.7-4.1M14.8 2.8v3.4h-3.4",
 };
 
 export default function Icon({ name, size = 16, className }) {
