@@ -1,4 +1,4 @@
-"""Seed / reset the demo database from the JSON fixtures in backend/data/final.
+"""Seed / reset the demo database from the JSON fixtures in backend/data.
 
 A thin CLI over services/demo_reset_service.py, the same code the app's
 `POST /api/admin/reset-demo` endpoint runs.

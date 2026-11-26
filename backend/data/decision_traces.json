@@ -1,0 +1,231 @@
+[
+  {
+    "traceId": "TRC-0001",
+    "claimId": "CLM-3001",
+    "customerId": "CUST-2001",
+    "policyId": "POL-2001",
+    "triggerType": "SINGLE_CLAIM",
+    "batchId": null,
+    "triggeredBy": "manager:M-2010",
+    "triggeredAt": {
+      "$date": "2024-05-30T14:00:00Z"
+    },
+    "matchedPatterns": [
+      {
+        "patternId": "FP-003",
+        "patternName": "High-value claim amount",
+        "weight": 2
+      },
+      {
+        "patternId": "FP-004",
+        "patternName": "Claim amount exceeds vehicle's assessed value",
+        "weight": 3
+      },
+      {
+        "patternId": "FP-005",
+        "patternName": "No police report filed",
+        "weight": 2
+      },
+      {
+        "patternId": "FP-010",
+        "patternName": "No witnesses to the incident",
+        "weight": 1
+      },
+      {
+        "patternId": "FP-012",
+        "patternName": "Repair shop on internal watchlist",
+        "weight": 3
+      },
+      {
+        "patternId": "FP-013",
+        "patternName": "Staged low-speed collision with disproportionate damage",
+        "weight": 3
+      },
+      {
+        "patternId": "FP-014",
+        "patternName": "Immediate third-party legal representation",
+        "weight": 2
+      },
+      {
+        "patternId": "FP-017",
+        "patternName": "Injury severity disproportionate to vehicle damage",
+        "weight": 2
+      }
+    ],
+    "rawScore": 18,
+    "computedScore": 12,
+    "agentSummary": "Claim scored 12/12 (capped from a raw total of 18). Eight patterns matched: no police report filed and zero witnesses at the scene; a repair estimate ($26,000) that exceeds the vehicle's own assessed value and clears the high-value threshold; the repair shop is on the internal watchlist; and the claim's narrative closely resembles three known historical fraud patterns — a staged low-speed collision, immediate third-party legal representation, and injury severity disproportionate to the reported damage. No comparable prior claims were found on this customer's file at the time of this analysis.",
+    "humanDecision": {
+      "decision": "CONFIRMED_FRAUD",
+      "decidedBy": "manager:M-2010",
+      "decidedAt": {
+        "$date": "2024-06-01T00:00:00Z"
+      },
+      "reasoning": "Eight independent signals converge on this claim, including two confirmed-pattern historical matches. Referred to SIU.",
+      "siuReferred": true
+    },
+    "createdAt": {
+      "$date": "2024-05-30T14:00:00Z"
+    }
+  },
+  {
+    "traceId": "TRC-0002",
+    "claimId": "CLM-3003",
+    "customerId": "CUST-2002",
+    "policyId": "POL-2002",
+    "triggerType": "SINGLE_CLAIM",
+    "batchId": null,
+    "triggeredBy": "manager:M-2010",
+    "triggeredAt": {
+      "$date": "2024-09-18T11:00:00Z"
+    },
+    "matchedPatterns": [
+      {
+        "patternId": "FP-003",
+        "patternName": "High-value claim amount",
+        "weight": 2
+      },
+      {
+        "patternId": "FP-004",
+        "patternName": "Claim amount exceeds vehicle's assessed value",
+        "weight": 3
+      },
+      {
+        "patternId": "FP-012",
+        "patternName": "Repair shop on internal watchlist",
+        "weight": 3
+      },
+      {
+        "patternId": "FP-016",
+        "patternName": "Recurring repair shop across confirmed-fraud claims",
+        "weight": 3
+      }
+    ],
+    "rawScore": 11,
+    "computedScore": 11,
+    "agentSummary": "Claim scored 11/12. The underlying collision itself is well-documented (police report filed, one witness), but the repair estimate from QuickFix Auto Center ($22,000) exceeds both the high-value threshold and the vehicle's own assessed value. QuickFix Auto Center is on the internal watchlist, and the billing pattern closely matches a known historical fraud pattern of shop-level cost inflation confirmed on prior claims.",
+    "humanDecision": {
+      "decision": "CONFIRMED_FRAUD",
+      "decidedBy": "manager:M-2010",
+      "decidedAt": {
+        "$date": "2024-09-20T00:00:00Z"
+      },
+      "reasoning": "Independent appraisal confirmed the repair estimate was inflated well beyond legitimate repair cost for the documented damage. Referred to SIU; repair shop flagged for continued monitoring.",
+      "siuReferred": true
+    },
+    "createdAt": {
+      "$date": "2024-09-18T11:00:00Z"
+    }
+  },
+  {
+    "traceId": "TRC-0003",
+    "claimId": "CLM-3005",
+    "customerId": "CUST-2004",
+    "policyId": "POL-2004",
+    "triggerType": "SINGLE_CLAIM",
+    "batchId": null,
+    "triggeredBy": "adjuster:ADJ-1004",
+    "triggeredAt": {
+      "$date": "2024-09-05T09:00:00Z"
+    },
+    "matchedPatterns": [
+      {
+        "patternId": "FP-003",
+        "patternName": "High-value claim amount",
+        "weight": 2
+      },
+      {
+        "patternId": "FP-004",
+        "patternName": "Claim amount exceeds vehicle's assessed value",
+        "weight": 3
+      },
+      {
+        "patternId": "FP-015",
+        "patternName": "Theft with no forced-entry evidence",
+        "weight": 3
+      },
+      {
+        "patternId": "FP-018",
+        "patternName": "New policy followed by immediate high-value claim",
+        "weight": 2
+      }
+    ],
+    "rawScore": 10,
+    "computedScore": 10,
+    "agentSummary": "Claim scored 10/12. High-value theft claim ($35,000, exceeding both the fixed threshold and the vehicle's assessed value) filed against a policy purchased only six weeks prior. No evidence of forced entry was found at inspection. The claim's circumstances closely match two known historical patterns: theft with no forced-entry evidence, and a new policy followed immediately by a high-value claim.",
+    "humanDecision": {
+      "decision": "CONFIRMED_FRAUD",
+      "decidedBy": "adjuster:ADJ-1004",
+      "decidedAt": {
+        "$date": "2024-09-10T00:00:00Z"
+      },
+      "reasoning": "Vehicle was recovered eleven days after the claim was filed with mileage inconsistent with the customer's reported usage. Referred to SIU.",
+      "siuReferred": true
+    },
+    "createdAt": {
+      "$date": "2024-09-05T09:00:00Z"
+    }
+  },
+  {
+    "traceId": "TRC-0004",
+    "claimId": "CLM-3006",
+    "customerId": "CUST-2005",
+    "policyId": "POL-2005",
+    "triggerType": "BATCH",
+    "batchId": "BATCH-2024-11-18-SIMPLE",
+    "triggeredBy": "manager:M-2010",
+    "triggeredAt": {
+      "$date": "2024-11-18T08:00:00Z"
+    },
+    "matchedPatterns": [
+      {
+        "patternId": "FP-006",
+        "patternName": "Significant reporting delay",
+        "weight": 2
+      }
+    ],
+    "rawScore": 2,
+    "computedScore": 2,
+    "agentSummary": "Claim scored 2/12 as part of the daily simple-claims batch run. The only pattern matched was a reporting delay of 15 days. Under the fast-track policy, any simple claim with a nonzero score is routed to manual review rather than auto-cleared, regardless of how low the score is.",
+    "humanDecision": {
+      "decision": "DISMISSED_NO_FRAUD",
+      "decidedBy": "manager:M-2010",
+      "decidedAt": {
+        "$date": "2024-11-20T00:00:00Z"
+      },
+      "reasoning": "Reporting delay is fully explained: claimant was traveling internationally at the time of the loss and reported it promptly upon return, corroborated by travel documentation. No other risk indicators present.",
+      "siuReferred": false
+    },
+    "createdAt": {
+      "$date": "2024-11-18T08:00:00Z"
+    }
+  },
+  {
+    "traceId": "TRC-0005",
+    "claimId": "CLM-3011",
+    "customerId": "CUST-2010",
+    "policyId": "POL-2010",
+    "triggerType": "BATCH",
+    "batchId": "BATCH-2024-07-01-SIMPLE",
+    "triggeredBy": null,
+    "triggeredAt": {
+      "$date": "2024-07-01T08:00:00Z"
+    },
+    "matchedPatterns": [],
+    "rawScore": 0,
+    "computedScore": 0,
+    "agentSummary": "Claim scored 0/12 as part of the daily simple-claims batch run. No patterns matched. Auto-cleared under the fast-track policy without manual review.",
+    "humanDecision": {
+      "decision": "AUTO_CLEARED",
+      "decidedBy": "system:fast_track_engine",
+      "decidedAt": {
+        "$date": "2024-07-01T08:00:05Z"
+      },
+      "reasoning": "No patterns matched; auto-cleared under fast-track threshold.",
+      "siuReferred": false
+    },
+    "createdAt": {
+      "$date": "2024-07-01T08:00:00Z"
+    }
+  }
+]
