@@ -242,4 +242,11 @@ frontend/next-env.d.ts
 
 
 *data/
+# Demo-reset fixtures must ship with the backend image (see demo_reset_service.py)
+!backend/data/
+backend/data/*
+!backend/data/claims.json
+!backend/data/customers.json
+!backend/data/policies.json
+!backend/data/decision_traces.json
 development-sources/

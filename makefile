@@ -23,7 +23,7 @@ uv_update:
 	cd backend && uv lock --upgrade
 
 # Empty the demo collections (delete_many, never drop) and reload the JSON
-# fixtures from backend/data/final. fraud_patterns is static and left alone.
+# fixtures from backend/data. fraud_patterns is static and left alone.
 seed:
 	cd backend && uv run python scripts/seed_db.py --reset
 

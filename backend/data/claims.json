@@ -1,0 +1,6281 @@
+[
+  {
+    "claimId": "CLM-3001",
+    "policyId": "POL-2001",
+    "customerId": "CUST-2001",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "CLOSED_DENIED",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2024-05-10T19:00:00Z"
+    },
+    "reportDate": {
+      "$date": "2024-05-12T10:00:00Z"
+    },
+    "delayDays": 2,
+    "accidentTime": "19:00",
+    "claimAmount": 26000,
+    "paidAmount": 0,
+    "paymentMethod": "CHECK",
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1001",
+    "repairShop": "Coastal Auto Body",
+    "policeReport": false,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Single-vehicle collision reported at night with no witnesses and no police report filed. Repair estimate of $26,000 exceeds the vehicle's assessed value. Third party retained legal representation and filed an injury claim within days of the incident.",
+    "accidentLocation": {
+      "city": "Denver",
+      "state": "CO",
+      "region": "WEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "JM3KFBCM0N0111001",
+      "brand": "Mazda",
+      "model": "CX-5",
+      "age": 2,
+      "value": 24000
+    },
+    "driverSnapshot": {
+      "age": 34,
+      "gender": "F",
+      "licenseYears": 15
+    },
+    "policySnapshot": {
+      "startDate": "2023-06-01",
+      "endDate": "2024-06-01",
+      "premiumAmount": 1450.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2024-05-10T19:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2024-05-12T10:00:00Z"
+    },
+    "fraud": {
+      "processed": true,
+      "computedScore": 12,
+      "rawScore": 18,
+      "matchedPatterns": [
+        {
+          "patternId": "FP-003",
+          "patternName": "High-value claim amount",
+          "weight": 2
+        },
+        {
+          "patternId": "FP-004",
+          "patternName": "Claim amount exceeds vehicle's assessed value",
+          "weight": 3
+        },
+        {
+          "patternId": "FP-005",
+          "patternName": "No police report filed",
+          "weight": 2
+        },
+        {
+          "patternId": "FP-010",
+          "patternName": "No witnesses to the incident",
+          "weight": 1
+        },
+        {
+          "patternId": "FP-012",
+          "patternName": "Repair shop on internal watchlist",
+          "weight": 3
+        },
+        {
+          "patternId": "FP-013",
+          "patternName": "Staged low-speed collision with disproportionate damage",
+          "weight": 3
+        },
+        {
+          "patternId": "FP-014",
+          "patternName": "Immediate third-party legal representation",
+          "weight": 2
+        },
+        {
+          "patternId": "FP-017",
+          "patternName": "Injury severity disproportionate to vehicle damage",
+          "weight": 2
+        }
+      ],
+      "fraudFlag": true,
+      "flagSource": "HUMAN",
+      "reviewedBy": "manager:M-2010",
+      "reviewedAt": {
+        "$date": "2024-06-01T00:00:00Z"
+      },
+      "siuReferred": true,
+      "dismissReason": null
+    },
+    "thirdParty": {
+      "represented": true,
+      "injuryClaimed": true
+    }
+  },
+  {
+    "claimId": "CLM-3002",
+    "policyId": "POL-2001",
+    "customerId": "CUST-2001",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2025-01-15T20:30:00Z"
+    },
+    "reportDate": {
+      "$date": "2025-01-20T09:00:00Z"
+    },
+    "delayDays": 5,
+    "accidentTime": "20:30",
+    "claimAmount": 30000,
+    "paidAmount": 0,
+    "paymentMethod": "CHECK",
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1001",
+    "repairShop": "Coastal Auto Body",
+    "policeReport": false,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Single-vehicle collision reported at night; no police report filed and no witnesses present. Repair estimate of $30,000 exceeds the vehicle's assessed value. Third party retained legal representation and filed an injury claim shortly after the incident. Same repair shop as a prior claim on this customer's file. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Denver",
+      "state": "CO",
+      "region": "WEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "JM3KFBCM0N0111001",
+      "brand": "Mazda",
+      "model": "CX-5",
+      "age": 3,
+      "value": 28000
+    },
+    "driverSnapshot": {
+      "age": 34,
+      "gender": "F",
+      "licenseYears": 16
+    },
+    "policySnapshot": {
+      "startDate": "2024-06-01",
+      "endDate": "2025-06-01",
+      "premiumAmount": 1450.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2025-01-15T20:30:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-01-20T09:00:00Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    },
+    "thirdParty": {
+      "represented": true,
+      "injuryClaimed": true
+    }
+  },
+  {
+    "claimId": "CLM-3003",
+    "policyId": "POL-2002",
+    "customerId": "CUST-2002",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "CLOSED_DENIED",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2024-09-05T15:00:00Z"
+    },
+    "reportDate": {
+      "$date": "2024-09-08T09:00:00Z"
+    },
+    "delayDays": 3,
+    "accidentTime": "15:00",
+    "claimAmount": 22000,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1002",
+    "repairShop": "QuickFix Auto Center",
+    "policeReport": true,
+    "witnessCount": 1,
+    "escalated": false,
+    "description": "Legitimate low-speed collision confirmed by police report and an independent witness. Repair estimate from QuickFix Auto Center of $22,000 significantly exceeds the vehicle's assessed value; independent appraisal found inflated parts and labor charges.",
+    "accidentLocation": {
+      "city": "Tampa",
+      "state": "FL",
+      "region": "SOUTHEAST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "1FMCU9GD5JUA22002",
+      "brand": "Ford",
+      "model": "Explorer",
+      "age": 3,
+      "value": 20000
+    },
+    "driverSnapshot": {
+      "age": 45,
+      "gender": "M",
+      "licenseYears": 20
+    },
+    "policySnapshot": {
+      "startDate": "2024-01-01",
+      "endDate": "2025-01-01",
+      "premiumAmount": 1180.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2024-09-05T15:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2024-09-08T09:00:00Z"
+    },
+    "fraud": {
+      "processed": true,
+      "computedScore": 11,
+      "rawScore": 11,
+      "matchedPatterns": [
+        {
+          "patternId": "FP-003",
+          "patternName": "High-value claim amount",
+          "weight": 2
+        },
+        {
+          "patternId": "FP-004",
+          "patternName": "Claim amount exceeds vehicle's assessed value",
+          "weight": 3
+        },
+        {
+          "patternId": "FP-012",
+          "patternName": "Repair shop on internal watchlist",
+          "weight": 3
+        },
+        {
+          "patternId": "FP-016",
+          "patternName": "Recurring repair shop across confirmed-fraud claims",
+          "weight": 3
+        }
+      ],
+      "fraudFlag": true,
+      "flagSource": "HUMAN",
+      "reviewedBy": "manager:M-2010",
+      "reviewedAt": {
+        "$date": "2024-09-20T00:00:00Z"
+      },
+      "siuReferred": true,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3004",
+    "policyId": "POL-2003",
+    "customerId": "CUST-2003",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2025-02-10T11:00:00Z"
+    },
+    "reportDate": {
+      "$date": "2025-02-11T09:00:00Z"
+    },
+    "delayDays": 1,
+    "accidentTime": "11:00",
+    "claimAmount": 21000,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1003",
+    "repairShop": "QuickFix Auto Center",
+    "policeReport": true,
+    "witnessCount": 2,
+    "escalated": false,
+    "description": "Collision confirmed by police report and two witnesses. Repair estimate from QuickFix Auto Center of $21,000 exceeds the vehicle's assessed value — same repair shop implicated in a prior confirmed-fraud claim on a different customer's policy. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Tampa",
+      "state": "FL",
+      "region": "SOUTHEAST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "KNDPMCAC5N7113003",
+      "brand": "Kia",
+      "model": "Sportage",
+      "age": 3,
+      "value": 19000
+    },
+    "driverSnapshot": {
+      "age": 29,
+      "gender": "F",
+      "licenseYears": 8
+    },
+    "policySnapshot": {
+      "startDate": "2024-03-01",
+      "endDate": "2025-03-01",
+      "premiumAmount": 990.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2025-02-10T11:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-02-11T09:00:00Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3005",
+    "policyId": "POL-2004",
+    "customerId": "CUST-2004",
+    "claimType": "AUTO_THEFT",
+    "coverageType": "COMPREHENSIVE",
+    "claimStatus": "CLOSED_DENIED",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2024-08-15T02:00:00Z"
+    },
+    "reportDate": {
+      "$date": "2024-08-17T10:00:00Z"
+    },
+    "delayDays": 2,
+    "accidentTime": "02:00",
+    "claimAmount": 35000,
+    "paidAmount": 0,
+    "paymentMethod": null,
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1004",
+    "repairShop": null,
+    "policeReport": true,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Reported vehicle theft from the insured's driveway with no evidence of forced entry or hot-wiring. Policy was purchased approximately six weeks prior to the loss. Claimed value of $35,000 exceeds the vehicle's assessed value.",
+    "accidentLocation": {
+      "city": "Charlotte",
+      "state": "NC",
+      "region": "SOUTHEAST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "WA1BNAFY5J2114004",
+      "brand": "Audi",
+      "model": "Q5",
+      "age": 1,
+      "value": 34000
+    },
+    "driverSnapshot": {
+      "age": 39,
+      "gender": "M",
+      "licenseYears": 18
+    },
+    "policySnapshot": {
+      "startDate": "2024-07-01",
+      "endDate": "2025-07-01",
+      "premiumAmount": 1620.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2024-08-15T02:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2024-08-17T10:00:00Z"
+    },
+    "fraud": {
+      "processed": true,
+      "computedScore": 10,
+      "rawScore": 10,
+      "matchedPatterns": [
+        {
+          "patternId": "FP-003",
+          "patternName": "High-value claim amount",
+          "weight": 2
+        },
+        {
+          "patternId": "FP-004",
+          "patternName": "Claim amount exceeds vehicle's assessed value",
+          "weight": 3
+        },
+        {
+          "patternId": "FP-015",
+          "patternName": "Theft with no forced-entry evidence",
+          "weight": 3
+        },
+        {
+          "patternId": "FP-018",
+          "patternName": "New policy followed by immediate high-value claim",
+          "weight": 2
+        }
+      ],
+      "fraudFlag": true,
+      "flagSource": "HUMAN",
+      "reviewedBy": "adjuster:ADJ-1004",
+      "reviewedAt": {
+        "$date": "2024-09-10T00:00:00Z"
+      },
+      "siuReferred": true,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3006",
+    "policyId": "POL-2005",
+    "customerId": "CUST-2005",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "CLOSED",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2024-11-01T13:00:00Z"
+    },
+    "reportDate": {
+      "$date": "2024-11-16T09:00:00Z"
+    },
+    "delayDays": 15,
+    "accidentTime": "13:00",
+    "claimAmount": 4200,
+    "paidAmount": 4000,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1005",
+    "repairShop": "Cascade Auto Repair",
+    "policeReport": true,
+    "witnessCount": 1,
+    "escalated": true,
+    "description": "Minor collision at a parking lot exit; police report filed and one witness present. Claimant reported the loss 15 days after it occurred.",
+    "accidentLocation": {
+      "city": "Portland",
+      "state": "OR",
+      "region": "WEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "4S3GTAA65J3115005",
+      "brand": "Subaru",
+      "model": "Impreza",
+      "age": 4,
+      "value": 15000
+    },
+    "driverSnapshot": {
+      "age": 42,
+      "gender": "F",
+      "licenseYears": 10
+    },
+    "policySnapshot": {
+      "startDate": "2024-09-01",
+      "endDate": "2025-09-01",
+      "premiumAmount": 760.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2024-11-01T13:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2024-11-16T09:00:00Z"
+    },
+    "fraud": {
+      "processed": true,
+      "computedScore": 2,
+      "rawScore": 2,
+      "matchedPatterns": [
+        {
+          "patternId": "FP-006",
+          "patternName": "Significant reporting delay",
+          "weight": 2
+        }
+      ],
+      "fraudFlag": false,
+      "flagSource": "HUMAN",
+      "reviewedBy": "manager:M-2010",
+      "reviewedAt": {
+        "$date": "2024-11-20T00:00:00Z"
+      },
+      "siuReferred": false,
+      "dismissReason": "Reporting delay is fully explained: claimant was traveling internationally at the time of the loss and reported it promptly upon return. No other risk indicators present. Escalated automatically for review since any signal on a simple claim triggers a look; cleared on review."
+    }
+  },
+  {
+    "claimId": "CLM-3007",
+    "policyId": "POL-2006",
+    "customerId": "CUST-2006",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2025-01-05T10:00:00Z"
+    },
+    "reportDate": {
+      "$date": "2025-01-05T10:30:00Z"
+    },
+    "delayDays": 0,
+    "accidentTime": "10:00",
+    "claimAmount": 1500,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1006",
+    "repairShop": "Kim Family Auto",
+    "policeReport": true,
+    "witnessCount": 3,
+    "escalated": false,
+    "description": "Minor parking-lot collision; police report filed and three witnesses present. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Austin",
+      "state": "TX",
+      "region": "SOUTH"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "5YFBURHE1JP116006",
+      "brand": "Toyota",
+      "model": "Corolla",
+      "age": 6,
+      "value": 12000
+    },
+    "driverSnapshot": {
+      "age": 36,
+      "gender": "F",
+      "licenseYears": 22
+    },
+    "policySnapshot": {
+      "startDate": "2024-04-01",
+      "endDate": "2025-04-01",
+      "premiumAmount": 700.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2025-01-05T10:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-01-05T10:30:00Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3008",
+    "policyId": "POL-2007",
+    "customerId": "CUST-2007",
+    "claimType": "AUTO_GLASS",
+    "coverageType": "COMPREHENSIVE",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2025-03-12T08:00:00Z"
+    },
+    "reportDate": {
+      "$date": "2025-03-12T08:30:00Z"
+    },
+    "delayDays": 0,
+    "accidentTime": "08:00",
+    "claimAmount": 380,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1007",
+    "repairShop": "ClearView Glass",
+    "policeReport": false,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Windshield crack attributed to road debris. Straightforward glass-only claim. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Minneapolis",
+      "state": "MN",
+      "region": "MIDWEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "1N4AL3AP1JC117007",
+      "brand": "Nissan",
+      "model": "Altima",
+      "age": 5,
+      "value": 16000
+    },
+    "driverSnapshot": {
+      "age": 33,
+      "gender": "M",
+      "licenseYears": 14
+    },
+    "policySnapshot": {
+      "startDate": "2024-10-01",
+      "endDate": "2025-10-01",
+      "premiumAmount": 650.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2025-03-12T08:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-03-12T08:30:00Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3009",
+    "policyId": "POL-2008",
+    "customerId": "CUST-2008",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2025-01-20T14:00:00Z"
+    },
+    "reportDate": {
+      "$date": "2025-01-21T09:00:00Z"
+    },
+    "delayDays": 1,
+    "accidentTime": "14:00",
+    "claimAmount": 3000,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1008",
+    "repairShop": "Brooks Collision Center",
+    "policeReport": false,
+    "witnessCount": 1,
+    "escalated": false,
+    "description": "Minor collision with a parked vehicle; one witness present. No police report was filed for the incident. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "San Diego",
+      "state": "CA",
+      "region": "WEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "2GNAXUEV1J6118008",
+      "brand": "Chevrolet",
+      "model": "Equinox",
+      "age": 4,
+      "value": 17000
+    },
+    "driverSnapshot": {
+      "age": 31,
+      "gender": "F",
+      "licenseYears": 11
+    },
+    "policySnapshot": {
+      "startDate": "2024-02-01",
+      "endDate": "2025-02-01",
+      "premiumAmount": 820.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2025-01-20T14:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-01-21T09:00:00Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3010",
+    "policyId": "POL-2009",
+    "customerId": "CUST-2009",
+    "claimType": "AUTO_THEFT",
+    "coverageType": "COMPREHENSIVE",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2025-01-10T03:00:00Z"
+    },
+    "reportDate": {
+      "$date": "2025-01-12T09:00:00Z"
+    },
+    "delayDays": 2,
+    "accidentTime": "03:00",
+    "claimAmount": 32000,
+    "paidAmount": 0,
+    "paymentMethod": null,
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1009",
+    "repairShop": null,
+    "policeReport": true,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Reported vehicle theft with no evidence of forced entry. Policy was purchased approximately six weeks prior to the loss. Claimed value of $32,000 exceeds the vehicle's assessed value. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Phoenix",
+      "state": "AZ",
+      "region": "WEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "WBA5A5C50FD119009",
+      "brand": "BMW",
+      "model": "3 Series",
+      "age": 3,
+      "value": 30000
+    },
+    "driverSnapshot": {
+      "age": 37,
+      "gender": "M",
+      "licenseYears": 9
+    },
+    "policySnapshot": {
+      "startDate": "2024-12-01",
+      "endDate": "2025-12-01",
+      "premiumAmount": 1500.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2025-01-10T03:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-01-12T09:00:00Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3011",
+    "policyId": "POL-2010",
+    "customerId": "CUST-2010",
+    "claimType": "AUTO_GLASS",
+    "coverageType": "COMPREHENSIVE",
+    "claimStatus": "CLOSED",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2024-07-01T10:00:00Z"
+    },
+    "reportDate": {
+      "$date": "2024-07-01T10:30:00Z"
+    },
+    "delayDays": 0,
+    "accidentTime": "10:00",
+    "claimAmount": 320,
+    "paidAmount": 300,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1010",
+    "repairShop": "Coleman Glass Co",
+    "policeReport": false,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Windshield chip attributed to road debris while driving on the highway. Straightforward glass-only claim.",
+    "accidentLocation": {
+      "city": "Raleigh",
+      "state": "NC",
+      "region": "SOUTHEAST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "5J6RM4H79JL120010",
+      "brand": "Honda",
+      "model": "CR-V",
+      "age": 3,
+      "value": 18000
+    },
+    "driverSnapshot": {
+      "age": 44,
+      "gender": "M",
+      "licenseYears": 19
+    },
+    "policySnapshot": {
+      "startDate": "2024-05-01",
+      "endDate": "2025-05-01",
+      "premiumAmount": 900.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2024-07-01T10:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2024-07-01T10:30:00Z"
+    },
+    "fraud": {
+      "processed": true,
+      "computedScore": 0,
+      "rawScore": 0,
+      "matchedPatterns": [],
+      "fraudFlag": false,
+      "flagSource": "SYSTEM",
+      "reviewedBy": null,
+      "reviewedAt": {
+        "$date": "2024-07-01T11:00:00Z"
+      },
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3012",
+    "policyId": "POL-2010",
+    "customerId": "CUST-2010",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2025-02-15T09:00:00Z"
+    },
+    "reportDate": {
+      "$date": "2025-02-15T09:30:00Z"
+    },
+    "delayDays": 0,
+    "accidentTime": "09:00",
+    "claimAmount": 1800,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1010",
+    "repairShop": "City Auto Works",
+    "policeReport": true,
+    "witnessCount": 2,
+    "escalated": false,
+    "description": "Minor collision confirmed by police report and two witnesses. Second claim on file for this customer within roughly seven months. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Raleigh",
+      "state": "NC",
+      "region": "SOUTHEAST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "5J6RM4H79JL120010",
+      "brand": "Honda",
+      "model": "CR-V",
+      "age": 4,
+      "value": 18000
+    },
+    "driverSnapshot": {
+      "age": 45,
+      "gender": "M",
+      "licenseYears": 20
+    },
+    "policySnapshot": {
+      "startDate": "2024-05-01",
+      "endDate": "2025-05-01",
+      "premiumAmount": 900.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2025-02-15T09:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-02-15T09:30:00Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3013",
+    "policyId": "POL-2011",
+    "customerId": "CUST-2011",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2025-01-28T16:00:00Z"
+    },
+    "reportDate": {
+      "$date": "2025-01-28T18:00:00Z"
+    },
+    "delayDays": 0,
+    "accidentTime": "16:00",
+    "claimAmount": 9000,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1011",
+    "repairShop": "Pierce Family Motors",
+    "policeReport": true,
+    "witnessCount": 1,
+    "escalated": false,
+    "description": "Collision confirmed by police report and one witness, occurring eight days after the policy's effective date. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Salt Lake City",
+      "state": "UT",
+      "region": "WEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "5NPD84LF1JH121011",
+      "brand": "Hyundai",
+      "model": "Elantra",
+      "age": 4,
+      "value": 14000
+    },
+    "driverSnapshot": {
+      "age": 27,
+      "gender": "F",
+      "licenseYears": 6
+    },
+    "policySnapshot": {
+      "startDate": "2025-01-20",
+      "endDate": "2026-01-20",
+      "premiumAmount": 720.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2025-01-28T16:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-01-28T18:00:00Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3014",
+    "policyId": "POL-2012",
+    "customerId": "CUST-2012",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2025-01-05T12:00:00Z"
+    },
+    "reportDate": {
+      "$date": "2025-01-07T09:00:00Z"
+    },
+    "delayDays": 2,
+    "accidentTime": "12:00",
+    "claimAmount": 8500,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1012",
+    "repairShop": "Voss Auto",
+    "policeReport": true,
+    "witnessCount": 1,
+    "escalated": false,
+    "description": "Collision confirmed by police report and one witness. Vehicle was recently transferred to the newly-licensed driver by a family member. Repair estimate exceeds the vehicle's assessed value on an aging vehicle. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Kansas City",
+      "state": "MO",
+      "region": "MIDWEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "1G4HP54K85U122012",
+      "brand": "Buick",
+      "model": "LeSabre",
+      "age": 9,
+      "value": 7800
+    },
+    "driverSnapshot": {
+      "age": 18,
+      "gender": "M",
+      "licenseYears": 1
+    },
+    "policySnapshot": {
+      "startDate": "2024-04-01",
+      "endDate": "2025-04-01",
+      "premiumAmount": 610.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2025-01-05T12:00:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-01-07T09:00:00Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3015",
+    "policyId": "POL-2002",
+    "customerId": "CUST-2002",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2024-12-27T17:45:00Z"
+    },
+    "reportDate": {
+      "$date": "2024-12-28T09:30:00Z"
+    },
+    "delayDays": 1,
+    "accidentTime": "17:45",
+    "claimAmount": 2400,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1002",
+    "repairShop": "QuickFix Auto Center",
+    "policeReport": true,
+    "witnessCount": 2,
+    "escalated": false,
+    "description": "Rear-ended at a traffic light; police report filed and two witnesses present. Repair estimate of $2,400 from QuickFix Auto Center. Loss occurred five days before the policy's expiration date. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Tampa",
+      "state": "FL",
+      "region": "SOUTHEAST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "1FMCU9GD5JUA22002",
+      "brand": "Ford",
+      "model": "Explorer",
+      "age": 3,
+      "value": 20000
+    },
+    "driverSnapshot": {
+      "age": 46,
+      "gender": "M",
+      "licenseYears": 20
+    },
+    "policySnapshot": {
+      "startDate": "2024-01-01",
+      "endDate": "2025-01-01",
+      "premiumAmount": 1180.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2024-12-27T17:45:00Z"
+    },
+    "updatedAt": {
+      "$date": "2024-12-28T09:30:00Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3016",
+    "policyId": "POL-2008",
+    "customerId": "CUST-2008",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2025-01-30T12:15:00Z"
+    },
+    "reportDate": {
+      "$date": "2025-01-31T09:00:00Z"
+    },
+    "delayDays": 1,
+    "accidentTime": "12:15",
+    "claimAmount": 5600,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1008",
+    "repairShop": "Pacific Coast Collision",
+    "policeReport": true,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Rear-end collision on a freeway on-ramp; police report filed but no independent witnesses. Second collision claim on this policy within ten days, with a different repair shop than the first. Loss occurred two days before the policy's expiration date. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "San Diego",
+      "state": "CA",
+      "region": "WEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "2GNAXUEV1J6118008",
+      "brand": "Chevrolet",
+      "model": "Equinox",
+      "age": 4,
+      "value": 17000
+    },
+    "driverSnapshot": {
+      "age": 31,
+      "gender": "F",
+      "licenseYears": 11
+    },
+    "policySnapshot": {
+      "startDate": "2024-02-01",
+      "endDate": "2025-02-01",
+      "premiumAmount": 820.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2025-01-30T12:15:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-01-31T09:00:00Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3017",
+    "policyId": "POL-2011",
+    "customerId": "CUST-2011",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2025-02-04T16:40:00Z"
+    },
+    "reportDate": {
+      "$date": "2025-02-14T09:00:00Z"
+    },
+    "delayDays": 10,
+    "accidentTime": "16:40",
+    "claimAmount": 3100,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1011",
+    "repairShop": "Pierce Family Motors",
+    "policeReport": false,
+    "witnessCount": 1,
+    "escalated": false,
+    "description": "Minor collision at an intersection; one witness present but no police report filed. Claimant reported the loss ten days after it occurred. Second claim on this policy within its first month, using the same repair shop as the first. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Salt Lake City",
+      "state": "UT",
+      "region": "WEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "5NPD84LF1JH121011",
+      "brand": "Hyundai",
+      "model": "Elantra",
+      "age": 4,
+      "value": 14000
+    },
+    "driverSnapshot": {
+      "age": 27,
+      "gender": "F",
+      "licenseYears": 6
+    },
+    "policySnapshot": {
+      "startDate": "2025-01-20",
+      "endDate": "2026-01-20",
+      "premiumAmount": 720.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2025-02-04T16:40:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-02-14T09:00:00Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3018",
+    "policyId": "POL-2003",
+    "customerId": "CUST-2003",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2025-02-24T18:40:00Z"
+    },
+    "reportDate": {
+      "$date": "2025-02-28T10:00:00Z"
+    },
+    "delayDays": 4,
+    "accidentTime": "18:40",
+    "claimAmount": 3900,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1003",
+    "repairShop": "Bayside Auto Care",
+    "policeReport": false,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Hit-and-run damage discovered in a parking garage; no police report filed and no witnesses. Repair estimate of $3,900 from Bayside Auto Care. Loss occurred five days before the policy's expiration date. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Tampa",
+      "state": "FL",
+      "region": "SOUTHEAST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "KNDPMCAC5N7113003",
+      "brand": "Kia",
+      "model": "Sportage",
+      "age": 3,
+      "value": 19000
+    },
+    "driverSnapshot": {
+      "age": 29,
+      "gender": "F",
+      "licenseYears": 8
+    },
+    "policySnapshot": {
+      "startDate": "2024-03-01",
+      "endDate": "2025-03-01",
+      "premiumAmount": 990.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2025-02-24T18:40:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-02-28T10:00:00Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3019",
+    "policyId": "POL-2004",
+    "customerId": "CUST-2004",
+    "claimType": "AUTO_GLASS",
+    "coverageType": "COMPREHENSIVE",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2025-03-04T09:20:00Z"
+    },
+    "reportDate": {
+      "$date": "2025-03-04T09:50:00Z"
+    },
+    "delayDays": 0,
+    "accidentTime": "09:20",
+    "claimAmount": 680,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1004",
+    "repairShop": "Piedmont Auto Glass",
+    "policeReport": false,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Windshield crack from road debris on the highway; glass-only claim including driver-assistance sensor recalibration. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Charlotte",
+      "state": "NC",
+      "region": "SOUTHEAST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "WA1BNAFY5J2114004",
+      "brand": "Audi",
+      "model": "Q5",
+      "age": 2,
+      "value": 34000
+    },
+    "driverSnapshot": {
+      "age": 39,
+      "gender": "M",
+      "licenseYears": 18
+    },
+    "policySnapshot": {
+      "startDate": "2024-07-01",
+      "endDate": "2025-07-01",
+      "premiumAmount": 1620.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2025-03-04T09:20:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-03-04T09:50:00Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3020",
+    "policyId": "POL-2012",
+    "customerId": "CUST-2012",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2025-03-09T23:45:00Z"
+    },
+    "reportDate": {
+      "$date": "2025-03-12T10:00:00Z"
+    },
+    "delayDays": 3,
+    "accidentTime": "23:45",
+    "claimAmount": 7800,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1012",
+    "repairShop": "Voss Auto",
+    "policeReport": false,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Single-vehicle collision with a tree late at night; no police report filed and no witnesses. Repair estimate equals the vehicle's full assessed value on an aging vehicle. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Kansas City",
+      "state": "MO",
+      "region": "MIDWEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "1G4HP54K85U122012",
+      "brand": "Buick",
+      "model": "LeSabre",
+      "age": 9,
+      "value": 7800
+    },
+    "driverSnapshot": {
+      "age": 18,
+      "gender": "M",
+      "licenseYears": 1
+    },
+    "policySnapshot": {
+      "startDate": "2024-04-01",
+      "endDate": "2025-04-01",
+      "premiumAmount": 610.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2025-03-09T23:45:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-03-12T10:00:00Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3021",
+    "policyId": "POL-2001",
+    "customerId": "CUST-2001",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2025-03-18T08:15:00Z"
+    },
+    "reportDate": {
+      "$date": "2025-03-20T10:00:00Z"
+    },
+    "delayDays": 2,
+    "accidentTime": "08:15",
+    "claimAmount": 4800,
+    "paidAmount": 0,
+    "paymentMethod": "CHECK",
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1001",
+    "repairShop": "Mile High Collision",
+    "policeReport": true,
+    "witnessCount": 1,
+    "escalated": false,
+    "description": "Minor collision in a shopping-center parking lot; police report filed and one witness present. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Denver",
+      "state": "CO",
+      "region": "WEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "JM3KFBCM0N0111001",
+      "brand": "Mazda",
+      "model": "CX-5",
+      "age": 3,
+      "value": 28000
+    },
+    "driverSnapshot": {
+      "age": 35,
+      "gender": "F",
+      "licenseYears": 16
+    },
+    "policySnapshot": {
+      "startDate": "2024-06-01",
+      "endDate": "2025-06-01",
+      "premiumAmount": 1450.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 2,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2025-03-18T08:15:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-03-20T10:00:00Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3022",
+    "policyId": "POL-2006",
+    "customerId": "CUST-2006",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2025-03-26T22:10:00Z"
+    },
+    "reportDate": {
+      "$date": "2025-04-01T09:00:00Z"
+    },
+    "delayDays": 6,
+    "accidentTime": "22:10",
+    "claimAmount": 13500,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1006",
+    "repairShop": "Lone Star Collision",
+    "policeReport": true,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Single-vehicle collision with a highway guardrail at night; police report filed but no witnesses. Repair estimate of $13,500 from Lone Star Collision exceeds the vehicle's assessed value. Loss occurred six days before the policy's expiration date and was reported on the expiration date. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Austin",
+      "state": "TX",
+      "region": "SOUTH"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "5YFBURHE1JP116006",
+      "brand": "Toyota",
+      "model": "Corolla",
+      "age": 6,
+      "value": 12000
+    },
+    "driverSnapshot": {
+      "age": 36,
+      "gender": "F",
+      "licenseYears": 22
+    },
+    "policySnapshot": {
+      "startDate": "2024-04-01",
+      "endDate": "2025-04-01",
+      "premiumAmount": 700.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2025-03-26T22:10:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-04-01T09:00:00Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3023",
+    "policyId": "POL-2010",
+    "customerId": "CUST-2010",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2025-04-25T17:30:00Z"
+    },
+    "reportDate": {
+      "$date": "2025-04-25T18:00:00Z"
+    },
+    "delayDays": 0,
+    "accidentTime": "17:30",
+    "claimAmount": 2750,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1010",
+    "repairShop": "City Auto Works",
+    "policeReport": true,
+    "witnessCount": 1,
+    "escalated": false,
+    "description": "Side-swipe in a parking structure; police report filed and one witness present. Third claim on file for this customer in under ten months, and the second at the same repair shop. Loss occurred six days before the policy's expiration date. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Raleigh",
+      "state": "NC",
+      "region": "SOUTHEAST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "5J6RM4H79JL120010",
+      "brand": "Honda",
+      "model": "CR-V",
+      "age": 4,
+      "value": 18000
+    },
+    "driverSnapshot": {
+      "age": 45,
+      "gender": "M",
+      "licenseYears": 20
+    },
+    "policySnapshot": {
+      "startDate": "2024-05-01",
+      "endDate": "2025-05-01",
+      "premiumAmount": 900.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 2,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2025-04-25T17:30:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-04-25T18:00:00Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3024",
+    "policyId": "POL-2005",
+    "customerId": "CUST-2005",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2025-05-14T06:30:00Z"
+    },
+    "reportDate": {
+      "$date": "2025-05-15T08:00:00Z"
+    },
+    "delayDays": 1,
+    "accidentTime": "06:30",
+    "claimAmount": 3400,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1005",
+    "repairShop": "Cascade Auto Repair",
+    "policeReport": true,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Collision with a deer on a rural road at dawn; police report filed, no witnesses. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Portland",
+      "state": "OR",
+      "region": "WEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "4S3GTAA65J3115005",
+      "brand": "Subaru",
+      "model": "Impreza",
+      "age": 5,
+      "value": 15000
+    },
+    "driverSnapshot": {
+      "age": 43,
+      "gender": "F",
+      "licenseYears": 10
+    },
+    "policySnapshot": {
+      "startDate": "2024-09-01",
+      "endDate": "2025-09-01",
+      "premiumAmount": 760.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2025-05-14T06:30:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-05-15T08:00:00Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3025",
+    "policyId": "POL-2001",
+    "customerId": "CUST-2001",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2025-05-25T21:50:00Z"
+    },
+    "reportDate": {
+      "$date": "2025-05-27T09:00:00Z"
+    },
+    "delayDays": 2,
+    "accidentTime": "21:50",
+    "claimAmount": 20000,
+    "paidAmount": 0,
+    "paymentMethod": "CHECK",
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1001",
+    "repairShop": "Coastal Auto Body",
+    "policeReport": true,
+    "witnessCount": 1,
+    "escalated": false,
+    "description": "Collision with a stationary object at an intersection at night; police report filed and one witness present. Repair estimate of $20,000 from Coastal Auto Body, the same shop used on two earlier claims on this customer's file. Loss occurred seven days before the policy's expiration date. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Denver",
+      "state": "CO",
+      "region": "WEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "JM3KFBCM0N0111001",
+      "brand": "Mazda",
+      "model": "CX-5",
+      "age": 3,
+      "value": 28000
+    },
+    "driverSnapshot": {
+      "age": 35,
+      "gender": "F",
+      "licenseYears": 16
+    },
+    "policySnapshot": {
+      "startDate": "2024-06-01",
+      "endDate": "2025-06-01",
+      "premiumAmount": 1450.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 3,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2025-05-25T21:50:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-05-27T09:00:00Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3026",
+    "policyId": "POL-2007",
+    "customerId": "CUST-2007",
+    "claimType": "AUTO_THEFT",
+    "coverageType": "COMPREHENSIVE",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2025-07-08T04:30:00Z"
+    },
+    "reportDate": {
+      "$date": "2025-07-09T08:30:00Z"
+    },
+    "delayDays": 1,
+    "accidentTime": "04:30",
+    "claimAmount": 2900,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1007",
+    "repairShop": "Northstar Exhaust & Muffler",
+    "policeReport": true,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Catalytic converter reported stolen overnight from the insured's apartment parking lot; police report filed, no witnesses. Replacement estimate of $2,900. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Minneapolis",
+      "state": "MN",
+      "region": "MIDWEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "1N4AL3AP1JC117007",
+      "brand": "Nissan",
+      "model": "Altima",
+      "age": 5,
+      "value": 16000
+    },
+    "driverSnapshot": {
+      "age": 34,
+      "gender": "M",
+      "licenseYears": 14
+    },
+    "policySnapshot": {
+      "startDate": "2024-10-01",
+      "endDate": "2025-10-01",
+      "premiumAmount": 650.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2025-07-08T04:30:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-07-09T08:30:00Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3027",
+    "policyId": "POL-2005",
+    "customerId": "CUST-2005",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2025-08-28T07:50:00Z"
+    },
+    "reportDate": {
+      "$date": "2025-08-30T10:00:00Z"
+    },
+    "delayDays": 2,
+    "accidentTime": "07:50",
+    "claimAmount": 16200,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1005",
+    "repairShop": "Cascade Auto Repair",
+    "policeReport": true,
+    "witnessCount": 2,
+    "escalated": false,
+    "description": "Intersection collision confirmed by police report and two witnesses; vehicle is a probable total loss. Repair estimate of $16,200 from Cascade Auto Repair exceeds the vehicle's assessed value. Loss occurred four days before the policy's expiration date. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Portland",
+      "state": "OR",
+      "region": "WEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "4S3GTAA65J3115005",
+      "brand": "Subaru",
+      "model": "Impreza",
+      "age": 5,
+      "value": 15000
+    },
+    "driverSnapshot": {
+      "age": 43,
+      "gender": "F",
+      "licenseYears": 10
+    },
+    "policySnapshot": {
+      "startDate": "2024-09-01",
+      "endDate": "2025-09-01",
+      "premiumAmount": 760.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 2,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2025-08-28T07:50:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-08-30T10:00:00Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3028",
+    "policyId": "POL-2011",
+    "customerId": "CUST-2011",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2025-09-12T15:20:00Z"
+    },
+    "reportDate": {
+      "$date": "2025-09-13T09:00:00Z"
+    },
+    "delayDays": 1,
+    "accidentTime": "15:20",
+    "claimAmount": 2200,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1011",
+    "repairShop": "Wasatch Auto Body",
+    "policeReport": true,
+    "witnessCount": 2,
+    "escalated": false,
+    "description": "Low-speed collision in a retail parking lot; police report filed and two witnesses present. The other driver acknowledged fault at the scene. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Salt Lake City",
+      "state": "UT",
+      "region": "WEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "5NPD84LF1JH121011",
+      "brand": "Hyundai",
+      "model": "Elantra",
+      "age": 4,
+      "value": 14000
+    },
+    "driverSnapshot": {
+      "age": 27,
+      "gender": "F",
+      "licenseYears": 6
+    },
+    "policySnapshot": {
+      "startDate": "2025-01-20",
+      "endDate": "2026-01-20",
+      "premiumAmount": 720.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 2,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2025-09-12T15:20:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-09-13T09:00:00Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3029",
+    "policyId": "POL-2007",
+    "customerId": "CUST-2007",
+    "claimType": "AUTO_GLASS",
+    "coverageType": "COMPREHENSIVE",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2025-09-27T13:10:00Z"
+    },
+    "reportDate": {
+      "$date": "2025-09-27T13:40:00Z"
+    },
+    "delayDays": 0,
+    "accidentTime": "13:10",
+    "claimAmount": 410,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1007",
+    "repairShop": "ClearView Glass",
+    "policeReport": false,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Windshield chip attributed to road debris; glass-only claim at the same shop as a prior glass claim earlier this year. Loss occurred four days before the policy's expiration date. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Minneapolis",
+      "state": "MN",
+      "region": "MIDWEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "1N4AL3AP1JC117007",
+      "brand": "Nissan",
+      "model": "Altima",
+      "age": 5,
+      "value": 16000
+    },
+    "driverSnapshot": {
+      "age": 34,
+      "gender": "M",
+      "licenseYears": 14
+    },
+    "policySnapshot": {
+      "startDate": "2024-10-01",
+      "endDate": "2025-10-01",
+      "premiumAmount": 650.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 2,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2025-09-27T13:10:00Z"
+    },
+    "updatedAt": {
+      "$date": "2025-09-27T13:40:00Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3030",
+    "policyId": "POL-2017",
+    "customerId": "CUST-2017",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2026-02-20T17:05:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-02-20T18:00:00.000Z"
+    },
+    "delayDays": 0,
+    "accidentTime": "17:05",
+    "claimAmount": 2900,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1017",
+    "repairShop": "Emerald City Collision",
+    "policeReport": true,
+    "witnessCount": 1,
+    "escalated": false,
+    "description": "Rear-end collision at a stoplight in wet conditions; police report filed and one witness present. Repair estimate of $2,900 from Emerald City Collision. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Seattle",
+      "state": "WA",
+      "region": "WEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "5YJ3E1EA7MF127017",
+      "brand": "Tesla",
+      "model": "Model 3",
+      "age": 5,
+      "value": 27000
+    },
+    "driverSnapshot": {
+      "age": 36,
+      "gender": "F",
+      "licenseYears": 15
+    },
+    "policySnapshot": {
+      "startDate": "2026-01-15",
+      "endDate": "2027-01-15",
+      "premiumAmount": 1520.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-02-20T17:05:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-02-20T18:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3031",
+    "policyId": "POL-2015",
+    "customerId": "CUST-2015",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2026-03-10T23:30:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-03-15T11:00:00.000Z"
+    },
+    "delayDays": 5,
+    "accidentTime": "23:30",
+    "claimAmount": 16800,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1015",
+    "repairShop": "Windy City Collision",
+    "policeReport": false,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Single-vehicle collision with a concrete barrier late at night; no police report filed and no witnesses. Repair estimate of $16,800 from Windy City Collision exceeds the vehicle's assessed value. Loss occurred nine days after the policy's effective date and was reported five days later. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Chicago",
+      "state": "IL",
+      "region": "MIDWEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "2HGFC2F69KH125015",
+      "brand": "Honda",
+      "model": "Civic",
+      "age": 7,
+      "value": 15500
+    },
+    "driverSnapshot": {
+      "age": 26,
+      "gender": "F",
+      "licenseYears": 7
+    },
+    "policySnapshot": {
+      "startDate": "2026-03-01",
+      "endDate": "2027-03-01",
+      "premiumAmount": 1020.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-03-10T23:30:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-15T11:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3032",
+    "policyId": "POL-2014",
+    "customerId": "CUST-2014",
+    "claimType": "AUTO_GLASS",
+    "coverageType": "COMPREHENSIVE",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2026-04-03T07:40:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-04-03T08:10:00.000Z"
+    },
+    "delayDays": 0,
+    "accidentTime": "07:40",
+    "claimAmount": 540,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1014",
+    "repairShop": "Peach State Auto Glass",
+    "policeReport": false,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Windshield chip from road debris on the interstate; glass-only claim. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Atlanta",
+      "state": "GA",
+      "region": "SOUTHEAST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "1FTEW1EP5LKF24014",
+      "brand": "Ford",
+      "model": "F-150",
+      "age": 6,
+      "value": 31000
+    },
+    "driverSnapshot": {
+      "age": 50,
+      "gender": "M",
+      "licenseYears": 28
+    },
+    "policySnapshot": {
+      "startDate": "2025-11-01",
+      "endDate": "2026-11-01",
+      "premiumAmount": 1690.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-04-03T07:40:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-04-03T08:10:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3033",
+    "policyId": "POL-2016",
+    "customerId": "CUST-2016",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2026-05-19T14:10:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-05-21T09:30:00.000Z"
+    },
+    "delayDays": 2,
+    "accidentTime": "14:10",
+    "claimAmount": 21500,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1016",
+    "repairShop": "Trinity Collision & Paint",
+    "policeReport": true,
+    "witnessCount": 2,
+    "escalated": false,
+    "description": "Collision at a signalized intersection; police report filed and two witnesses present. Repair estimate of $21,500 from Trinity Collision & Paint. A passenger in the other vehicle claims neck injury and retained an attorney within three days. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Dallas",
+      "state": "TX",
+      "region": "SOUTH"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "3GCUKREC8JG126016",
+      "brand": "Chevrolet",
+      "model": "Silverado 1500",
+      "age": 8,
+      "value": 24000
+    },
+    "driverSnapshot": {
+      "age": 34,
+      "gender": "M",
+      "licenseYears": 12
+    },
+    "policySnapshot": {
+      "startDate": "2025-10-15",
+      "endDate": "2026-10-15",
+      "premiumAmount": 1310.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-05-19T14:10:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-05-21T09:30:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    },
+    "thirdParty": {
+      "represented": true,
+      "injuryClaimed": true
+    }
+  },
+  {
+    "claimId": "CLM-3034",
+    "policyId": "POL-2013",
+    "customerId": "CUST-2013",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2026-06-12T08:20:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-06-13T10:00:00.000Z"
+    },
+    "delayDays": 1,
+    "accidentTime": "08:20",
+    "claimAmount": 3800,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1013",
+    "repairShop": "Back Bay Auto Body",
+    "policeReport": true,
+    "witnessCount": 1,
+    "escalated": false,
+    "description": "Minor collision at a parking-garage exit; police report filed and one witness present. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Boston",
+      "state": "MA",
+      "region": "NORTHEAST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "4S4BTAAC5N3123013",
+      "brand": "Subaru",
+      "model": "Outback",
+      "age": 4,
+      "value": 26000
+    },
+    "driverSnapshot": {
+      "age": 41,
+      "gender": "F",
+      "licenseYears": 20
+    },
+    "policySnapshot": {
+      "startDate": "2026-02-01",
+      "endDate": "2027-02-01",
+      "premiumAmount": 1380.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-06-12T08:20:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-13T10:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3035",
+    "policyId": "POL-2018",
+    "customerId": "CUST-2018",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2026-07-22T01:50:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-08-03T10:00:00.000Z"
+    },
+    "delayDays": 12,
+    "accidentTime": "01:50",
+    "claimAmount": 9800,
+    "paidAmount": 0,
+    "paymentMethod": "CHECK",
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1018",
+    "repairShop": "Calle Ocho Auto Repair",
+    "policeReport": false,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Single-vehicle collision with a highway median wall in the early morning hours; no police report filed and no witnesses. Repair estimate of $9,800 from Calle Ocho Auto Repair exceeds the vehicle's assessed value on an aging vehicle. Claim reported twelve days after the loss. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Miami",
+      "state": "FL",
+      "region": "SOUTHEAST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "4T1BF1FK5CU128018",
+      "brand": "Toyota",
+      "model": "Camry",
+      "age": 14,
+      "value": 6500
+    },
+    "driverSnapshot": {
+      "age": 58,
+      "gender": "M",
+      "licenseYears": 33
+    },
+    "policySnapshot": {
+      "startDate": "2025-12-01",
+      "endDate": "2026-12-01",
+      "premiumAmount": 910.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-07-22T01:50:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-03T10:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3036",
+    "policyId": "POL-2017",
+    "customerId": "CUST-2017",
+    "claimType": "AUTO_GLASS",
+    "coverageType": "COMPREHENSIVE",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2026-08-14T12:30:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-08-14T13:00:00.000Z"
+    },
+    "delayDays": 0,
+    "accidentTime": "12:30",
+    "claimAmount": 1350,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1017",
+    "repairShop": "Puget Sound Glass",
+    "policeReport": false,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Panoramic glass roof cracked by road debris; glass-only claim. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Seattle",
+      "state": "WA",
+      "region": "WEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "5YJ3E1EA7MF127017",
+      "brand": "Tesla",
+      "model": "Model 3",
+      "age": 5,
+      "value": 27000
+    },
+    "driverSnapshot": {
+      "age": 36,
+      "gender": "F",
+      "licenseYears": 15
+    },
+    "policySnapshot": {
+      "startDate": "2026-01-15",
+      "endDate": "2027-01-15",
+      "premiumAmount": 1520.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-08-14T12:30:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-14T13:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3037",
+    "policyId": "POL-2018",
+    "customerId": "CUST-2018",
+    "claimType": "AUTO_THEFT",
+    "coverageType": "COMPREHENSIVE",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2026-09-26T04:15:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-09-27T09:00:00.000Z"
+    },
+    "delayDays": 1,
+    "accidentTime": "04:15",
+    "claimAmount": 8200,
+    "paidAmount": 0,
+    "paymentMethod": null,
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1018",
+    "repairShop": null,
+    "policeReport": true,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Vehicle reported stolen from the street outside the insured's residence; police report filed, no witnesses and no evidence of forced entry. Claimed value of $8,200 exceeds the vehicle's assessed value. Vehicle was the subject of an open collision claim at the time of the loss. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Miami",
+      "state": "FL",
+      "region": "SOUTHEAST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "4T1BF1FK5CU128018",
+      "brand": "Toyota",
+      "model": "Camry",
+      "age": 14,
+      "value": 6500
+    },
+    "driverSnapshot": {
+      "age": 58,
+      "gender": "M",
+      "licenseYears": 33
+    },
+    "policySnapshot": {
+      "startDate": "2025-12-01",
+      "endDate": "2026-12-01",
+      "premiumAmount": 910.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-09-26T04:15:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-09-27T09:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3038",
+    "policyId": "POL-2014",
+    "customerId": "CUST-2014",
+    "claimType": "AUTO_THEFT",
+    "coverageType": "COMPREHENSIVE",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2026-10-02T03:10:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-10-03T09:00:00.000Z"
+    },
+    "delayDays": 1,
+    "accidentTime": "03:10",
+    "claimAmount": 33500,
+    "paidAmount": 0,
+    "paymentMethod": null,
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1014",
+    "repairShop": null,
+    "policeReport": true,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Pickup truck reported stolen overnight from a shopping-center parking lot; police report filed, no witnesses and no evidence of forced entry. Claimed value of $33,500 exceeds the vehicle's assessed value. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Atlanta",
+      "state": "GA",
+      "region": "SOUTHEAST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "1FTEW1EP5LKF24014",
+      "brand": "Ford",
+      "model": "F-150",
+      "age": 6,
+      "value": 31000
+    },
+    "driverSnapshot": {
+      "age": 51,
+      "gender": "M",
+      "licenseYears": 28
+    },
+    "policySnapshot": {
+      "startDate": "2025-11-01",
+      "endDate": "2026-11-01",
+      "premiumAmount": 1690.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-10-02T03:10:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-03T09:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3039",
+    "policyId": "POL-2016",
+    "customerId": "CUST-2016",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2026-10-08T18:45:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-10-11T10:00:00.000Z"
+    },
+    "delayDays": 3,
+    "accidentTime": "18:45",
+    "claimAmount": 4100,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1016",
+    "repairShop": "Trinity Collision & Paint",
+    "policeReport": true,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Minor collision in a parking lot; police report filed but no witnesses. Second collision claim for this customer in under five months, at the same repair shop as the first. Loss occurred a week before the policy's expiration date. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Dallas",
+      "state": "TX",
+      "region": "SOUTH"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "3GCUKREC8JG126016",
+      "brand": "Chevrolet",
+      "model": "Silverado 1500",
+      "age": 8,
+      "value": 24000
+    },
+    "driverSnapshot": {
+      "age": 34,
+      "gender": "M",
+      "licenseYears": 12
+    },
+    "policySnapshot": {
+      "startDate": "2025-10-15",
+      "endDate": "2026-10-15",
+      "premiumAmount": 1310.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-10-08T18:45:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-11T10:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3040",
+    "policyId": "POL-2022",
+    "customerId": "CUST-2022",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2025-12-05T08:50:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2025-12-06T09:00:00.000Z"
+    },
+    "delayDays": 1,
+    "accidentTime": "08:50",
+    "claimAmount": 4400,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1022",
+    "repairShop": "Space City Auto Body",
+    "policeReport": true,
+    "witnessCount": 1,
+    "escalated": false,
+    "description": "Rear-ended on the freeway during morning traffic; police report filed and one witness present. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Houston",
+      "state": "TX",
+      "region": "SOUTH"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "5UX53DP08M9F32022",
+      "brand": "BMW",
+      "model": "X3",
+      "age": 4,
+      "value": 36000
+    },
+    "driverSnapshot": {
+      "age": 46,
+      "gender": "M",
+      "licenseYears": 25
+    },
+    "policySnapshot": {
+      "startDate": "2025-09-01",
+      "endDate": "2026-09-01",
+      "premiumAmount": 1880.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2025-12-05T08:50:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2025-12-06T09:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3041",
+    "policyId": "POL-2024",
+    "customerId": "CUST-2024",
+    "claimType": "AUTO_THEFT",
+    "coverageType": "COMPREHENSIVE",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2026-01-18T05:30:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-01-20T09:00:00.000Z"
+    },
+    "delayDays": 2,
+    "accidentTime": "05:30",
+    "claimAmount": 21000,
+    "paidAmount": 0,
+    "paymentMethod": null,
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1024",
+    "repairShop": null,
+    "policeReport": true,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Pickup truck reported stolen from the insured's residence; police report filed, no witnesses and no evidence of forced entry. Claimed value of $21,000 exceeds the vehicle's assessed value on a ten-year-old vehicle. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Sacramento",
+      "state": "CA",
+      "region": "WEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "3TMCZ5AN2GM134024",
+      "brand": "Toyota",
+      "model": "Tacoma",
+      "age": 10,
+      "value": 19000
+    },
+    "driverSnapshot": {
+      "age": 54,
+      "gender": "M",
+      "licenseYears": 30
+    },
+    "policySnapshot": {
+      "startDate": "2025-11-20",
+      "endDate": "2026-11-20",
+      "premiumAmount": 1290.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-01-18T05:30:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-01-20T09:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3042",
+    "policyId": "POL-2020",
+    "customerId": "CUST-2020",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2026-02-10T14:30:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-02-11T09:00:00.000Z"
+    },
+    "delayDays": 1,
+    "accidentTime": "14:30",
+    "claimAmount": 6200,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1020",
+    "repairShop": "Harbor Point Collision",
+    "policeReport": true,
+    "witnessCount": 2,
+    "escalated": false,
+    "description": "Side-impact collision at a signalized intersection; police report filed and two witnesses present. Repair estimate of $6,200 from Harbor Point Collision. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Phoenix",
+      "state": "AZ",
+      "region": "WEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "1C6SRFFT5KN130020",
+      "brand": "Ram",
+      "model": "1500",
+      "age": 7,
+      "value": 28000
+    },
+    "driverSnapshot": {
+      "age": 42,
+      "gender": "M",
+      "licenseYears": 22
+    },
+    "policySnapshot": {
+      "startDate": "2025-12-15",
+      "endDate": "2026-12-15",
+      "premiumAmount": 1560.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-02-10T14:30:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-02-11T09:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3043",
+    "policyId": "POL-2023",
+    "customerId": "CUST-2023",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2026-03-02T07:45:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-03-02T09:30:00.000Z"
+    },
+    "delayDays": 0,
+    "accidentTime": "07:45",
+    "claimAmount": 5400,
+    "paidAmount": 0,
+    "paymentMethod": "CHECK",
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1023",
+    "repairShop": "QuickFix Auto Center",
+    "policeReport": true,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Collision with a stationary object in a parking structure; police report filed, no witnesses. Repair estimate of $5,400 from QuickFix Auto Center. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Philadelphia",
+      "state": "PA",
+      "region": "NORTHEAST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "3VV2B7AX5LM133023",
+      "brand": "Volkswagen",
+      "model": "Tiguan",
+      "age": 6,
+      "value": 21000
+    },
+    "driverSnapshot": {
+      "age": 35,
+      "gender": "F",
+      "licenseYears": 14
+    },
+    "policySnapshot": {
+      "startDate": "2026-02-15",
+      "endDate": "2027-02-15",
+      "premiumAmount": 1440.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-03-02T07:45:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-02T09:30:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3044",
+    "policyId": "POL-2026",
+    "customerId": "CUST-2026",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2026-03-08T12:40:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-03-08T13:10:00.000Z"
+    },
+    "delayDays": 0,
+    "accidentTime": "12:40",
+    "claimAmount": 2100,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1026",
+    "repairShop": "Music City Collision",
+    "policeReport": true,
+    "witnessCount": 1,
+    "escalated": false,
+    "description": "Minor collision in a grocery-store parking lot; police report filed and one witness present. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Nashville",
+      "state": "TN",
+      "region": "SOUTHEAST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "1C4HJXDG3MW136026",
+      "brand": "Jeep",
+      "model": "Wrangler",
+      "age": 5,
+      "value": 33000
+    },
+    "driverSnapshot": {
+      "age": 31,
+      "gender": "M",
+      "licenseYears": 11
+    },
+    "policySnapshot": {
+      "startDate": "2025-10-20",
+      "endDate": "2026-10-20",
+      "premiumAmount": 1790.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-03-08T12:40:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-08T13:10:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3045",
+    "policyId": "POL-2019",
+    "customerId": "CUST-2019",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2026-03-14T19:20:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-03-15T09:00:00.000Z"
+    },
+    "delayDays": 1,
+    "accidentTime": "19:20",
+    "claimAmount": 2700,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1019",
+    "repairShop": "Northland Auto Body",
+    "policeReport": true,
+    "witnessCount": 1,
+    "escalated": false,
+    "description": "Fender bender at a busy intersection; police report filed and one witness present. Repair estimate of $2,700 from Northland Auto Body. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Minneapolis",
+      "state": "MN",
+      "region": "MIDWEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "JM1BPBCM6L1129019",
+      "brand": "Mazda",
+      "model": "Mazda3",
+      "age": 6,
+      "value": 17500
+    },
+    "driverSnapshot": {
+      "age": 30,
+      "gender": "F",
+      "licenseYears": 10
+    },
+    "policySnapshot": {
+      "startDate": "2026-01-10",
+      "endDate": "2027-01-10",
+      "premiumAmount": 1180.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-03-14T19:20:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-15T09:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3046",
+    "policyId": "POL-2021",
+    "customerId": "CUST-2021",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2026-04-12T23:55:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-04-15T10:00:00.000Z"
+    },
+    "delayDays": 3,
+    "accidentTime": "23:55",
+    "claimAmount": 11800,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1021",
+    "repairShop": "Harbor Point Collision",
+    "policeReport": false,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Single-vehicle collision with a retaining wall late at night; no police report filed and no witnesses. Repair estimate of $11,800 from Harbor Point Collision exceeds the vehicle's assessed value on an aging vehicle. Loss occurred eleven days after the policy's effective date. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Orlando",
+      "state": "FL",
+      "region": "SOUTHEAST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "3N1AB7AP4HY131021",
+      "brand": "Nissan",
+      "model": "Sentra",
+      "age": 9,
+      "value": 9000
+    },
+    "driverSnapshot": {
+      "age": 22,
+      "gender": "F",
+      "licenseYears": 4
+    },
+    "policySnapshot": {
+      "startDate": "2026-04-01",
+      "endDate": "2027-04-01",
+      "premiumAmount": 1340.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-04-12T23:55:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-04-15T10:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3047",
+    "policyId": "POL-2022",
+    "customerId": "CUST-2022",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2026-04-22T21:30:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-04-24T09:00:00.000Z"
+    },
+    "delayDays": 2,
+    "accidentTime": "21:30",
+    "claimAmount": 22500,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1022",
+    "repairShop": "Harbor Point Collision",
+    "policeReport": true,
+    "witnessCount": 1,
+    "escalated": false,
+    "description": "Collision at a highway exit ramp; police report filed and one witness present. Repair estimate of $22,500 from Harbor Point Collision. A passenger in the other vehicle claims neck and back injury and retained an attorney within two days. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Houston",
+      "state": "TX",
+      "region": "SOUTH"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "5UX53DP08M9F32022",
+      "brand": "BMW",
+      "model": "X3",
+      "age": 5,
+      "value": 36000
+    },
+    "driverSnapshot": {
+      "age": 47,
+      "gender": "M",
+      "licenseYears": 25
+    },
+    "policySnapshot": {
+      "startDate": "2025-09-01",
+      "endDate": "2026-09-01",
+      "premiumAmount": 1880.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-04-22T21:30:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-04-24T09:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    },
+    "thirdParty": {
+      "represented": true,
+      "injuryClaimed": true
+    }
+  },
+  {
+    "claimId": "CLM-3048",
+    "policyId": "POL-2025",
+    "customerId": "CUST-2025",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2026-05-20T09:10:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-05-21T09:00:00.000Z"
+    },
+    "delayDays": 1,
+    "accidentTime": "09:10",
+    "claimAmount": 3600,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1025",
+    "repairShop": "Alamo Auto Body",
+    "policeReport": true,
+    "witnessCount": 1,
+    "escalated": false,
+    "description": "Collision while merging onto the highway; police report filed and one witness present. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "San Antonio",
+      "state": "TX",
+      "region": "SOUTH"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "KM8J3CAL5NU135025",
+      "brand": "Hyundai",
+      "model": "Tucson",
+      "age": 4,
+      "value": 23000
+    },
+    "driverSnapshot": {
+      "age": 38,
+      "gender": "F",
+      "licenseYears": 18
+    },
+    "policySnapshot": {
+      "startDate": "2026-05-01",
+      "endDate": "2027-05-01",
+      "premiumAmount": 1270.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-05-20T09:10:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-05-21T09:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3049",
+    "policyId": "POL-2020",
+    "customerId": "CUST-2020",
+    "claimType": "AUTO_THEFT",
+    "coverageType": "COMPREHENSIVE",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2026-05-27T03:15:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-05-28T08:00:00.000Z"
+    },
+    "delayDays": 1,
+    "accidentTime": "03:15",
+    "claimAmount": 29500,
+    "paidAmount": 0,
+    "paymentMethod": null,
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1020",
+    "repairShop": null,
+    "policeReport": true,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Pickup truck reported stolen overnight from the insured's driveway; police report filed, no witnesses and no evidence of forced entry. Claimed value of $29,500 exceeds the vehicle's assessed value. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Phoenix",
+      "state": "AZ",
+      "region": "WEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "1C6SRFFT5KN130020",
+      "brand": "Ram",
+      "model": "1500",
+      "age": 7,
+      "value": 28000
+    },
+    "driverSnapshot": {
+      "age": 42,
+      "gender": "M",
+      "licenseYears": 22
+    },
+    "policySnapshot": {
+      "startDate": "2025-12-15",
+      "endDate": "2026-12-15",
+      "premiumAmount": 1560.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-05-27T03:15:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-05-28T08:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3050",
+    "policyId": "POL-2019",
+    "customerId": "CUST-2019",
+    "claimType": "AUTO_GLASS",
+    "coverageType": "COMPREHENSIVE",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2026-06-02T10:05:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-06-02T10:35:00.000Z"
+    },
+    "delayDays": 0,
+    "accidentTime": "10:05",
+    "claimAmount": 480,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1019",
+    "repairShop": "Twin Cities Glass",
+    "policeReport": false,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Windshield crack from a gravel truck on the highway; glass-only claim. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Minneapolis",
+      "state": "MN",
+      "region": "MIDWEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "JM1BPBCM6L1129019",
+      "brand": "Mazda",
+      "model": "Mazda3",
+      "age": 6,
+      "value": 17500
+    },
+    "driverSnapshot": {
+      "age": 30,
+      "gender": "F",
+      "licenseYears": 10
+    },
+    "policySnapshot": {
+      "startDate": "2026-01-10",
+      "endDate": "2027-01-10",
+      "premiumAmount": 1180.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-06-02T10:05:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-02T10:35:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3051",
+    "policyId": "POL-2024",
+    "customerId": "CUST-2024",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2026-07-14T16:00:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-07-15T09:00:00.000Z"
+    },
+    "delayDays": 1,
+    "accidentTime": "16:00",
+    "claimAmount": 3100,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1024",
+    "repairShop": "Capital City Collision",
+    "policeReport": true,
+    "witnessCount": 2,
+    "escalated": false,
+    "description": "Low-speed collision at a four-way stop; police report filed and two witnesses present. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Sacramento",
+      "state": "CA",
+      "region": "WEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "3TMCZ5AN2GM134024",
+      "brand": "Toyota",
+      "model": "Tacoma",
+      "age": 10,
+      "value": 19000
+    },
+    "driverSnapshot": {
+      "age": 54,
+      "gender": "M",
+      "licenseYears": 30
+    },
+    "policySnapshot": {
+      "startDate": "2025-11-20",
+      "endDate": "2026-11-20",
+      "premiumAmount": 1290.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-07-14T16:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-07-15T09:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3052",
+    "policyId": "POL-2020",
+    "customerId": "CUST-2020",
+    "claimType": "AUTO_GLASS",
+    "coverageType": "COMPREHENSIVE",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2026-08-09T11:00:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-08-09T11:30:00.000Z"
+    },
+    "delayDays": 0,
+    "accidentTime": "11:00",
+    "claimAmount": 790,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1020",
+    "repairShop": "Desert Sun Auto Glass",
+    "policeReport": false,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Cracked windshield from road debris; glass-only claim. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Phoenix",
+      "state": "AZ",
+      "region": "WEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "1C6SRFFT5KN130020",
+      "brand": "Ram",
+      "model": "1500",
+      "age": 7,
+      "value": 28000
+    },
+    "driverSnapshot": {
+      "age": 42,
+      "gender": "M",
+      "licenseYears": 22
+    },
+    "policySnapshot": {
+      "startDate": "2025-12-15",
+      "endDate": "2026-12-15",
+      "premiumAmount": 1560.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 2,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-08-09T11:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-09T11:30:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3053",
+    "policyId": "POL-2022",
+    "customerId": "CUST-2022",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2026-08-27T17:15:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-08-31T10:00:00.000Z"
+    },
+    "delayDays": 4,
+    "accidentTime": "17:15",
+    "claimAmount": 7900,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1022",
+    "repairShop": "Space City Auto Body",
+    "policeReport": false,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Collision with a parked vehicle in a parking lot; no police report filed and no witnesses. Loss occurred five days before the policy's expiration date and was reported four days later. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Houston",
+      "state": "TX",
+      "region": "SOUTH"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "5UX53DP08M9F32022",
+      "brand": "BMW",
+      "model": "X3",
+      "age": 5,
+      "value": 36000
+    },
+    "driverSnapshot": {
+      "age": 47,
+      "gender": "M",
+      "licenseYears": 25
+    },
+    "policySnapshot": {
+      "startDate": "2025-09-01",
+      "endDate": "2026-09-01",
+      "premiumAmount": 1880.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 2,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-08-27T17:15:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-31T10:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3054",
+    "policyId": "POL-2021",
+    "customerId": "CUST-2021",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2026-08-30T20:10:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-08-31T09:00:00.000Z"
+    },
+    "delayDays": 1,
+    "accidentTime": "20:10",
+    "claimAmount": 2300,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1021",
+    "repairShop": "Orlando Express Collision",
+    "policeReport": true,
+    "witnessCount": 1,
+    "escalated": false,
+    "description": "Low-speed collision in a shopping-center parking lot; police report filed and one witness present. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Orlando",
+      "state": "FL",
+      "region": "SOUTHEAST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "3N1AB7AP4HY131021",
+      "brand": "Nissan",
+      "model": "Sentra",
+      "age": 9,
+      "value": 9000
+    },
+    "driverSnapshot": {
+      "age": 23,
+      "gender": "F",
+      "licenseYears": 4
+    },
+    "policySnapshot": {
+      "startDate": "2026-04-01",
+      "endDate": "2027-04-01",
+      "premiumAmount": 1340.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-08-30T20:10:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-31T09:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3055",
+    "policyId": "POL-2026",
+    "customerId": "CUST-2026",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2026-09-02T02:20:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-09-07T09:00:00.000Z"
+    },
+    "delayDays": 5,
+    "accidentTime": "02:20",
+    "claimAmount": 14500,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1026",
+    "repairShop": "Harbor Point Collision",
+    "policeReport": false,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Single-vehicle collision with a utility pole in the early morning hours; no police report filed and no witnesses. Repair estimate of $14,500 from Harbor Point Collision. Reported five days after the loss. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Nashville",
+      "state": "TN",
+      "region": "SOUTHEAST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "1C4HJXDG3MW136026",
+      "brand": "Jeep",
+      "model": "Wrangler",
+      "age": 5,
+      "value": 33000
+    },
+    "driverSnapshot": {
+      "age": 31,
+      "gender": "M",
+      "licenseYears": 11
+    },
+    "policySnapshot": {
+      "startDate": "2025-10-20",
+      "endDate": "2026-10-20",
+      "premiumAmount": 1790.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-09-02T02:20:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-09-07T09:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3056",
+    "policyId": "POL-2023",
+    "customerId": "CUST-2023",
+    "claimType": "AUTO_GLASS",
+    "coverageType": "COMPREHENSIVE",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2026-09-05T13:20:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-09-05T13:50:00.000Z"
+    },
+    "delayDays": 0,
+    "accidentTime": "13:20",
+    "claimAmount": 620,
+    "paidAmount": 0,
+    "paymentMethod": "CHECK",
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1023",
+    "repairShop": "Keystone Auto Glass",
+    "policeReport": false,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Windshield chip from road debris; glass-only claim. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Philadelphia",
+      "state": "PA",
+      "region": "NORTHEAST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "3VV2B7AX5LM133023",
+      "brand": "Volkswagen",
+      "model": "Tiguan",
+      "age": 6,
+      "value": 21000
+    },
+    "driverSnapshot": {
+      "age": 36,
+      "gender": "F",
+      "licenseYears": 14
+    },
+    "policySnapshot": {
+      "startDate": "2026-02-15",
+      "endDate": "2027-02-15",
+      "premiumAmount": 1440.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-09-05T13:20:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-09-05T13:50:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3057",
+    "policyId": "POL-2019",
+    "customerId": "CUST-2019",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2026-09-18T22:40:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-09-20T09:00:00.000Z"
+    },
+    "delayDays": 2,
+    "accidentTime": "22:40",
+    "claimAmount": 3950,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1019",
+    "repairShop": "Northland Auto Body",
+    "policeReport": true,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Collision with a deer on a rural road at night; police report filed, no witnesses. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Minneapolis",
+      "state": "MN",
+      "region": "MIDWEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "JM1BPBCM6L1129019",
+      "brand": "Mazda",
+      "model": "Mazda3",
+      "age": 6,
+      "value": 17500
+    },
+    "driverSnapshot": {
+      "age": 30,
+      "gender": "F",
+      "licenseYears": 10
+    },
+    "policySnapshot": {
+      "startDate": "2026-01-10",
+      "endDate": "2027-01-10",
+      "premiumAmount": 1180.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 2,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-09-18T22:40:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-09-20T09:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3058",
+    "policyId": "POL-2025",
+    "customerId": "CUST-2025",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2026-10-06T20:35:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-10-12T10:00:00.000Z"
+    },
+    "delayDays": 6,
+    "accidentTime": "20:35",
+    "claimAmount": 24800,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1025",
+    "repairShop": "Alamo Auto Body",
+    "policeReport": false,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Single-vehicle collision with a guardrail at night; no police report filed and no witnesses. Repair estimate of $24,800 from Alamo Auto Body exceeds the vehicle's assessed value. Reported six days after the loss. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "San Antonio",
+      "state": "TX",
+      "region": "SOUTH"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "KM8J3CAL5NU135025",
+      "brand": "Hyundai",
+      "model": "Tucson",
+      "age": 4,
+      "value": 23000
+    },
+    "driverSnapshot": {
+      "age": 39,
+      "gender": "F",
+      "licenseYears": 18
+    },
+    "policySnapshot": {
+      "startDate": "2026-05-01",
+      "endDate": "2027-05-01",
+      "premiumAmount": 1270.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-10-06T20:35:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-12T10:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3059",
+    "policyId": "POL-2026",
+    "customerId": "CUST-2026",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2026-10-12T15:30:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-10-13T09:00:00.000Z"
+    },
+    "delayDays": 1,
+    "accidentTime": "15:30",
+    "claimAmount": 6800,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1026",
+    "repairShop": "Harbor Point Collision",
+    "policeReport": true,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Collision at an intersection; police report filed but no witnesses. Repair estimate of $6,800 from Harbor Point Collision, the second claim there for this customer in under six weeks. Loss occurred eight days before the policy's expiration date. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Nashville",
+      "state": "TN",
+      "region": "SOUTHEAST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "1C4HJXDG3MW136026",
+      "brand": "Jeep",
+      "model": "Wrangler",
+      "age": 5,
+      "value": 33000
+    },
+    "driverSnapshot": {
+      "age": 32,
+      "gender": "M",
+      "licenseYears": 11
+    },
+    "policySnapshot": {
+      "startDate": "2025-10-20",
+      "endDate": "2026-10-20",
+      "premiumAmount": 1790.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 2,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-10-12T15:30:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-13T09:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3060",
+    "policyId": "POL-2028",
+    "customerId": "CUST-2028",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2025-12-20T21:10:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2025-12-21T09:00:00.000Z"
+    },
+    "delayDays": 1,
+    "accidentTime": "21:10",
+    "claimAmount": 8400,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1028",
+    "repairShop": "Riverside Auto Works",
+    "policeReport": true,
+    "witnessCount": 2,
+    "escalated": false,
+    "description": "Side-impact collision at an intersection; police report filed and two witnesses present. Repair estimate of $8,400 from Riverside Auto Works. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "New Orleans",
+      "state": "LA",
+      "region": "SOUTH"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "1GNSKBKC5KR138028",
+      "brand": "Chevrolet",
+      "model": "Tahoe",
+      "age": 6,
+      "value": 38000
+    },
+    "driverSnapshot": {
+      "age": 39,
+      "gender": "M",
+      "licenseYears": 20
+    },
+    "policySnapshot": {
+      "startDate": "2025-11-10",
+      "endDate": "2026-11-10",
+      "premiumAmount": 1950.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2025-12-20T21:10:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2025-12-21T09:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3061",
+    "policyId": "POL-2030",
+    "customerId": "CUST-2030",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2026-02-16T16:30:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-02-17T09:00:00.000Z"
+    },
+    "delayDays": 1,
+    "accidentTime": "16:30",
+    "claimAmount": 3700,
+    "paidAmount": 0,
+    "paymentMethod": "CHECK",
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1030",
+    "repairShop": "Charm City Collision",
+    "policeReport": true,
+    "witnessCount": 2,
+    "escalated": false,
+    "description": "Rear-end collision on a city street; police report filed and two witnesses present. Repair estimate of $3,700 from Charm City Collision. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Baltimore",
+      "state": "MD",
+      "region": "NORTHEAST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "5GAEVBKW7LJ140030",
+      "brand": "Buick",
+      "model": "Enclave",
+      "age": 6,
+      "value": 29000
+    },
+    "driverSnapshot": {
+      "age": 61,
+      "gender": "M",
+      "licenseYears": 38
+    },
+    "policySnapshot": {
+      "startDate": "2025-10-05",
+      "endDate": "2026-10-05",
+      "premiumAmount": 1520.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-02-16T16:30:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-02-17T09:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3062",
+    "policyId": "POL-2027",
+    "customerId": "CUST-2027",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2026-02-24T08:30:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-02-25T09:00:00.000Z"
+    },
+    "delayDays": 1,
+    "accidentTime": "08:30",
+    "claimAmount": 3300,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1027",
+    "repairShop": "Buckeye Collision",
+    "policeReport": true,
+    "witnessCount": 1,
+    "escalated": false,
+    "description": "Rear-end collision at a stoplight; police report filed and one witness present. Repair estimate of $3,300 from Buckeye Collision. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Columbus",
+      "state": "OH",
+      "region": "MIDWEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "1FMCU9H61MUA37027",
+      "brand": "Ford",
+      "model": "Escape",
+      "age": 5,
+      "value": 21500
+    },
+    "driverSnapshot": {
+      "age": 33,
+      "gender": "F",
+      "licenseYears": 13
+    },
+    "policySnapshot": {
+      "startDate": "2026-01-05",
+      "endDate": "2027-01-05",
+      "premiumAmount": 1210.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-02-24T08:30:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-02-25T09:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3063",
+    "policyId": "POL-2032",
+    "customerId": "CUST-2032",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2026-03-05T23:20:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-03-06T09:00:00.000Z"
+    },
+    "delayDays": 1,
+    "accidentTime": "23:20",
+    "claimAmount": 2200,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1032",
+    "repairShop": "Sin City Collision",
+    "policeReport": true,
+    "witnessCount": 1,
+    "escalated": false,
+    "description": "Rear-end collision at a traffic light; police report filed and one witness present. Repair estimate of $2,200 from Sin City Collision. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Las Vegas",
+      "state": "NV",
+      "region": "WEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "3KPF24AD9KE142032",
+      "brand": "Kia",
+      "model": "Forte",
+      "age": 7,
+      "value": 12500
+    },
+    "driverSnapshot": {
+      "age": 27,
+      "gender": "M",
+      "licenseYears": 8
+    },
+    "policySnapshot": {
+      "startDate": "2026-02-01",
+      "endDate": "2027-02-01",
+      "premiumAmount": 1390.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-03-05T23:20:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-06T09:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3064",
+    "policyId": "POL-2031",
+    "customerId": "CUST-2031",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2026-04-02T18:25:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-04-02T19:00:00.000Z"
+    },
+    "delayDays": 0,
+    "accidentTime": "18:25",
+    "claimAmount": 4200,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1031",
+    "repairShop": "Motor City Collision",
+    "policeReport": true,
+    "witnessCount": 1,
+    "escalated": false,
+    "description": "Low-speed collision in a parking lot; police report filed and one witness present. Repair estimate of $4,200 from Motor City Collision. Loss occurred thirteen days after the policy's effective date. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Dearborn",
+      "state": "MI",
+      "region": "MIDWEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "2C4RC1GG5NR141031",
+      "brand": "Chrysler",
+      "model": "Pacifica",
+      "age": 4,
+      "value": 33500
+    },
+    "driverSnapshot": {
+      "age": 40,
+      "gender": "F",
+      "licenseYears": 19
+    },
+    "policySnapshot": {
+      "startDate": "2026-03-20",
+      "endDate": "2027-03-20",
+      "premiumAmount": 1690.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-04-02T18:25:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-04-02T19:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3065",
+    "policyId": "POL-2033",
+    "customerId": "CUST-2033",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2026-04-14T11:35:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-04-15T09:00:00.000Z"
+    },
+    "delayDays": 1,
+    "accidentTime": "11:35",
+    "claimAmount": 4600,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1033",
+    "repairShop": "Lowcountry Collision",
+    "policeReport": true,
+    "witnessCount": 1,
+    "escalated": false,
+    "description": "Collision with a parked vehicle in a parking garage; police report filed and one witness present. Repair estimate of $4,600 from Lowcountry Collision. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Charleston",
+      "state": "SC",
+      "region": "SOUTHEAST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "55SWF8DB7LU143033",
+      "brand": "Mercedes-Benz",
+      "model": "C300",
+      "age": 6,
+      "value": 31000
+    },
+    "driverSnapshot": {
+      "age": 48,
+      "gender": "F",
+      "licenseYears": 28
+    },
+    "policySnapshot": {
+      "startDate": "2025-12-01",
+      "endDate": "2026-12-01",
+      "premiumAmount": 1740.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-04-14T11:35:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-04-15T09:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3066",
+    "policyId": "POL-2028",
+    "customerId": "CUST-2028",
+    "claimType": "AUTO_GLASS",
+    "coverageType": "COMPREHENSIVE",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2026-05-05T10:15:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-05-05T10:45:00.000Z"
+    },
+    "delayDays": 0,
+    "accidentTime": "10:15",
+    "claimAmount": 940,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1028",
+    "repairShop": "Crescent City Glass",
+    "policeReport": false,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Windshield crack from a gravel truck; glass-only claim. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "New Orleans",
+      "state": "LA",
+      "region": "SOUTH"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "1GNSKBKC5KR138028",
+      "brand": "Chevrolet",
+      "model": "Tahoe",
+      "age": 7,
+      "value": 38000
+    },
+    "driverSnapshot": {
+      "age": 40,
+      "gender": "M",
+      "licenseYears": 20
+    },
+    "policySnapshot": {
+      "startDate": "2025-11-10",
+      "endDate": "2026-11-10",
+      "premiumAmount": 1950.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-05-05T10:15:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-05-05T10:45:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3067",
+    "policyId": "POL-2034",
+    "customerId": "CUST-2034",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2026-05-28T17:40:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-05-29T09:00:00.000Z"
+    },
+    "delayDays": 1,
+    "accidentTime": "17:40",
+    "claimAmount": 3400,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1034",
+    "repairShop": "Lakeshore Collision",
+    "policeReport": true,
+    "witnessCount": 1,
+    "escalated": false,
+    "description": "Minor collision in a retail parking lot; police report filed and one witness present. Repair estimate of $3,400 from Lakeshore Collision. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Cleveland",
+      "state": "OH",
+      "region": "MIDWEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "JF2SKAGC4MH144034",
+      "brand": "Subaru",
+      "model": "Forester",
+      "age": 5,
+      "value": 25000
+    },
+    "driverSnapshot": {
+      "age": 37,
+      "gender": "M",
+      "licenseYears": 15
+    },
+    "policySnapshot": {
+      "startDate": "2026-04-15",
+      "endDate": "2027-04-15",
+      "premiumAmount": 1260.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-05-28T17:40:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-05-29T09:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3068",
+    "policyId": "POL-2029",
+    "customerId": "CUST-2029",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2026-06-09T22:50:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-06-13T10:00:00.000Z"
+    },
+    "delayDays": 4,
+    "accidentTime": "22:50",
+    "claimAmount": 17500,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1029",
+    "repairShop": "Bayview Collision Works",
+    "policeReport": false,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Single-vehicle collision with a curb and light pole late at night; no police report filed and no witnesses. Repair estimate of $17,500 from Bayview Collision Works exceeds the vehicle's assessed value on an aging vehicle. Loss occurred eight days after the policy's effective date and was reported four days later. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "San Jose",
+      "state": "CA",
+      "region": "WEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "1HGCV1F34JA139029",
+      "brand": "Honda",
+      "model": "Accord",
+      "age": 8,
+      "value": 16500
+    },
+    "driverSnapshot": {
+      "age": 26,
+      "gender": "F",
+      "licenseYears": 5
+    },
+    "policySnapshot": {
+      "startDate": "2026-06-01",
+      "endDate": "2027-06-01",
+      "premiumAmount": 1480.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-06-09T22:50:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-13T10:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3069",
+    "policyId": "POL-2027",
+    "customerId": "CUST-2027",
+    "claimType": "AUTO_GLASS",
+    "coverageType": "COMPREHENSIVE",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2026-07-19T14:50:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-07-19T15:20:00.000Z"
+    },
+    "delayDays": 0,
+    "accidentTime": "14:50",
+    "claimAmount": 520,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1027",
+    "repairShop": "Columbus Glass Pros",
+    "policeReport": false,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Windshield crack from road debris; glass-only claim. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Columbus",
+      "state": "OH",
+      "region": "MIDWEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "1FMCU9H61MUA37027",
+      "brand": "Ford",
+      "model": "Escape",
+      "age": 5,
+      "value": 21500
+    },
+    "driverSnapshot": {
+      "age": 33,
+      "gender": "F",
+      "licenseYears": 13
+    },
+    "policySnapshot": {
+      "startDate": "2026-01-05",
+      "endDate": "2027-01-05",
+      "premiumAmount": 1210.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-07-19T14:50:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-07-19T15:20:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3070",
+    "policyId": "POL-2034",
+    "customerId": "CUST-2034",
+    "claimType": "AUTO_GLASS",
+    "coverageType": "COMPREHENSIVE",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2026-08-04T09:25:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-08-04T09:55:00.000Z"
+    },
+    "delayDays": 0,
+    "accidentTime": "09:25",
+    "claimAmount": 460,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1034",
+    "repairShop": "Forest City Glass",
+    "policeReport": false,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Chipped windshield from road debris; glass-only claim. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Cleveland",
+      "state": "OH",
+      "region": "MIDWEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "JF2SKAGC4MH144034",
+      "brand": "Subaru",
+      "model": "Forester",
+      "age": 5,
+      "value": 25000
+    },
+    "driverSnapshot": {
+      "age": 37,
+      "gender": "M",
+      "licenseYears": 15
+    },
+    "policySnapshot": {
+      "startDate": "2026-04-15",
+      "endDate": "2027-04-15",
+      "premiumAmount": 1260.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-08-04T09:25:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-04T09:55:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3071",
+    "policyId": "POL-2029",
+    "customerId": "CUST-2029",
+    "claimType": "AUTO_GLASS",
+    "coverageType": "COMPREHENSIVE",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2026-08-11T12:00:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-08-11T12:30:00.000Z"
+    },
+    "delayDays": 0,
+    "accidentTime": "12:00",
+    "claimAmount": 380,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1029",
+    "repairShop": "Bayview Glass",
+    "policeReport": false,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Cracked windshield from road debris; glass-only claim. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "San Jose",
+      "state": "CA",
+      "region": "WEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "1HGCV1F34JA139029",
+      "brand": "Honda",
+      "model": "Accord",
+      "age": 8,
+      "value": 16500
+    },
+    "driverSnapshot": {
+      "age": 26,
+      "gender": "F",
+      "licenseYears": 5
+    },
+    "policySnapshot": {
+      "startDate": "2026-06-01",
+      "endDate": "2027-06-01",
+      "premiumAmount": 1480.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-08-11T12:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-11T12:30:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3072",
+    "policyId": "POL-2032",
+    "customerId": "CUST-2032",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2026-08-21T01:45:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-08-24T10:00:00.000Z"
+    },
+    "delayDays": 3,
+    "accidentTime": "01:45",
+    "claimAmount": 14000,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1032",
+    "repairShop": "Herrera Body Shop",
+    "policeReport": false,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Single-vehicle collision with a wall in the early morning hours; no police report filed and no witnesses. Repair estimate of $14,000 from Herrera Body Shop exceeds the vehicle's assessed value. Reported three days after the loss. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Las Vegas",
+      "state": "NV",
+      "region": "WEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "3KPF24AD9KE142032",
+      "brand": "Kia",
+      "model": "Forte",
+      "age": 7,
+      "value": 12500
+    },
+    "driverSnapshot": {
+      "age": 28,
+      "gender": "M",
+      "licenseYears": 8
+    },
+    "policySnapshot": {
+      "startDate": "2026-02-01",
+      "endDate": "2027-02-01",
+      "premiumAmount": 1390.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-08-21T01:45:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-24T10:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3073",
+    "policyId": "POL-2031",
+    "customerId": "CUST-2031",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2026-09-15T13:10:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-09-17T09:00:00.000Z"
+    },
+    "delayDays": 2,
+    "accidentTime": "13:10",
+    "claimAmount": 34000,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1031",
+    "repairShop": "Motor City Collision",
+    "policeReport": true,
+    "witnessCount": 1,
+    "escalated": false,
+    "description": "Collision at a highway merge; police report filed and one witness present. Repair estimate of $34,000 from Motor City Collision exceeds the vehicle's assessed value. The driver of the other vehicle claims injury and retained an attorney within three days. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Dearborn",
+      "state": "MI",
+      "region": "MIDWEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "2C4RC1GG5NR141031",
+      "brand": "Chrysler",
+      "model": "Pacifica",
+      "age": 4,
+      "value": 33500
+    },
+    "driverSnapshot": {
+      "age": 40,
+      "gender": "F",
+      "licenseYears": 19
+    },
+    "policySnapshot": {
+      "startDate": "2026-03-20",
+      "endDate": "2027-03-20",
+      "premiumAmount": 1690.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-09-15T13:10:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-09-17T09:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    },
+    "thirdParty": {
+      "represented": true,
+      "injuryClaimed": true
+    }
+  },
+  {
+    "claimId": "CLM-3074",
+    "policyId": "POL-2030",
+    "customerId": "CUST-2030",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2026-09-28T04:10:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-09-29T09:00:00.000Z"
+    },
+    "delayDays": 1,
+    "accidentTime": "04:10",
+    "claimAmount": 27500,
+    "paidAmount": 0,
+    "paymentMethod": "CHECK",
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1030",
+    "repairShop": "Riverside Auto Works",
+    "policeReport": false,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Single-vehicle collision with a bridge abutment in the early morning hours; no police report filed and no witnesses. Repair estimate of $27,500 from Riverside Auto Works. Loss occurred seven days before the policy's expiration date. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Baltimore",
+      "state": "MD",
+      "region": "NORTHEAST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "5GAEVBKW7LJ140030",
+      "brand": "Buick",
+      "model": "Enclave",
+      "age": 6,
+      "value": 29000
+    },
+    "driverSnapshot": {
+      "age": 62,
+      "gender": "M",
+      "licenseYears": 38
+    },
+    "policySnapshot": {
+      "startDate": "2025-10-05",
+      "endDate": "2026-10-05",
+      "premiumAmount": 1520.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-09-28T04:10:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-09-29T09:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3075",
+    "policyId": "POL-2028",
+    "customerId": "CUST-2028",
+    "claimType": "AUTO_THEFT",
+    "coverageType": "COMPREHENSIVE",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2026-09-30T02:40:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-10-01T08:00:00.000Z"
+    },
+    "delayDays": 1,
+    "accidentTime": "02:40",
+    "claimAmount": 41000,
+    "paidAmount": 0,
+    "paymentMethod": null,
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1028",
+    "repairShop": null,
+    "policeReport": true,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "SUV reported stolen overnight from the insured's driveway; police report filed, no witnesses and no evidence of forced entry. Claimed value of $41,000 exceeds the vehicle's assessed value. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "New Orleans",
+      "state": "LA",
+      "region": "SOUTH"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "1GNSKBKC5KR138028",
+      "brand": "Chevrolet",
+      "model": "Tahoe",
+      "age": 7,
+      "value": 38000
+    },
+    "driverSnapshot": {
+      "age": 40,
+      "gender": "M",
+      "licenseYears": 20
+    },
+    "policySnapshot": {
+      "startDate": "2025-11-10",
+      "endDate": "2026-11-10",
+      "premiumAmount": 1950.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 2,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-09-30T02:40:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-01T08:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3076",
+    "policyId": "POL-2034",
+    "customerId": "CUST-2034",
+    "claimType": "AUTO_THEFT",
+    "coverageType": "COMPREHENSIVE",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2026-10-01T03:50:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    },
+    "delayDays": 1,
+    "accidentTime": "03:50",
+    "claimAmount": 26000,
+    "paidAmount": 0,
+    "paymentMethod": null,
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1034",
+    "repairShop": null,
+    "policeReport": true,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Crossover reported stolen overnight from a shopping-center lot; police report filed, no witnesses and no evidence of forced entry. Claimed value of $26,000 exceeds the vehicle's assessed value. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Cleveland",
+      "state": "OH",
+      "region": "MIDWEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "JF2SKAGC4MH144034",
+      "brand": "Subaru",
+      "model": "Forester",
+      "age": 5,
+      "value": 25000
+    },
+    "driverSnapshot": {
+      "age": 37,
+      "gender": "M",
+      "licenseYears": 15
+    },
+    "policySnapshot": {
+      "startDate": "2026-04-15",
+      "endDate": "2027-04-15",
+      "premiumAmount": 1260.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 2,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-10-01T03:50:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-02T09:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3077",
+    "policyId": "POL-2027",
+    "customerId": "CUST-2027",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2026-10-03T19:05:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-10-05T09:00:00.000Z"
+    },
+    "delayDays": 2,
+    "accidentTime": "19:05",
+    "claimAmount": 5100,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1027",
+    "repairShop": "Riverside Auto Works",
+    "policeReport": true,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Collision with a guardrail on a wet road in the evening; police report filed, no witnesses. Repair estimate of $5,100 from Riverside Auto Works. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Columbus",
+      "state": "OH",
+      "region": "MIDWEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "1FMCU9H61MUA37027",
+      "brand": "Ford",
+      "model": "Escape",
+      "age": 5,
+      "value": 21500
+    },
+    "driverSnapshot": {
+      "age": 33,
+      "gender": "F",
+      "licenseYears": 13
+    },
+    "policySnapshot": {
+      "startDate": "2026-01-05",
+      "endDate": "2027-01-05",
+      "premiumAmount": 1210.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 2,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-10-03T19:05:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-05T09:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3078",
+    "policyId": "POL-2029",
+    "customerId": "CUST-2029",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2026-10-09T07:55:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-10-10T09:00:00.000Z"
+    },
+    "delayDays": 1,
+    "accidentTime": "07:55",
+    "claimAmount": 2600,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1029",
+    "repairShop": "Bayview Collision Works",
+    "policeReport": true,
+    "witnessCount": 1,
+    "escalated": false,
+    "description": "Minor collision in a parking lot; police report filed and one witness present. Repair estimate of $2,600 from Bayview Collision Works, the second claim at this shop for this customer. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "San Jose",
+      "state": "CA",
+      "region": "WEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "1HGCV1F34JA139029",
+      "brand": "Honda",
+      "model": "Accord",
+      "age": 8,
+      "value": 16500
+    },
+    "driverSnapshot": {
+      "age": 26,
+      "gender": "F",
+      "licenseYears": 5
+    },
+    "policySnapshot": {
+      "startDate": "2026-06-01",
+      "endDate": "2027-06-01",
+      "premiumAmount": 1480.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 2,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-10-09T07:55:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-10T09:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3079",
+    "policyId": "POL-2033",
+    "customerId": "CUST-2033",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2026-10-10T20:15:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-10-12T09:00:00.000Z"
+    },
+    "delayDays": 2,
+    "accidentTime": "20:15",
+    "claimAmount": 9300,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1033",
+    "repairShop": "Callahan & Sons Auto",
+    "policeReport": true,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Collision at a rural intersection; police report filed, no witnesses. Repair estimate of $9,300 from Callahan & Sons Auto. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Charleston",
+      "state": "SC",
+      "region": "SOUTHEAST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "55SWF8DB7LU143033",
+      "brand": "Mercedes-Benz",
+      "model": "C300",
+      "age": 6,
+      "value": 31000
+    },
+    "driverSnapshot": {
+      "age": 49,
+      "gender": "F",
+      "licenseYears": 28
+    },
+    "policySnapshot": {
+      "startDate": "2025-12-01",
+      "endDate": "2026-12-01",
+      "premiumAmount": 1740.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-10-10T20:15:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-12T09:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3080",
+    "policyId": "POL-2036",
+    "customerId": "CUST-2036",
+    "claimType": "AUTO_GLASS",
+    "coverageType": "COMPREHENSIVE",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2026-03-18T10:30:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-03-18T11:00:00.000Z"
+    },
+    "delayDays": 0,
+    "accidentTime": "10:30",
+    "claimAmount": 1100,
+    "paidAmount": 0,
+    "paymentMethod": "CHECK",
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1036",
+    "repairShop": "Old Pueblo Glass",
+    "policeReport": false,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Windshield crack from road debris; glass-only claim including sensor recalibration. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Tucson",
+      "state": "AZ",
+      "region": "WEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "1GYS4CKJ8KR146036",
+      "brand": "Cadillac",
+      "model": "Escalade",
+      "age": 7,
+      "value": 42000
+    },
+    "driverSnapshot": {
+      "age": 67,
+      "gender": "M",
+      "licenseYears": 45
+    },
+    "policySnapshot": {
+      "startDate": "2025-12-10",
+      "endDate": "2026-12-10",
+      "premiumAmount": 2010.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-03-18T10:30:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-03-18T11:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3081",
+    "policyId": "POL-2039",
+    "customerId": "CUST-2039",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2026-06-02T15:20:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-06-02T16:00:00.000Z"
+    },
+    "delayDays": 0,
+    "accidentTime": "15:20",
+    "claimAmount": 2900,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1039",
+    "repairShop": "Bluegrass Collision",
+    "policeReport": true,
+    "witnessCount": 1,
+    "escalated": false,
+    "description": "Fender bender in a school pick-up line; police report filed and one witness present. Repair estimate of $2,900 from Bluegrass Collision. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Louisville",
+      "state": "KY",
+      "region": "SOUTHEAST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "5FNRL6H78MB149039",
+      "brand": "Honda",
+      "model": "Odyssey",
+      "age": 5,
+      "value": 29500
+    },
+    "driverSnapshot": {
+      "age": 39,
+      "gender": "F",
+      "licenseYears": 19
+    },
+    "policySnapshot": {
+      "startDate": "2026-05-10",
+      "endDate": "2027-05-10",
+      "premiumAmount": 1480.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-06-02T15:20:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-02T16:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3082",
+    "policyId": "POL-2038",
+    "customerId": "CUST-2038",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2026-06-15T13:05:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-06-16T09:00:00.000Z"
+    },
+    "delayDays": 1,
+    "accidentTime": "13:05",
+    "claimAmount": 4000,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1038",
+    "repairShop": "Rocky Mountain Auto Body",
+    "policeReport": true,
+    "witnessCount": 2,
+    "escalated": false,
+    "description": "Rear-end collision on a city street; police report filed and two witnesses present. Repair estimate of $4,000 from Rocky Mountain Auto Body. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Denver",
+      "state": "CO",
+      "region": "WEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "1C4RJFAG3JC148038",
+      "brand": "Jeep",
+      "model": "Grand Cherokee",
+      "age": 8,
+      "value": 22000
+    },
+    "driverSnapshot": {
+      "age": 43,
+      "gender": "M",
+      "licenseYears": 24
+    },
+    "policySnapshot": {
+      "startDate": "2025-11-20",
+      "endDate": "2026-11-20",
+      "premiumAmount": 1330.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-06-15T13:05:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-06-16T09:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3083",
+    "policyId": "POL-2035",
+    "customerId": "CUST-2035",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2026-07-12T16:10:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-07-12T17:00:00.000Z"
+    },
+    "delayDays": 0,
+    "accidentTime": "16:10",
+    "claimAmount": 3200,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1035",
+    "repairShop": "Duke City Collision",
+    "policeReport": true,
+    "witnessCount": 1,
+    "escalated": false,
+    "description": "Low-speed collision at a drive-through exit; police report filed and one witness present. Repair estimate of $3,200 from Duke City Collision. Loss occurred eleven days after the policy's effective date. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Albuquerque",
+      "state": "NM",
+      "region": "WEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "2T3P1RFV5LC145035",
+      "brand": "Toyota",
+      "model": "RAV4",
+      "age": 6,
+      "value": 24500
+    },
+    "driverSnapshot": {
+      "age": 35,
+      "gender": "F",
+      "licenseYears": 14
+    },
+    "policySnapshot": {
+      "startDate": "2026-07-01",
+      "endDate": "2027-07-01",
+      "premiumAmount": 1230.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-07-12T16:10:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-07-12T17:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3084",
+    "policyId": "POL-2037",
+    "customerId": "CUST-2037",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2026-08-23T23:40:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-08-29T10:00:00.000Z"
+    },
+    "delayDays": 6,
+    "accidentTime": "23:40",
+    "claimAmount": 12800,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1037",
+    "repairShop": "Ocean State Collision",
+    "policeReport": false,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Single-vehicle collision with a stone wall late at night; no police report filed and no witnesses. Repair estimate of $12,800 from Ocean State Collision exceeds the vehicle's assessed value on an aging vehicle. Loss occurred eight days after the policy's effective date and was reported six days later. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Providence",
+      "state": "RI",
+      "region": "NORTHEAST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "WMWXP5C54G2D47037",
+      "brand": "Mini",
+      "model": "Cooper",
+      "age": 10,
+      "value": 10500
+    },
+    "driverSnapshot": {
+      "age": 24,
+      "gender": "F",
+      "licenseYears": 3
+    },
+    "policySnapshot": {
+      "startDate": "2026-08-15",
+      "endDate": "2027-08-15",
+      "premiumAmount": 1520.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 0,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-08-23T23:40:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-08-29T10:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3085",
+    "policyId": "POL-2037",
+    "customerId": "CUST-2037",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "SIMPLE",
+    "claimDate": {
+      "$date": "2026-10-20T08:15:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-10-21T09:00:00.000Z"
+    },
+    "delayDays": 1,
+    "accidentTime": "08:15",
+    "claimAmount": 2400,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1037",
+    "repairShop": "Ocean State Collision",
+    "policeReport": true,
+    "witnessCount": 1,
+    "escalated": false,
+    "description": "Minor collision in a parking lot; police report filed and one witness present. Repair estimate of $2,400 from Ocean State Collision, the second claim at this shop for this customer. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Providence",
+      "state": "RI",
+      "region": "NORTHEAST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "WMWXP5C54G2D47037",
+      "brand": "Mini",
+      "model": "Cooper",
+      "age": 10,
+      "value": 10500
+    },
+    "driverSnapshot": {
+      "age": 24,
+      "gender": "F",
+      "licenseYears": 3
+    },
+    "policySnapshot": {
+      "startDate": "2026-08-15",
+      "endDate": "2027-08-15",
+      "premiumAmount": 1520.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-10-20T08:15:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-21T09:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3086",
+    "policyId": "POL-2039",
+    "customerId": "CUST-2039",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2026-10-26T21:05:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-10-28T09:00:00.000Z"
+    },
+    "delayDays": 2,
+    "accidentTime": "21:05",
+    "claimAmount": 31000,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1039",
+    "repairShop": "Bluegrass Collision",
+    "policeReport": true,
+    "witnessCount": 1,
+    "escalated": false,
+    "description": "Collision at a highway interchange; police report filed and one witness present. Repair estimate of $31,000 from Bluegrass Collision exceeds the vehicle's assessed value. The driver of the other vehicle claims injury and retained an attorney within two days. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Louisville",
+      "state": "KY",
+      "region": "SOUTHEAST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "5FNRL6H78MB149039",
+      "brand": "Honda",
+      "model": "Odyssey",
+      "age": 5,
+      "value": 29500
+    },
+    "driverSnapshot": {
+      "age": 40,
+      "gender": "F",
+      "licenseYears": 19
+    },
+    "policySnapshot": {
+      "startDate": "2026-05-10",
+      "endDate": "2027-05-10",
+      "premiumAmount": 1480.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-10-26T21:05:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-10-28T09:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    },
+    "thirdParty": {
+      "represented": true,
+      "injuryClaimed": true
+    }
+  },
+  {
+    "claimId": "CLM-3087",
+    "policyId": "POL-2035",
+    "customerId": "CUST-2035",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2026-11-03T19:45:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-11-04T09:00:00.000Z"
+    },
+    "delayDays": 1,
+    "accidentTime": "19:45",
+    "claimAmount": 6300,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "MOBILE_APP",
+    "adjusterId": "ADJ-1035",
+    "repairShop": "Riverside Auto Works",
+    "policeReport": true,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Collision with a guardrail on an icy road in the evening; police report filed, no witnesses. Repair estimate of $6,300 from Riverside Auto Works. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Albuquerque",
+      "state": "NM",
+      "region": "WEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "2T3P1RFV5LC145035",
+      "brand": "Toyota",
+      "model": "RAV4",
+      "age": 6,
+      "value": 24500
+    },
+    "driverSnapshot": {
+      "age": 35,
+      "gender": "F",
+      "licenseYears": 14
+    },
+    "policySnapshot": {
+      "startDate": "2026-07-01",
+      "endDate": "2027-07-01",
+      "premiumAmount": 1230.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-11-03T19:45:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-11-04T09:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3088",
+    "policyId": "POL-2036",
+    "customerId": "CUST-2036",
+    "claimType": "AUTO_THEFT",
+    "coverageType": "COMPREHENSIVE",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2026-11-08T05:20:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-11-09T09:00:00.000Z"
+    },
+    "delayDays": 1,
+    "accidentTime": "05:20",
+    "claimAmount": 44500,
+    "paidAmount": 0,
+    "paymentMethod": null,
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1036",
+    "repairShop": null,
+    "policeReport": true,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "SUV reported stolen overnight from the insured's driveway; police report filed, no witnesses and no evidence of forced entry. Claimed value of $44,500 exceeds the vehicle's assessed value. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Tucson",
+      "state": "AZ",
+      "region": "WEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "1GYS4CKJ8KR146036",
+      "brand": "Cadillac",
+      "model": "Escalade",
+      "age": 7,
+      "value": 42000
+    },
+    "driverSnapshot": {
+      "age": 68,
+      "gender": "M",
+      "licenseYears": 45
+    },
+    "policySnapshot": {
+      "startDate": "2025-12-10",
+      "endDate": "2026-12-10",
+      "premiumAmount": 2010.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-11-08T05:20:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-11-09T09:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  },
+  {
+    "claimId": "CLM-3089",
+    "policyId": "POL-2038",
+    "customerId": "CUST-2038",
+    "claimType": "AUTO_COLLISION",
+    "coverageType": "COLLISION",
+    "claimStatus": "OPEN",
+    "complexity": "COMPLEX",
+    "claimDate": {
+      "$date": "2026-11-11T18:30:00.000Z"
+    },
+    "reportDate": {
+      "$date": "2026-11-12T09:00:00.000Z"
+    },
+    "delayDays": 1,
+    "accidentTime": "18:30",
+    "claimAmount": 22800,
+    "paidAmount": 0,
+    "paymentMethod": "ACH",
+    "channel": "AGENT_PORTAL",
+    "adjusterId": "ADJ-1038",
+    "repairShop": "Rocky Mountain Auto Body",
+    "policeReport": true,
+    "witnessCount": 0,
+    "escalated": false,
+    "description": "Collision with a retaining wall on a mountain road; police report filed, no witnesses. Repair estimate of $22,800 from Rocky Mountain Auto Body exceeds the vehicle's assessed value on an aging vehicle. Loss occurred nine days before the policy's expiration date. Awaiting fraud analysis.",
+    "accidentLocation": {
+      "city": "Denver",
+      "state": "CO",
+      "region": "WEST"
+    },
+    "vehicleSnapshot": {
+      "vehicleId": "1C4RJFAG3JC148038",
+      "brand": "Jeep",
+      "model": "Grand Cherokee",
+      "age": 8,
+      "value": 22000
+    },
+    "driverSnapshot": {
+      "age": 44,
+      "gender": "M",
+      "licenseYears": 24
+    },
+    "policySnapshot": {
+      "startDate": "2025-11-20",
+      "endDate": "2026-11-20",
+      "premiumAmount": 1330.0,
+      "outstandingBalance": 0.0
+    },
+    "customerSnapshot": {
+      "numPreviousClaims": 1,
+      "numPolicies": 1
+    },
+    "createdAt": {
+      "$date": "2026-11-11T18:30:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-11-12T09:00:00.000Z"
+    },
+    "fraud": {
+      "processed": false,
+      "fraudFlag": null,
+      "flagSource": null,
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "siuReferred": false,
+      "dismissReason": null
+    }
+  }
+]
